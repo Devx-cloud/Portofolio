@@ -15,7 +15,7 @@
 
   --animete-float: float 6s ease-in-out infinite;
   --animate-pulse-subtle: pulse-subtle 4s ease-in-out infinite;
-  --animate-fade-in: fade-in 0.7ss ease-out forwards;
+  --animate-fade-in: fade-in 0.7s ease-out forwards;
   --animate-fade-in-delay-1: fade-in 0.7s ease-out 0.2s forwards;
   --animate-fade-in-delay-2: fade-in 0.7s ease-out 0.4s forwards;
   --animate-fade-in-delay-3: fade-in 0.7s ease-out 0.6s forwards;
@@ -81,9 +81,9 @@
     --background: 210 40% 98%;
     --foreground: 222  47% 11%;
 
-    --card: 0 0% 100%
+    --card: 0 0% 100%;
 
-    --primary: 250 47% 60%
+    --primary: 250 47% 60%;
     --primary-foreground: 210 40% 98%;
 
     --border: 214 32% 91%;
@@ -92,12 +92,22 @@
     --background: 222 47% 4%;
     --foreground: 213  31% 91%;
 
-    --card: 222 47% 8%
+    --card: 222 47% 8%;
 
-    --primary: 250 65% 65%
+    --primary: 250 65% 65%;
     --primary-foreground: 213 31% 91%;
 
     --border: 217 33% 20%;
+  }
+  * padding{
+    @apply border-border;
+  }
+  html{
+    @apply scroll-smooth;
+  }
+  body{
+    @apply bg-background text-foreground transition-colors duration-300;
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
 
@@ -127,7 +137,7 @@
   text-shadow: 0 0 10px rgba(167, 139, 250, 0.5)
 }
 @utility card-hover {
-  @apply transition-transform duration-300 hover:scale-[1.02] hover: shadow-lg;
+  @apply transition-transform duration-300 hover: scale-[1.02] hover: shadow-lg;
 }
 @utility gradien-border {
   @apply relative rounded-md;
@@ -150,4 +160,11 @@
 @utility meteor {
   @apply absolute bg-linear-to-r from-white via-white to-transparent rounded-full;
   box-shadow: 0 0 10px 5px rgba(255, 255, 255, 0.3);
+}
+
+:root{
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 0;
+  text-align: center;
 }
