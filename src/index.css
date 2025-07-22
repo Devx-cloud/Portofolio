@@ -48,7 +48,7 @@
   }
 
   @keyframes fade-in {
-    form {
+    from {
       opacity: 0;
       transform: translateY(20px);
     }
@@ -148,8 +148,6 @@
   background: linear-gradient(to right, hsl(var(--card)), hsl(var(--card)));
   background-clip: padding-box;
   border: 1px solid transparent;
-
-  /* text-shadow: 0 0 10px rgba(167, 139, 250, 0.5) */
 }
 @utility cosmic-button {
   @apply px-6 py-2 rounded-full bg-primary text-primary-foreground font-medium 
