@@ -18,6 +18,8 @@ export const Home = () =>{
         <main>
             <HomeSection/>
             <AboutSection/>
+            <AboutSection/>
+            <AboutSection/>
         </main>
         {/* Footer */}
     </div>
