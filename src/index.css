@@ -81,9 +81,6 @@
 
 @layer base {
   :root {
-    /* --background-start: 0 80% 5%; */
-    /* atas: merah kehitaman */
-    /* --background-end: 0 70% 20%; */
     /* --background: 210 40% 98%; */
     --foreground: 222 47% 11%;
 
@@ -100,7 +97,7 @@
     
     /* --background: 222 47% 4%; */
     --background-start: 0 70% 1%;
-    --background-end: 0 90% 7%;
+    --background-end: 0 80% 6%;
     --foreground: 213 31% 91%;
 
     --card: 222 47% 8%;
