@@ -1,4 +1,4 @@
-import { Briefcase, Code, User } from "lucide-react";
+import { BrainCircuit, Briefcase, Code, User } from "lucide-react";
 
 export const AboutSection = () => {
   return (
@@ -9,7 +9,7 @@ export const AboutSection = () => {
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           <div className="space-y-6 ">
-            <h3 className="text-2xl font-semibold">Position Web Enginer</h3>
+            <h3 className="text-2xl font-semibold">Junior Developer</h3>
             <p className="text-muted-foreground">
               Lorem ipsum dolor sit amet, consectetur adipisicing elit.
               Similique totam rem odit maiores accusamus molestiae, facere amet
@@ -44,7 +44,7 @@ export const AboutSection = () => {
                         <User className="h-6 w-6 text-primary"/>
                     </div>
                     <div className="text-left">
-                        <h4 className="font-semibold text-lg">Web Development</h4>
+                        <h4 className="font-semibold text-lg">App Development</h4>
                         <p className="text-muted-foreground">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Corporis, distinctio.</p>
                     </div>
                 </div>
@@ -52,10 +52,10 @@ export const AboutSection = () => {
             <div className="gradien-border p-6 card-hover">
                 <div className="flex items-start gap-4">
                     <div className="p-3 rounded-full bg-primary/10">
-                        <Briefcase className="h-6 w-6 text-primary"/>
+                        <BrainCircuit className="h-6 w-6 text-primary"/>
                     </div>
                     <div className="text-left">
-                        <h4 className="font-semibold text-lg">Web Development</h4>
+                        <h4 className="font-semibold text-lg">Ai Development</h4>
                         <p className="text-muted-foreground">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Corporis, distinctio.</p>
                     </div>
                 </div>

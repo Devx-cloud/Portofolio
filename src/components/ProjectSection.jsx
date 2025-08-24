@@ -70,7 +70,7 @@ export const ProjectSection = () => {
                     </div>
                 ))}
             </div>
-            <div className="text-center mt-12">
+            <div className="text-center mt-5">
                 <a href="https://github.com/Devx-cloud" className="cosmic-button w-fit flex items-center mx-auto gap-2" target="_blank">
                     Chack My Github <ArrowRight size={16}/>
                 </a>
