@@ -10,24 +10,24 @@ const Projects = [
         demoUrl: "#",
         githubUrl: "#"
     },
-    {
-        id:2,
-        title: "pro2",
-        desc:"Lorem ipsum dolor sit amet.wdawad",
-        image: "/projects/arlechino.jpeg" ,
-        tags: ["image", "gila"],
-        demoUrl: "#",
-        githubUrl: "#"
-    },
-    {
-        id:3,
-        title: "pro3",
-        desc:"Lorem ipsum dolor sit amet.wdawad",
-        image: "/projects/arlechino.jpeg" ,
-        tags: ["image", "gila"],
-        demoUrl: "#",
-        githubUrl: "#"
-    },
+    // {
+    //     id:2,
+    //     title: "pro2",
+    //     desc:"Lorem ipsum dolor sit amet.wdawad",
+    //     image: "/projects/arlechino.jpeg" ,
+    //     tags: ["image", "gila"],
+    //     demoUrl: "#",
+    //     githubUrl: "#"
+    // },
+    // {
+    //     id:3,
+    //     title: "pro3",
+    //     desc:"Lorem ipsum dolor sit amet.wdawad",
+    //     image: "/projects/arlechino.jpeg" ,
+    //     tags: ["image", "gila"],
+    //     demoUrl: "#",
+    //     githubUrl: "#"
+    // },
 ]
 
 export const ProjectSection = () => {
@@ -36,9 +36,10 @@ export const ProjectSection = () => {
             <h2 className="text-3xl md:text-4xl font-bold mb-4 text-center"> featured <span className="text-primary">Projects</span></h2>
             <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto"> Lorem ipsum dolor sit amet consectetur adipisicing elit. Nobis minima iusto inventore fugiat deserunt. Tempore vitae reiciendis pariatur possimus fugiat!</p>
         
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center"> */}
+            <div className="flex flex-wrap justify-center gap-7">
                 {Projects.map((Project, key)=>(
-                    <div key={key} className="group bg-card rounded-lg overflow-hidden shadow-xs card-hover">
+                    <div key={key} className="group bg-card rounded-lg overflow-hidden shadow-xs card-hover w-full sm:w-[300px]">
                         <div className="h-48 overflow-hidden">
                             <img src={Project.image} alt={Project.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"/>
                         </div>
