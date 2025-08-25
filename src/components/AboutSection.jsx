@@ -1,8 +1,8 @@
-import { BrainCircuit, Briefcase, Code, User } from "lucide-react";
+import { BrainCircuit, Briefcase, Code, Gamepad2Icon, User } from "lucide-react";
 
 export const AboutSection = () => {
   return (
-    <section id="about" className="py-24 px-24 relative">
+    <section id="about" className="py-24 px-4 relative">
       <div className="container mx-auto max-w-5xl">
         <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center">
           About <span className="text-primary">Me</span>
@@ -27,8 +27,8 @@ export const AboutSection = () => {
           </div>
 
           <div className="grid grid-cols-1 gap-6">
-            <div className="gradien-border p-6 card-hover">
-                <div className="flex items-start gap-4">
+            <div className="gradien-border p-4 card-hover">
+                <div className="flex items-center gap-4">
                     <div className="p-3 rounded-full bg-primary/10">
                         <Code className="h-6 w-6 text-primary"/>
                     </div>
@@ -38,8 +38,8 @@ export const AboutSection = () => {
                     </div>
                 </div>
             </div>
-            <div className="gradien-border p-6 card-hover">
-                <div className="flex items-start gap-4">
+            <div className="gradien-border p-4 card-hover">
+                <div className="flex items-center gap-4">
                     <div className="p-3 rounded-full bg-primary/10">
                         <User className="h-6 w-6 text-primary"/>
                     </div>
@@ -49,8 +49,8 @@ export const AboutSection = () => {
                     </div>
                 </div>
             </div>
-            <div className="gradien-border p-6 card-hover">
-                <div className="flex items-start gap-4">
+            <div className="gradien-border p-4 card-hover">
+                <div className="flex items-center gap-4">
                     <div className="p-3 rounded-full bg-primary/10">
                         <BrainCircuit className="h-6 w-6 text-primary"/>
                     </div>
@@ -60,6 +60,17 @@ export const AboutSection = () => {
                     </div>
                 </div>
             </div>
+            {/* <div className="gradien-border p-4 card-hover">
+                <div className="flex items-center gap-4">
+                    <div className="p-3 rounded-full bg-primary/10">
+                        <Gamepad2Icon className="h-6 w-6 text-primary"/>
+                    </div>
+                    <div className="text-left">
+                        <h4 className="font-semibold text-lg">Game Development</h4>
+                        <p className="text-muted-foreground">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Corporis, distinctio.</p>
+                    </div>
+                </div>
+            </div> */}
           </div>
 
 
