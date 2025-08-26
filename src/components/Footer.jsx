@@ -71,7 +71,7 @@ export function Footer({ mountainSrc = "/hotel.png" }) {
           <ul className="space-y-2 text-foreground/80">
             <li>
               <a
-                href="https://github.com/"
+                href="https://github.com/Devx-cloud"
                 className="inline-flex items-center gap-2 hover:text-foreground"
               >
                 <Github className="h-4 w-4" /> Github
@@ -79,7 +79,7 @@ export function Footer({ mountainSrc = "/hotel.png" }) {
             </li>
             <li>
               <a
-                href="https://instagram.com/"
+                href="https://www.instagram.com/devx.sun/"
                 className="inline-flex items-center gap-2 hover:text-foreground"
               >
                 <Instagram className="h-4 w-4" /> Instagram
@@ -87,7 +87,7 @@ export function Footer({ mountainSrc = "/hotel.png" }) {
             </li>
             <li>
               <a
-                href="https://linkedin.com/"
+                href="https://www.linkedin.com/in/deva-surya-5a6568380/"
                 className="inline-flex items-center gap-2 hover:text-foreground"
               >
                 <Linkedin className="h-4 w-4" /> Linkedin
@@ -102,7 +102,12 @@ export function Footer({ mountainSrc = "/hotel.png" }) {
           <p className="text-foreground/80">
             Tabanan, Bali, Indonesia
             <br />
-            devasur2006@gmail.com
+            <a
+                    href="mailto:devasur2006@gmail.com"
+                    className="text-muted-foreground hover:text-white transition-colors"
+                  >
+                    devasur2006@gmail.com
+                  </a>
           </p>
         </div>
       </div>

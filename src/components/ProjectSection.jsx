@@ -3,10 +3,10 @@ import { ArrowRight, ExternalLink, Github } from "lucide-react"
 const Projects = [
     {
         id:1,
-        title: "pro1",
-        desc:"Lorem ipsum dolor sit amet.wdawad",
+        title: "First Project",
+        desc:"Lorem ipsum dolor sit amet.wdawad Lorem ipsum dolor s",
         image: "/projects/arlechino.jpeg" ,
-        tags: ["image", "gila"],
+        tags: ["react", "tailwins"],
         demoUrl: "#",
         githubUrl: "#"
     },
