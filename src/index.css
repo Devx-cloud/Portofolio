@@ -102,7 +102,8 @@
     --background-end: 0 80% 7%;
     --foreground: 213 31% 91%;
 
-    --card: 222 47% 8%;
+    --card: 0 80% 9%;
+    /* --card: 222 47% 8%; */
 
     /* --primary: 250 65% 65%; */
     --primary: 0 70% 35%;

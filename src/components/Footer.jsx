@@ -40,7 +40,7 @@ export function Footer({ mountainSrc = "/hotel.png" }) {
           <ul className="space-y-2 text-foreground/80">
             <li>
               <a
-                href="#home"
+                href="/"
                 className="inline-flex items-center gap-2 hover:text-foreground"
               >
                 <Home className="h-4 w-4" /> Home
@@ -48,7 +48,7 @@ export function Footer({ mountainSrc = "/hotel.png" }) {
             </li>
             <li>
               <a
-                href="#contact"
+                href="/contact"
                 className="inline-flex items-center gap-2 hover:text-foreground"
               >
                 <Phone className="h-4 w-4" /> Contact

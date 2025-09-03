@@ -3,12 +3,12 @@ import { ArrowRight, ExternalLink, Github } from "lucide-react"
 const Projects = [
     {
         id:1,
-        title: "First Project",
+        title: "Hand Gesture",
         desc:"Lorem ipsum dolor sit amet.wdawad Lorem ipsum dolor s",
-        image: "/projects/arlechino.jpeg" ,
-        tags: ["react", "tailwins"],
+        image: "/projects/hand.png" ,
+        tags: ["html", "css", "js"],
         demoUrl: "#",
-        githubUrl: "#"
+        githubUrl: "https://github.com/Devx-cloud/gesture-hand"
     },
     // {
     //     id:2,
@@ -40,7 +40,7 @@ export const ProjectSection = () => {
             <div className="flex flex-wrap justify-center gap-7">
                 {Projects.map((Project, key)=>(
                     <div key={key} className="group bg-card rounded-lg overflow-hidden shadow-xs card-hover w-full sm:w-[300px]">
-                        <div className="h-48 overflow-hidden">
+                        <div className="h-48 overflow-hidden p-2">
                             <img src={Project.image} alt={Project.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"/>
                         </div>
                         <div className="p-6 ">
