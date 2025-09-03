@@ -131,8 +131,13 @@
     /* hsl(var(--background-sun)) 0%, */
     hsl(var(--background-end)) 0%,
     hsl(var(--background-start)) 100%
+    
   );
   }
+  .pixel-font {
+  font-family: 'PixelFont', sans-serif;
+  letter-spacing: 2px;
+}
 }
 
 @utility container {
@@ -209,6 +214,14 @@
 @utility meteor {
   @apply absolute bg-linear-to-r from-red-500 via-red-400 to-transparent rounded-full;
   box-shadow: -5px 0px 10px 5px rgba(255, 50, 50, 0.3);
+}
+/* src/App.css atau berkas CSS lainnya */
+
+@font-face {
+  font-family: 'PixelFont'; /* Beri nama sesuai keinginan Anda */
+  src: url('./assets/fonts/upheavtt.ttf') format('truetype'); /* Arahkan ke berkas font .ttf */
+  font-weight: normal;
+  font-style: normal;
 }
 
 :root {
