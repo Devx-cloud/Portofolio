@@ -134,6 +134,8 @@
     hsl(var(--background-start)) 100%
     
   );
+  /* font-family: 'PixelFont', sans-serif; */
+  /* letter-spacing: 2px; */
   }
   .pixel-font {
   font-family: 'PixelFont', sans-serif;
@@ -220,7 +222,12 @@
 
 @font-face {
   font-family: 'PixelFont'; /* Beri nama sesuai keinginan Anda */
-  src: url('./assets/fonts/upheavtt.ttf') format('truetype'); /* Arahkan ke berkas font .ttf */
+  /* src: url('./assets/fonts/upheavtt.ttf') format('truetype');  */
+  /* Arahkan ke berkas font .ttf */
+  src: url('./assets/fonts/Better.ttf') format('truetype'); 
+  /* Arahkan ke berkas font .ttf */
+  /* src: url('./assets/fonts/Goblin.otf') format('opentype');  */
+  /* Arahkan ke berkas font .ttf */
   font-weight: normal;
   font-style: normal;
 }
