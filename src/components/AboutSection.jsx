@@ -4,12 +4,12 @@ export const AboutSection = () => {
   return (
     <section id="about" className="py-24 px-4 relative">
       <div className="container mx-auto max-w-5xl">
-        <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center">
+        <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center pixel-font">
           About <span className="text-primary">Me</span>
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           <div className="space-y-6 ">
-            <h3 className="text-2xl font-semibold">Junior Developer</h3>
+            <h3 className="text-2xl font-semibold pixel-font">Junior Developer</h3>
             <p className="text-muted-foreground">
               Lorem ipsum dolor sit amet, consectetur adipisicing elit.
               Similique totam rem odit maiores accusamus molestiae, facere amet

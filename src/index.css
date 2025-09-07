@@ -138,8 +138,8 @@
   /* letter-spacing: 2px; */
   }
   .pixel-font {
-  font-family: 'PixelFont', sans-serif;
-  letter-spacing: 2px;
+  font-family: 'PixelFontH', sans-serif;
+  /* letter-spacing: 2px; */
 }
 }
 
@@ -209,25 +209,26 @@
 } */
 
 @utility star {
-  @apply absolute rounded-full;
+  @apply absolute;
+  /* @apply absolute rounded-full; */
   background: hsl(0, 70%, 50%); /* merah */
   box-shadow: 0 0 10px 2px rgba(255, 50, 50, 0.4);
 }
 
 @utility meteor {
-  @apply absolute bg-linear-to-r from-red-500 via-red-400 to-transparent rounded-full;
+  @apply absolute bg-linear-to-r from-red-500 via-red-400 to-transparent;
+  /* @apply absolute bg-linear-to-r from-red-500 via-red-400 to-transparent rounded-full; */
   box-shadow: -5px 0px 10px 5px rgba(255, 50, 50, 0.3);
 }
 /* src/App.css atau berkas CSS lainnya */
 
 @font-face {
-  font-family: 'PixelFont'; /* Beri nama sesuai keinginan Anda */
+  font-family: 'PixelFontH'; /* Beri nama sesuai keinginan Anda */
   /* src: url('./assets/fonts/upheavtt.ttf') format('truetype');  */
   /* Arahkan ke berkas font .ttf */
-  src: url('./assets/fonts/Better.ttf') format('truetype'); 
-  /* Arahkan ke berkas font .ttf */
+  /* src: url('./assets/fonts/Better.ttf') format('truetype');  */
+  src: url('./assets/fonts/big-shot.ttf') format('truetype'); 
   /* src: url('./assets/fonts/Goblin.otf') format('opentype');  */
-  /* Arahkan ke berkas font .ttf */
   font-weight: normal;
   font-style: normal;
 }

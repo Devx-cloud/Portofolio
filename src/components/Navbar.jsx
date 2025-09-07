@@ -30,14 +30,19 @@ export const Navbar = () => {
         isScrolled ? "py-3 bg-background/80 backdrop-blur-md shadow-xs" : "py-5"
       )}
     >
-      <div className="container flex items-center  justify-between">
+      <div className="container flex items-center  justify-between pixel-font">
         <a
-          className="text-xl  font-bold text-primary flex items-center"
+          className="text-2xl  font-bold text-primary flex items-center"
           href="#home"
         >
+          <img 
+              src="/dev_right.png"   // letakkan fotomu di public/profile/deva.png
+              alt="Deva Surya" 
+              className="w-10 h-9 object-cover shadow-lg" 
+            />
           <span className="relatif z-10">
-            <span className="text-glow text-foreground">Devx-Eng</span>{" "}
-            Portofoliox
+            <span className="text-glow text-foreground px-3">Dev</span>
+            _X
           </span>
         </a>
 

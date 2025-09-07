@@ -30,13 +30,13 @@ export function Footer({ mountainSrc = "/hotel.png" }) {
       <div className="container pb-12 mt-[-5px] grid grid-cols-1 md:grid-cols-4 gap-8 text-center md:text-left">
         {/* Profil */}
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">DEVA SURYA</h2>
+          <h2 className="text-2xl font-bold tracking-tight pixel-font">DEVA SURYA</h2>
           <p className="mt-1 text-foreground/70">Junior Developer</p>
         </div>
 
         {/* Navigations */}
         <div>
-          <h3 className="text-lg font-semibold mb-3">Navigations</h3>
+          <h3 className="text-lg font-semibold mb-3 pixel-font">Navigations</h3>
           <ul className="space-y-2 text-foreground/80">
             <li>
               <a
@@ -67,7 +67,7 @@ export function Footer({ mountainSrc = "/hotel.png" }) {
 
         {/* Social Media */}
         <div>
-          <h3 className="text-lg font-semibold mb-3">Social Media</h3>
+          <h3 className="text-lg font-semibold mb-3 pixel-font">Social Media</h3>
           <ul className="space-y-2 text-foreground/80">
             <li>
               <a
@@ -98,7 +98,7 @@ export function Footer({ mountainSrc = "/hotel.png" }) {
 
         {/* Address */}
         <div>
-          <h3 className="text-lg font-semibold mb-3">Address</h3>
+          <h3 className="text-lg font-semibold mb-3 pixel-font">Address</h3>
           <p className="text-foreground/80">
             Tabanan, Bali, Indonesia
             <br />
