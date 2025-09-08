@@ -32,13 +32,13 @@ export const Navbar = () => {
     >
       <div className="container flex items-center  justify-between pixel-font">
         <a
-          className="text-2xl  font-bold text-primary flex items-center"
+          className="text-xl  font-bold text-primary flex items-center"
           href="#home"
         >
           <img 
               src="/dev_right.png"   // letakkan fotomu di public/profile/deva.png
               alt="Deva Surya" 
-              className="w-10 h-9 object-cover shadow-lg" 
+              className="w-8 h-7 md:w-10 md:h-9 object-cover shadow-lg" 
             />
           <span className="relatif z-10">
             <span className="text-glow text-foreground px-3">Dev</span>

@@ -141,6 +141,10 @@
   font-family: 'PixelFontH', sans-serif;
   /* letter-spacing: 2px; */
 }
+  .pixel-font-null {
+  font-family: 'PixelFontNull', sans-serif;
+  /* letter-spacing: 2px; */
+}
 }
 
 @utility container {
@@ -229,6 +233,14 @@
   /* src: url('./assets/fonts/Better.ttf') format('truetype');  */
   src: url('./assets/fonts/big-shot.ttf') format('truetype'); 
   /* src: url('./assets/fonts/Goblin.otf') format('opentype');  */
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'PixelFontNull'; /* Beri nama sesuai keinginan Anda */
+
+  src: url('./assets/fonts/deltarune.ttf') format('truetype'); 
+
   font-weight: normal;
   font-style: normal;
 }

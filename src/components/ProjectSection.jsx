@@ -33,7 +33,7 @@ const Projects = [
 export const ProjectSection = () => {
     return <section id="projects" className="py-24 px-4 relative">
         <div className="container mx-auto max-w-5xl">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-center pixel-font"> Featured <span className="text-primary">Projects</span></h2>
+            <h2 className="text-2xl md:text-4xl font-bold mb-4 text-center pixel-font"> Featured <span className="text-primary">Projects</span></h2>
             <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto"> Lorem ipsum dolor sit amet consectetur adipisicing elit. Nobis minima iusto inventore fugiat deserunt. Tempore vitae reiciendis pariatur possimus fugiat!</p>
         
             {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center"> */}
@@ -52,7 +52,7 @@ export const ProjectSection = () => {
                                 ))}
                             </div>
                         
-                            <h3 className="text-xl font-semibold mb-1">
+                            <h3 className="text-lg font-semibold mb-1">
                                 {Project.title}
                             </h3>
                             <p className="text-muted-foreground text-sm mb-4">{Project.desc}</p>
@@ -72,7 +72,7 @@ export const ProjectSection = () => {
                 ))}
             </div>
             <div className="text-center mt-5">
-                <a href="https://github.com/Devx-cloud" className="cosmic-button w-fit flex items-center mx-auto gap-2" target="_blank">
+                <a href="https://github.com/Devx-cloud" className="text-sm cosmic-button w-fit flex items-center mx-auto gap-2" target="_blank">
                     Chack My Github <ArrowRight size={16}/>
                 </a>
             </div>

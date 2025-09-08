@@ -4,13 +4,13 @@ export const AboutSection = () => {
   return (
     <section id="about" className="py-24 px-4 relative">
       <div className="container mx-auto max-w-5xl">
-        <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center pixel-font">
+        <h2 className="text-2xl md:text-4xl font-bold mb-12 text-center pixel-font">
           About <span className="text-primary">Me</span>
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           <div className="space-y-6 ">
-            <h3 className="text-2xl font-semibold pixel-font">Junior Developer</h3>
-            <p className="text-muted-foreground">
+            <h3 className="text-xl font-semibold pixel-font">Junior Developer</h3>
+            <p className="text-muted-foreground text-base">
               Lorem ipsum dolor sit amet, consectetur adipisicing elit.
               Similique totam rem odit maiores accusamus molestiae, facere amet
               non culpa pariatur?
@@ -20,7 +20,7 @@ export const AboutSection = () => {
               Similique totam rem odit maiores accusamus molestiae, facere amet
               non culpa pariatur?
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 pt-4 justify-center">
+            <div className="flex flex-col sm:flex-row gap-4 pt-4 justify-center text-sm md:text-base">
                 <a href="#contact" className="cosmic-button">Get In Touch</a>
                 <a href="#" className="px-6 py-2 rounded-full border border-primary text-primary hover:bg-primary/10 transition-all duration-300">Download CV</a>
             </div>

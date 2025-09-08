@@ -114,7 +114,8 @@ export function Footer({ mountainSrc = "/hotel.png" }) {
 
       {/* Garis & Copyright */}
       <div className="container">
-        <div className="border-t border-border/40" />
+        {/* <div className="border-t border-border/40" /> */}
+        <div className="bg-gradient-to-r from-transparent via-zinc-100 to-transparent h-[1px] w-full" />
       </div>
       <p className="text-center text-sm text-foreground/60 py-6">
         Copyright 2025 | Deva Surya Pratama. All Rights Reserved.
