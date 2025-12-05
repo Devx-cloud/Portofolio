@@ -4,21 +4,21 @@ const Projects = [
     {
         id:1,
         title: "Hand Gesture",
-        desc:"Lorem ipsum dolor sit amet.wdawad Lorem ipsum dolor s",
+        desc:"deteksi tangan untuk masuk link url [index]",
         image: "/projects/hand.png" ,
         tags: ["html", "css", "js"],
         demoUrl: "#",
         githubUrl: "https://github.com/Devx-cloud/gesture-hand"
     },
-    // {
-    //     id:2,
-    //     title: "pro2",
-    //     desc:"Lorem ipsum dolor sit amet.wdawad",
-    //     image: "/projects/arlechino.jpeg" ,
-    //     tags: ["image", "gila"],
-    //     demoUrl: "#",
-    //     githubUrl: "#"
-    // },
+    {
+        id:2,
+        title: "Loka Pura",
+        desc:"website generate video dan 3D model",
+        image: "/projects/lokapura.png" ,
+        tags: ["laravel", "alpine", "three", "tailwind"],
+        demoUrl: "#",
+        githubUrl: "https://github.com/Devx-cloud/PuraLoka"
+    },
     // {
     //     id:3,
     //     title: "pro3",
@@ -34,7 +34,7 @@ export const ProjectSection = () => {
     return <section id="projects" className="py-24 px-4 relative">
         <div className="container mx-auto max-w-5xl">
             <h2 className="text-2xl md:text-4xl font-bold mb-4 text-center pixel-font"> Featured <span className="text-primary">Projects</span></h2>
-            <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto"> Lorem ipsum dolor sit amet consectetur adipisicing elit. Nobis minima iusto inventore fugiat deserunt. Tempore vitae reiciendis pariatur possimus fugiat!</p>
+            <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto"> Lihat beberapa proyek pilihan saya yang menunjukkan keahlian dalam bidang web dan mobile. Proyek-proyek ini mencerminkan komitmen saya pada struktur kode yang rapi, efisiensi, dan fungsionalitas yang optimal</p>
         
             {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center"> */}
             <div className="flex flex-wrap justify-center gap-7">

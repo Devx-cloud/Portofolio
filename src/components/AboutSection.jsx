@@ -11,18 +11,14 @@ export const AboutSection = () => {
           <div className="space-y-6 ">
             <h3 className="text-xl font-semibold pixel-font">Junior Developer</h3>
             <p className="text-muted-foreground text-base">
-              Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-              Similique totam rem odit maiores accusamus molestiae, facere amet
-              non culpa pariatur?
+              Saya Deva Surya, seorang developer yang ahli dalam pengembangan Web menggunakan Laravel dan Aplikasi Mobile dengan Flutter. Saya memiliki pengalaman kuat dalam manajemen data, siap membangun aplikasi yang efisien dan terstruktur.
             </p>
             <p className="text-muted-foreground">
-              Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-              Similique totam rem odit maiores accusamus molestiae, facere amet
-              non culpa pariatur?
+              Saya selalu bersemangat menyambut tantangan proyek baru. Komitmen saya adalah mengubah ide menjadi solusi digital yang inovatif dan andal, serta terus berkembang di dunia teknologi.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 pt-4 justify-center text-sm md:text-base">
-                <a href="#contact" className="cosmic-button">Get In Touch</a>
-                <a href="#" className="px-6 py-2 rounded-full border border-primary text-primary hover:bg-primary/10 transition-all duration-300">Download CV</a>
+                {/* <a href="#contact" className="cosmic-button">Get In Touch</a> */}
+                <a href="cv/cv-1.pdf" download="CV-Kadek-Deva-Surya.pdf" className="px-6 py-2 rounded-full border border-primary text-primary hover:bg-primary/10 transition-all duration-300">Download CV</a>
             </div>
           </div>
 
@@ -34,7 +30,7 @@ export const AboutSection = () => {
                     </div>
                     <div className="text-left">
                         <h4 className="font-semibold text-lg">Web Development</h4>
-                        <p className="text-muted-foreground">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Corporis, distinctio.</p>
+                        <p className="text-muted-foreground">Mulai mendalami bidang ini secara serius sejak SMK Kelas 3.</p>
                     </div>
                 </div>
             </div>
@@ -45,7 +41,7 @@ export const AboutSection = () => {
                     </div>
                     <div className="text-left">
                         <h4 className="font-semibold text-lg">App Development</h4>
-                        <p className="text-muted-foreground">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Corporis, distinctio.</p>
+                        <p className="text-muted-foreground">Memiliki pengalaman PKL di bidang ini. Tertarik sejak SMK Kelas 2.</p>
                     </div>
                 </div>
             </div>
@@ -56,7 +52,7 @@ export const AboutSection = () => {
                     </div>
                     <div className="text-left">
                         <h4 className="font-semibold text-lg">Ai Development</h4>
-                        <p className="text-muted-foreground">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Corporis, distinctio.</p>
+                        <p className="text-muted-foreground">Mulai berinteraksi dengan bidang ini sejak Kuliah Semester 1.</p>
                     </div>
                 </div>
             </div>
