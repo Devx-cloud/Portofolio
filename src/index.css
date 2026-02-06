@@ -1,5 +1,14 @@
 @import "tailwindcss";
 
+@keyframes cloud-move {
+  0% {
+    transform: translateX(-120%); /* Start completely off-screen left, relative to its own width */
+  }
+  100% {
+    transform: translateX(calc(100vw + 20%)); /* Move completely off-screen right */
+  }
+}
+
 @theme {
   --color-border: hsl(var(--border));
   --color-background: hsl(var(--background));
@@ -77,19 +86,21 @@
     }
 
   }
+
 }
 
 @layer base {
   :root {
-    --background: 210 40% 98%;
-    --foreground: 222 47% 11%;
+    --background: 200 100% 90%;
+    --foreground: 210 50% 20%;
 
-    --card: 0 0% 100%;
+    --card: 200 50% 95%;
 
-    --primary: 0 65% 35%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 220 80% 60%;
+    --primary-foreground: 200 100% 98%;
 
-    --border: 214 32% 91%;
+    --border: 210 30% 85%;
+    --footer-background: 206 58% 29%; /* Light theme footer color (#1a4a7c) */
   }
   .dark{
     
@@ -104,6 +115,7 @@
     --primary-foreground: 213 31% 91%;
 
     --border: 217 33% 20%;
+    --footer-background: 0 70% 11%; /* Dark theme footer color (#2e0808) */
   }
 
   * padding {
@@ -140,11 +152,24 @@
     display: block; /* Visible only in dark theme */
   }
 
+  .cloud {
+    position: absolute;
+    background-color: rgba(255, 255, 255, 0.7); /* Translucent white */
+    border-radius: 50% 50% 0 0 / 100% 100% 0 0; /* Cloud shape */
+    filter: blur(8px); /* Soft edges */
+    z-index: -1; /* Behind content */
+    display: none; /* Hidden by default in dark theme */
+  }
+
+  /* Make visible in light theme */
+  html:not(.dark) .cloud {
+    display: block;
+  }
+
   .pixel-font {
   font-family: 'PixelFontH', sans-serif;
   /* letter-spacing: 2px; */
-}
-  .pixel-font-null {
+}  .pixel-font-null {
   font-family: 'PixelFontNull', sans-serif;
   /* letter-spacing: 2px; */
 }
@@ -217,9 +242,9 @@
 
 @utility star {
   @apply absolute;
-  /* @apply absolute rounded-full; */
   background: hsl(0, 70%, 50%); /* merah */
   box-shadow: 0 0 10px 2px rgba(255, 50, 50, 0.4);
+  filter: blur(0.5px); /* Subtle blur */
 }
 
 @utility meteor {
