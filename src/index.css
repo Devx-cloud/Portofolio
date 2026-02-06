@@ -80,33 +80,27 @@
 }
 
 @layer base {
-  /* :root { */
-    /* --background: 210 40% 98%; */
-    /* --foreground: 222 47% 11%;
+  :root {
+    --background: 210 40% 98%;
+    --foreground: 222 47% 11%;
 
-    --card: 0 0% 100%; */
+    --card: 0 0% 100%;
 
-    /* --primary: 250 47% 60%; */
-    /* --primary: 0 65% 35%;
+    --primary: 0 65% 35%;
     --primary-foreground: 210 40% 98%;
 
     --border: 214 32% 91%;
-  } */
-
-  /* .dark { */
-  :root{
+  }
+  .dark{
     
-    /* --background: 222 47% 4%; */
+    --background: 222 47% 4%;
     --background-start: 0 70% 0%;
-    /* --background-sun: 0 97% 1%; */
     --background-end: 0 80% 7%;
     --foreground: 213 31% 91%;
 
-    --card: 0 80% 9%;
-    /* --card: 222 47% 8%; */
+    --card: 222 47% 8%;
 
-    /* --primary: 250 65% 65%; */
-    --primary: 0 70% 35%;
+    --primary: 0 70% 50%;
     --primary-foreground: 213 31% 91%;
 
     --border: 217 33% 20%;
@@ -137,6 +131,15 @@
   /* font-family: 'PixelFont', sans-serif; */
   /* letter-spacing: 2px; */
   }
+
+  .star, .meteor {
+    display: none; /* Hidden by default in light theme */
+  }
+
+  html.dark .star, html.dark .meteor {
+    display: block; /* Visible only in dark theme */
+  }
+
   .pixel-font {
   font-family: 'PixelFontH', sans-serif;
   /* letter-spacing: 2px; */
