@@ -42,8 +42,8 @@ const fadeInUpVariants = {
 };
 
 const cardVariants = {
-  hidden: { opacity: 0, scale: 0.8 },
-  visible: { opacity: 1, scale: 1, transition: { duration: 0.5, ease: "easeOut" } }
+  hidden: { opacity: 0, y: 10 }, // Fade in from slightly below
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
 };
 
 export const ProjectSection = () => {
@@ -77,7 +77,7 @@ export const ProjectSection = () => {
                             className="group bg-card rounded-lg overflow-hidden shadow-xs card-hover w-full sm:w-[300px]"
                             variants={cardVariants}
                             custom={key} // Pass key as custom prop for staggered delay
-                            whileHover={{ scale: 1.05, boxShadow: "0px 10px 20px rgba(0, 0, 0, 0.2)" }} // Enhanced hover effect
+                            whileHover={{ y: -6, scale: 1.03, boxShadow: "0px 10px 20px rgba(0, 0, 0, 0.2)" }} // Re-introduce subtle scale and boxShadow
                             transition={{ duration: 0.3 }}
                         >
                             <div className="h-48 overflow-hidden p-2">
