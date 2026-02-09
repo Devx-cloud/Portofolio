@@ -4,7 +4,6 @@ import { NotFound } from "./pages/NotFound"
 import { Contact } from "./pages/Contact"
 import { StarBackground } from "./components/StarBackground"
 import { CloudBackground } from "./components/CloudBackground"
-import { StaticCloudBackground } from "./components/StaticCloudBackground"
 import { useEffect, useState } from "react"
 
 
@@ -29,10 +28,7 @@ function App() {
       {isDarkTheme ? (
         <StarBackground />
       ) : (
-        <>
-          <CloudBackground />
-          <StaticCloudBackground />
-        </>
+        <CloudBackground />
       )}
       <BrowserRouter>
         <Routes>
