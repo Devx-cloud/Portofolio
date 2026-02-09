@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef } from "react" // Re-introduced useEffect
 import { cn } from "@/lib/utils"
 import { FaReact, FaHtml5, FaCss3Alt, FaJava, FaGitAlt, FaPython, FaLaravel } from "react-icons/fa";
 import { SiJavascript, SiTailwindcss, SiMysql, SiCanva, SiTensorflow, SiAndroidstudio, SiPhp, SiFlutter } from "react-icons/si";
@@ -31,21 +31,36 @@ const skills = [
 
 const category = ["all", "web", "app", "ai"]
 
+const sectionVariants = {
+  hidden: { opacity: 0, y: 50 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
+};
+
+const fadeInUpVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
+};
+
+const cardVariants = {
+  hidden: { opacity: 0, scale: 0.8 },
+  visible: { opacity: 1, scale: 1, transition: { duration: 0.5, ease: "easeOut" } }
+};
+
 export const SkillSection = () => {
   const [activeCategory, setActiveCategory] = useState("all")
-  const [hasAnimated, setHasAnimated] = useState(false); // New state for animation trigger
-  const sectionRef = useRef(null); // Ref for the section
+  const [hasAnimated, setHasAnimated] = useState(false); // Re-introduced state
+  const sectionRef = useRef(null); // Re-introduced ref
 
-  useEffect(() => {
+  useEffect(() => { // Re-introduced useEffect
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting && !hasAnimated) {
           setHasAnimated(true);
-          observer.disconnect(); // Disconnect once animation is triggered
+          observer.disconnect();
         }
       },
       {
-        threshold: 0.1, // Trigger when 10% of the section is visible
+        threshold: 0.1,
       }
     );
 
@@ -58,31 +73,33 @@ export const SkillSection = () => {
         observer.disconnect();
       }
     };
-  }, [hasAnimated]); // Dependency array: re-run if hasAnimated changes
+  }, [hasAnimated]);
 
   const filteredSkill = skills.filter(
     (skill) => activeCategory === "all" || skill.category === activeCategory
   )
 
   return (
-    <section id="skills" className="py-24 px-4 relative bg-secondary/30" ref={sectionRef}>
+    <motion.section
+        id="skills"
+        className="py-24 px-4 relative bg-secondary/30"
+        ref={sectionRef} // Ref added back
+        // Removed initial, whileInView, viewport from here as children will control
+    >
       <div className="container mx-auto max-w-5xl">
-        {hasAnimated && (
           <motion.h2
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
+            initial="hidden" // Set initial state
+            animate={hasAnimated ? "visible" : "hidden"} // Animate based on state
+            variants={fadeInUpVariants}
             className="text-2xl md:text-4xl font-bold mb-12 text-center pixel-font"
           >
             My <span className="text-primary">Skills</span>
           </motion.h2>
-        )}
 
-        {hasAnimated && (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
+            initial="hidden" // Set initial state
+            animate={hasAnimated ? "visible" : "hidden"} // Animate based on state
+            variants={fadeInUpVariants}
             className="flex flex-wrap justify-center gap-4 mb-12"
           >
             {category.map((category, key) => (
@@ -100,23 +117,24 @@ export const SkillSection = () => {
               </button>
             ))}
           </motion.div>
-        )}
 
-        {hasAnimated && (
           <AnimatePresence mode="wait">
             <motion.div
-              key={activeCategory} // Key changes when category changes, forcing re-render of children
+              key={activeCategory}
+              initial="hidden" // Set initial state
+              animate={hasAnimated ? "visible" : "hidden"} // Animate based on state
+              variants={cardVariants}
               className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
             >
               {filteredSkill.map((skill, key) => (
                 <motion.div
-                  key={skill.name} // Use skill.name as key for consistent animation
+                  key={skill.name}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 20 }}
-                  transition={{ delay: key * 0.1, duration: 0.3 }} // Staggered entry
+                  transition={{ delay: key * 0.1, duration: 0.3 }}
                   className="bg-card p-6 rounded-lg shadow-xs flex flex-col items-center justify-center text-center
-                             hover:scale-105 hover:shadow-xl transition-all duration-300 cursor-pointer" // Hover effects
+                             hover:scale-105 hover:shadow-xl transition-all duration-300 cursor-pointer"
                 >
                   {skill.icon}
                   <h3 className="font-semibold text-lg mt-4">{skill.name}</h3>
@@ -124,8 +142,7 @@ export const SkillSection = () => {
               ))}
             </motion.div>
           </AnimatePresence>
-        )}
       </div>
-    </section>
+    </motion.section>
   )
 }
