@@ -2,6 +2,7 @@ import { href } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
+import { ThemeToggle } from "../components/ThemeToggle"
 
 const navItems = [
   { name: "Home", href: "#home" },
@@ -63,11 +64,13 @@ export const Navbar = () => {
 
         <button
           onClick={() => setIsMenuOpen((prev) => !prev)}
-          className="md:hidden p-2 text-foreground z-50"
+          className="md:hidden pr-9 md:pr-2 p-2 text-foreground z-50"
           aria-label={isMenuOpen? "Close Menu" : "Open Menu"}
         >
           {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
+
+        <ThemeToggle/>    
 
         <div
           className={cn(
