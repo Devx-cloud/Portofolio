@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom"
+import { Route, Routes, useLocation } from "react-router-dom"
 import { Home } from "./pages/Home"
 import { NotFound } from "./pages/NotFound"
 import { Contact } from "./pages/Contact"
@@ -8,14 +8,17 @@ import { useEffect, useState } from "react"
 
 
 function App() {
-  const [isDarkTheme, setIsDarkTheme] = useState(false);
+  const [isDarkTheme, setIsDarkTheme] = useState(document.documentElement.classList.contains("dark"));
+  const location = useLocation();
+  const isHomePage = location.pathname === "/";
 
   useEffect(() => {
     const checkTheme = () => {
       setIsDarkTheme(document.documentElement.classList.contains("dark"));
     };
 
-    checkTheme();
+    // No need to call checkTheme() here as useState is initialized directly
+    // The observer will handle subsequent changes
 
     const observer = new MutationObserver(checkTheme);
     observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
@@ -26,18 +29,16 @@ function App() {
   return (
     <>
       {isDarkTheme ? (
-        <StarBackground />
+        <StarBackground isHomePage={isHomePage} />
       ) : (
-        <CloudBackground />
+        <CloudBackground isHomePage={isHomePage} />
       )}
-      <BrowserRouter>
-        <Routes>
-          <Route index element={<Home/>}/>
-          <Route path="/contact" element={<Contact />}/>
+      <Routes>
+        <Route index element={<Home/>}/>
+        <Route path="/contact" element={<Contact />}/>
 
-          <Route path="*" element={<NotFound/>}/>
-        </Routes>
-      </BrowserRouter>
+        <Route path="*" element={<NotFound/>}/>
+      </Routes>
     </>
   )
 }

@@ -1,7 +1,32 @@
 import { Link } from "react-router-dom";
 import { StarBackground } from "../components/StarBackground";
+import { CloudBackground } from "../components/CloudBackground"
+import { useEffect, useState } from "react";
 
 export const NotFound = () => {
+  const [gunungSrc, setGunungSrc] = useState("");
+
+  useEffect(() => {
+    const updateGunungSrc = () => {
+      if (document.documentElement.classList.contains("dark")) {
+        setGunungSrc("/gunung-dark.png");
+      } else {
+        setGunungSrc("/gunung-light.png");
+      }
+    };
+
+    updateGunungSrc(); // Set initial image
+
+    // Observe changes to the 'dark' class on the html element
+    const observer = new MutationObserver(updateGunungSrc);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+
+    return () => observer.disconnect(); // Clean up observer
+  }, []);
+
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden relative flex flex-col">
       {/* Background Effects */}
@@ -31,9 +56,9 @@ export const NotFound = () => {
       {/* Gunung di bawah halaman */}
       <div className="relative w-full">
         <img
-          src="/gunung2.png"
+          src={gunungSrc}
           alt="Gunung"
-          className="w-full h-auto object-cover absolute bottom-0 left-0"
+          className="w-full h-auto object-cover absolute bottom-0 left-0 z-[9]" // Added z-[9]
         />
       </div>
     </div>

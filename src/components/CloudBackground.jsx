@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
+import { cn } from "@/lib/utils";
 
-export const CloudBackground = () => {
+export const CloudBackground = ({ isHomePage }) => {
     const [movingClouds, setMovingClouds] = useState([]);
     const [staticClouds, setStaticClouds] = useState([]);
 
@@ -49,7 +50,10 @@ export const CloudBackground = () => {
     };
 
     return (
-        <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        <div className={cn(
+            "fixed inset-0 overflow-hidden pointer-events-none",
+            isHomePage ? "z-0" : "z-[9]"
+        )}>
             {movingClouds.map((cloud) => (
                 <div
                     key={cloud.id}
@@ -59,7 +63,7 @@ export const CloudBackground = () => {
                         height: cloud.size * 0.6 + "px",
                         top: cloud.y + "%",
                         animation: `cloud-move ${cloud.speed}s linear infinite`,
-                        animationDelay: `-${cloud.delay}s`, // Start some clouds mid-animation
+                        animationDelay: `-${cloud.delay}s`,
                     }}
                 />
             ))}
@@ -72,7 +76,6 @@ export const CloudBackground = () => {
                         height: cloud.size * 0.6 + "px",
                         left: cloud.x + "%",
                         top: cloud.y + "%",
-                        // No animation property for static clouds
                     }}
                 />
             ))}
