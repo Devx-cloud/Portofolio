@@ -2,16 +2,18 @@ import { ArrowDown } from "lucide-react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Sphere, MeshDistortMaterial, useTexture } from "@react-three/drei";
 import { Suspense } from "react";
+import { useTheme } from "../context/ThemeContext"; // Import useTheme
 
 // Komponen Bola 3D terpisah
-const MountainSphere = () => {
-  // Pastikan file gambar ada di folder /public/gunung-dark.png
-  const texture = useTexture("/gunung-dark.png");
+const PlanetSphere = () => {
+  const { isDarkMode } = useTheme(); // Use the theme context
+  const darkTexture = useTexture("/moonTexture.png");
+  const lightTexture = useTexture("/sunTexture.png");
   
   return (
     <mesh rotation={[0, 0, 0]}>
       <sphereGeometry args={[2.2, 64, 64]} />
-      <meshStandardMaterial map={texture} roughness={0.5} />
+      <meshStandardMaterial map={isDarkMode ? darkTexture : lightTexture} roughness={0.5} />
     </mesh>
   );
 };
@@ -57,7 +59,7 @@ export const HomeSection = () => {
             <directionalLight position={[2, 5, 2]} intensity={1} />
             <pointLight position={[-10, -10, -10]} intensity={0.5} />
             
-            <MountainSphere />
+            <PlanetSphere />
             
             {/* Memungkinkan user memutar bola dengan mouse */}
             <OrbitControls 
