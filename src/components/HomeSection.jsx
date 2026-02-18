@@ -25,7 +25,7 @@ export const HomeSection = () => {
       className="relative min-h-screen flex flex-col items-center justify-center px-4 overflow-hidden"
     >
       {/* 3D Planet Background */}
-      <div className="absolute top-0 right-0 h-full w-1/2 overflow-hidden z-10">
+      <div className="absolute top-0 right-0 h-full overflow-hidden z-10">
         <Suspense fallback={<div className="text-white">Loading 3D...</div>}>
           <Canvas camera={{ position: [0, 0, 5], fov: 75 }}>
             <ambientLight intensity={1.5} />
