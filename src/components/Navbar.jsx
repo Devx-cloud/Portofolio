@@ -51,9 +51,9 @@ export const Navbar = () => {
 
           {/* desktop nav */}
           <div className="hidden md:flex space-x-8">
-            {navItems.map((item, key) => (
+            {navItems.map((item) => (
               <a
-                key={item.key}
+                key={item.name}
                 href={item.href}
                 className="text-foreground/80 hover:text-primary transition-colors duration-300 "
               >
@@ -95,9 +95,9 @@ export const Navbar = () => {
         )}
       >
         <div className="flex flex-col space-y-8 text-xl">
-          {navItems.map((item, key) => (
+          {navItems.map((item) => (
             <a
-              key={item.key}
+              key={item.name}
               href={item.href}
               className="text-foreground/80 hover:text-primary transition-colors duration-300"
               onClick={() => setIsMenuOpen(false)}
