@@ -11,7 +11,7 @@ const PlanetSphere = () => {
   const lightTexture = useTexture("/sunTexture.png");
   
   return (
-    <mesh position={[ 1, 0, 0 ]} rotation={[0, 0, 0]}>
+    <mesh position={[ 5, 0, 0 ]} rotation={[0, 0, 0]}>
       <sphereGeometry args={[2.2, 64, 64]} />
       <meshStandardMaterial map={isDarkMode ? darkTexture : lightTexture} roughness={0.5} />
     </mesh>
@@ -25,7 +25,7 @@ export const HomeSection = () => {
       className="relative min-h-screen flex flex-col items-center justify-center px-4 overflow-hidden"
     >
       {/* 3D Planet Background */}
-      <div className="absolute top-0 right-0 h-full w-full overflow-hidden z-10 pl-[175px]">
+      <div className="absolute top-0 right-0 h-full w-full overflow-hidden z-10">
         <Suspense fallback={<div className="text-white">Loading 3D...</div>}>
           <Canvas camera={{ position: [0, 0, 5], fov: 75 }}>
             <ambientLight intensity={1.5} />
