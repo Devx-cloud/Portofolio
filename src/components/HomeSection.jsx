@@ -11,7 +11,7 @@ const PlanetSphere = () => {
   const lightTexture = useTexture("/sunTexture.png");
   
   return (
-    <mesh position={[ 8, 0, 0 ]} rotation={[0, 0, 0]}>
+    <mesh position={[ 6, 0, 0 ]} rotation={[0, 0, 0]}>
       <sphereGeometry args={[2.2, 64, 64]} />
       <meshStandardMaterial map={isDarkMode ? darkTexture : lightTexture} roughness={0.5} />
     </mesh>
