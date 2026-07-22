@@ -1,5 +1,8 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import profileData from './profile.json' with { type: 'json' };
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const profileData = require('./profile.json');
+
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
