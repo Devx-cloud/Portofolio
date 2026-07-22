@@ -38,14 +38,20 @@ export const ChatAgent = () => {
       });
 
       if (!response.ok) {
-        throw new Error('Gagal menghubungi server');
+        let errorMsg = 'Gagal menghubungi server';
+        try {
+          const errData = await response.json();
+          if (errData.message) errorMsg = errData.message;
+        } catch(e) {}
+        throw new Error(errorMsg);
       }
 
       const data = await response.json();
       setMessages(prev => [...prev, { role: 'assistant', content: data.reply }]);
     } catch (error) {
       console.error(error);
-      setMessages(prev => [...prev, { role: 'assistant', content: 'Maaf, terjadi kesalahan saat menghubungi asisten AI.' }]);
+      setMessages(prev => [...prev, { role: 'assistant', content: `Error: ${error.message}` }]);
+
     } finally {
       setIsLoading(false);
     }
