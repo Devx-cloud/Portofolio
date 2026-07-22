@@ -1,7 +1,6 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
-const profileData = require('./profile.json');
+import { profileData } from './profile.js';
+
 
 
 export default async function handler(req, res) {

@@ -1,4 +1,5 @@
-{
+export const profileData = {
+
   "nama": "Deva Surya",
   "profesi": "Web & Mobile Developer",
   "keahlian_utama": [
