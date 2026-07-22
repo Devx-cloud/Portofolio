@@ -5,7 +5,7 @@ import { Contact } from "./pages/Contact"
 import { StarBackground } from "./components/StarBackground"
 import { CloudBackground } from "./components/CloudBackground"
 import { useEffect, useState } from "react"
-
+import { ChatAgent } from "./components/ChatAgent"
 
 function App() {
   const [isDarkTheme, setIsDarkTheme] = useState(document.documentElement.classList.contains("dark"));
@@ -39,6 +39,7 @@ function App() {
 
         <Route path="*" element={<NotFound/>}/>
       </Routes>
+      <ChatAgent />
     </>
   )
 }

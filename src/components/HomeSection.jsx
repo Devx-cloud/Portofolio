@@ -1,22 +1,5 @@
 import { ArrowDown } from "lucide-react";
-import { Canvas } from "@react-three/fiber";
-import { OrbitControls, Sphere, MeshDistortMaterial, useTexture } from "@react-three/drei";
-import { Suspense } from "react";
 import { useTheme } from "../context/ThemeContext"; // Import useTheme
-
-// Komponen Bola 3D terpisah
-const PlanetSphere = () => {
-  const { isDarkMode } = useTheme(); // Use the theme context
-  const darkTexture = useTexture("/moonTexture.png");
-  const lightTexture = useTexture("/sunTexture.png");
-  
-  return (
-    <mesh position={[ 7, 0, 0 ]} rotation={[0, 0, 0]}>
-      <sphereGeometry args={[2.2, 64, 64]} />
-      <meshStandardMaterial map={isDarkMode ? darkTexture : lightTexture} roughness={0.5} />
-    </mesh>
-  );
-};
 
 export const HomeSection = () => {
   return (
@@ -24,25 +7,6 @@ export const HomeSection = () => {
       id="home"
       className="relative min-h-screen flex flex-col items-center justify-center px-4 overflow-hidden"
     >
-      {/* 3D Planet Background */}
-      <div className="absolute top-0 right-0 h-full w-full overflow-hidden z-10">
-        <Suspense fallback={<div className="text-white">Loading 3D...</div>}>
-          <Canvas camera={{ position: [0, 0, 5], fov: 75 }}>
-            <ambientLight intensity={1.5} />
-            <directionalLight position={[2, 5, 2]} intensity={1} />
-            <pointLight position={[-10, -10, -10]} intensity={0.5} />
-            
-            <PlanetSphere />
-            
-            <OrbitControls 
-              enableZoom={false} 
-              autoRotate 
-              autoRotateSpeed={2}
-            />
-          </Canvas>
-        </Suspense>
-      </div>
-
       {/* Text Content */}
       <div className="container max-w-4xl mx-auto text-center z-20">
         <div className="space-y-6">
@@ -62,7 +26,6 @@ export const HomeSection = () => {
             solusi digital. Spesialisasi saya ada di pengembangan Web
             menggunakan Laravel dan Aplikasi Mobile dengan Flutter. Saya siap
             mengubah ide Anda menjadi aplikasi yang efisien, terstruktur, dan
-
             siap digunakan.
           </p>
           <div className="text-[11px] pt-4 opacity-0 animate-fade-in-delay-4">
