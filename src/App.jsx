@@ -1,11 +1,10 @@
 import { Route, Routes, useLocation } from "react-router-dom"
-import { Home } from "./pages/Home"
+import { TitleScreen } from "./pages/TitleScreen"
+import { StagePage } from "./pages/StagePage"
 import { NotFound } from "./pages/NotFound"
-import { Contact } from "./pages/Contact"
 import { StarBackground } from "./components/StarBackground"
 import { CloudBackground } from "./components/CloudBackground"
 import { useEffect, useState } from "react"
-import { ChatAgent } from "./components/ChatAgent"
 
 function App() {
   const [isDarkTheme, setIsDarkTheme] = useState(document.documentElement.classList.contains("dark"));
@@ -34,12 +33,15 @@ function App() {
         <CloudBackground isHomePage={isHomePage} />
       )}
       <Routes>
-        <Route index element={<Home/>}/>
-        <Route path="/contact" element={<Contact />}/>
+        <Route index element={<TitleScreen/>}/>
+        <Route path="/profile" element={<StagePage stageId="profile" />}/>
+        <Route path="/skills" element={<StagePage stageId="skills" />}/>
+        <Route path="/projects" element={<StagePage stageId="projects" />}/>
+        <Route path="/assistant" element={<StagePage stageId="assistant" />}/>
+        <Route path="/contact" element={<StagePage stageId="contact" />}/>
 
         <Route path="*" element={<NotFound/>}/>
       </Routes>
-      <ChatAgent />
     </>
   )
 }

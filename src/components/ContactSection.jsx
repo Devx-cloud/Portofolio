@@ -1,147 +1,87 @@
-import {
-  Facebook,
-  Github,
-  Instagram,
-  Linkedin,
-  Mail,
-  MapPin,
-  Phone,
-  Send,
-  X,
-} from "lucide-react";
-import {cn} from "@/lib/utils"
+import { Send } from "lucide-react";
+import { motion } from "framer-motion";
+
+const containerVariants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.12, delayChildren: 0.1 } },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
+};
 
 export const ContactSection = () => {
-
-  // const handleSubmit  = (e) =>{
-  //   e.preventDefault()
-
-  //   setTimeout(()=>{
-
-  //   },1500)
-  // }
-
   return (
-    <section id="contact" className="py-24 px-4 relative bg-secondary/30">
-      <div className="container mx-auto max-w-5xl">
-        <h2 className="text-3xl md:text-4xl font-bold mb-4 text-center">
-          Get In <span className="text-primary ">Touch</span>
-        </h2>
-        <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptatibus
-          iure, voluptates possimus quisquam iste nemo!
-        </p>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-          <div className="space-y-8">
-            <h3 className="text-2xl font-semibold mb-6">Contact Information</h3>
-            <div className="space-y-6 justify-center ">
-              <div className="flex items-start space-x-4">
-                <div className="p-3 rounded-full bg-primary/10">
-                  <Mail className="h-6 w-6 text-primary" />
-                </div>
-                <div className="">
-                  <h4 className="font-medium">Email</h4>
-                  <a
-                    href="mailto:devasur2006@gmail.com"
-                    className="text-muted-foreground hover:text-primary transition-colors"
-                  >
-                    devasur2006@gmail.com
-                  </a>
-                </div>
-              </div>
-              <div className="flex items-start space-x-4">
-                <div className="p-3 rounded-full bg-primary/10">
-                  <Phone className="h-6 w-6 text-primary" />
-                </div>
-                <div className="">
-                  <h4 className="font-medium">Phone</h4>
-                  <a
-                    href="tel:+628130"
-                    className="text-muted-foreground hover:text-primary transition-colors"
-                  >
-                    +62902109201
-                  </a>
-                </div>
-              </div>
-              <div className="flex items-start space-x-4">
-                <div className="p-3 rounded-full bg-primary/10">
-                  <MapPin className="h-6 w-6 text-primary" />
-                </div>
-                <div className="">
-                  <h4 className="font-medium">Email</h4>
-                  <a
-                    href=""
-                    className="text-muted-foreground hover:text-primary transition-colors"
-                  >
-                    Indonesia
-                  </a>
-                </div>
-              </div>
-            </div>
-            <div className="pt-8">
-              <h4 className="font-medium mb-4">Conect With Me</h4>
-              <div className="flex space-x-4 justify-center">
-                <a href="#" target="_blank">
-                  <Linkedin />
-                </a>
-                <a href="#" target="_blank">
-                  <X />
-                </a>
-                <a href="#" target="_blank">
-                  <Instagram />
-                </a>
-                <a href="#" target="_blank">
-                  <Github />
-                </a>
-              </div>
-            </div>
-          </div>
-          <div className="bg-card p-8 rounded-lg shadow-xs">
-            <h3 className="text-2xl font-semibold mb-6"> Sean a Massage</h3>
-            <form action="">
-              <div className="">
-                <label htmlFor="name" className="block text-sm font-medium mb-2">Your Name</label>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  required
-                  className="w-full px-4 py-3 rounded-md border border-input bg-background focus:outline-hidden focus:ring-2 focus:ring-primary"
-                  placeholder="Deva Surya..."
-                />
-              </div>
-              <div className="">
-                <label htmlFor="email" className="block text-sm font-medium mb-2">Your Email</label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  required
-                  className="w-full px-4 py-3 rounded-md border border-input bg-background focus:outline-hidden focus:ring-2 focus:ring-primary"
-                  placeholder="deva@gmail.com"
-                />
-              </div>
-              <div className="">
-                <label htmlFor="massage" className="block text-sm font-medium mb-2">Your Massage</label>
-                <textarea
-                  id="massage"
-                  name="massage"
-                  required
-                  className="w-full px-4 py-3 rounded-md border border-input bg-background focus:outline-hidden focus:ring-2 focus:ring-primary resize-none"
-                  placeholder="hallo, i'd like to talk about..."
-                />
-              </div>
-              <button type="submit" className={cn("cosmic-button w-full flex items-center justify-center gap-2",
+    <section id="contact" className="flex items-start justify-center px-4 pt-2 pb-4">
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="w-full max-w-xl bg-card border border-border rounded-lg p-6 shadow-lg"
+      >
+        <motion.h2 variants={itemVariants} className="pixel-font text-2xl md:text-3xl font-bold mb-2 text-center">
+          Get In <span className="text-primary">Touch</span>
+        </motion.h2>
+        <motion.p variants={itemVariants} className="text-center text-muted-foreground text-sm mb-5">
+          Ada proyek atau ide yang ingin didiskusikan? Kirim pesan lewat form di bawah.
+        </motion.p>
 
-              )}>
-                Send Massage
-                <Send size={16}/>
-              </button>
-              <div className=""></div>
-            </form>
-          </div>
-        </div>
-      </div>
+        <form className="space-y-3">
+          <motion.div variants={itemVariants}>
+            <label htmlFor="name" className="block text-sm font-medium mb-2">
+              Your Name
+            </label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              required
+              className="w-full px-4 py-3 rounded-md border border-input bg-background focus:outline-hidden focus:ring-2 focus:ring-primary"
+              placeholder="Deva Surya..."
+            />
+          </motion.div>
+
+          <motion.div variants={itemVariants}>
+            <label htmlFor="email" className="block text-sm font-medium mb-2">
+              Your Email
+            </label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              required
+              className="w-full px-4 py-3 rounded-md border border-input bg-background focus:outline-hidden focus:ring-2 focus:ring-primary"
+              placeholder="deva@gmail.com"
+            />
+          </motion.div>
+
+          <motion.div variants={itemVariants}>
+            <label htmlFor="message" className="block text-sm font-medium mb-2">
+              Your Message
+            </label>
+            <textarea
+              id="message"
+              name="message"
+              required
+              rows={3}
+              className="w-full px-4 py-3 rounded-md border border-input bg-background focus:outline-hidden focus:ring-2 focus:ring-primary resize-none"
+              placeholder="Hallo, i'd like to talk about..."
+            />
+          </motion.div>
+
+          <motion.button
+            variants={itemVariants}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.97 }}
+            type="submit"
+            className="cosmic-button w-full flex items-center justify-center gap-2"
+          >
+            Send Message
+            <Send size={16} />
+          </motion.button>
+        </form>
+      </motion.div>
     </section>
   );
 };
