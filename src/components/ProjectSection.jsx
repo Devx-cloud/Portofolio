@@ -1,270 +1,244 @@
-import { useRef } from "react";
-import { ArrowRight, ExternalLink, Github } from "lucide-react";
-import { motion, useMotionValue, useTransform, useAnimationFrame, animate } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import { ArrowRight, Github } from "lucide-react";
+import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-motion";
+import { FaHtml5, FaCss3Alt, FaLaravel } from "react-icons/fa";
+import { SiJavascript, SiAlpinedotjs, SiThreedotjs, SiTailwindcss } from "react-icons/si";
+
+const tagIcons = {
+  html: { icon: FaHtml5, color: "text-orange-500" },
+  css: { icon: FaCss3Alt, color: "text-blue-500" },
+  js: { icon: SiJavascript, color: "text-yellow-400" },
+  laravel: { icon: FaLaravel, color: "text-red-600" },
+  alpine: { icon: SiAlpinedotjs, color: "text-teal-400" },
+  three: { icon: SiThreedotjs, color: "text-foreground" },
+  tailwind: { icon: SiTailwindcss, color: "text-cyan-400" },
+};
 
 const Projects = [
-    {
-        id:1,
-        title: "Hand Gesture",
-        desc:"deteksi tangan untuk masuk link url [index]",
-        image: "/projects/hand.png" ,
-        tags: ["html", "css", "js"],
-        demoUrl: "#",
-        githubUrl: "https://github.com/Devx-cloud/gesture-hand"
-    },
-    {
-        id:2,
-        title: "Loka Pura",
-        desc:"website generate video dan 3D model",
-        image: "/projects/lokapura.png" ,
-        tags: ["laravel", "alpine", "three", "tailwind"],
-        demoUrl: "#",
-        githubUrl: "https://github.com/Devx-cloud/PuraLoka"
-    },
-    {
-        id:1,
-        title: "Hand Gesture",
-        desc:"deteksi tangan untuk masuk link url [index]",
-        image: "/projects/hand.png" ,
-        tags: ["html", "css", "js"],
-        demoUrl: "#",
-        githubUrl: "https://github.com/Devx-cloud/gesture-hand"
-    },
-    {
-        id:2,
-        title: "Loka Pura",
-        desc:"website generate video dan 3D model",
-        image: "/projects/lokapura.png" ,
-        tags: ["laravel", "alpine", "three", "tailwind"],
-        demoUrl: "#",
-        githubUrl: "https://github.com/Devx-cloud/PuraLoka"
-    },
-    // {
-    //     id:3,
-    //     title: "pro3",
-    //     desc:"Lorem ipsum dolor sit amet.wdawad",
-    //     image: "/projects/arlechino.jpeg" ,
-    //     tags: ["image", "gila"],
-    //     demoUrl: "#",
-    //     githubUrl: "#"
-    // },
-]
+  {
+    id: 1,
+    title: "Hand Gesture",
+    desc: "Aplikasi deteksi gestur tangan berbasis computer vision yang mengenali pola tangan secara real-time untuk membuka tautan tertentu tanpa sentuhan. Dibangun dengan HTML, CSS, dan JavaScript murni sebagai eksplorasi interaksi berbasis kamera.",
+    image: "/projects/hand.png",
+    tags: ["html", "css", "js"],
+    demoUrl: "#",
+    githubUrl: "https://github.com/Devx-cloud/gesture-hand",
+  },
+  {
+    id: 2,
+    title: "Loka Pura",
+    desc: "Platform AI yang menghidupkan arsitektur pura Bali — mengubah foto menjadi video dinamis dan model 3D, sekaligus merestorasi kenangan lama dengan akurasi tinggi. Dibangun dengan Laravel, Alpine.js, Three.js, dan Tailwind CSS.",
+    image: "/projects/lokapura.png",
+    tags: ["laravel", "alpine", "three", "tailwind"],
+    demoUrl: "#",
+    githubUrl: "https://github.com/Devx-cloud/PuraLoka",
+  },
+  {
+    id: 1,
+    title: "Hand Gesture",
+    desc: "Aplikasi deteksi gestur tangan berbasis computer vision yang mengenali pola tangan secara real-time untuk membuka tautan tertentu tanpa sentuhan. Dibangun dengan HTML, CSS, dan JavaScript murni sebagai eksplorasi interaksi berbasis kamera.",
+    image: "/projects/hand.png",
+    tags: ["html", "css", "js"],
+    demoUrl: "#",
+    githubUrl: "https://github.com/Devx-cloud/gesture-hand",
+  },
+  {
+    id: 2,
+    title: "Loka Pura",
+    desc: "Platform AI yang menghidupkan arsitektur pura Bali — mengubah foto menjadi video dinamis dan model 3D, sekaligus merestorasi kenangan lama dengan akurasi tinggi. Dibangun dengan Laravel, Alpine.js, Three.js, dan Tailwind CSS.",
+    image: "/projects/lokapura.png",
+    tags: ["laravel", "alpine", "three", "tailwind"],
+    demoUrl: "#",
+    githubUrl: "https://github.com/Devx-cloud/PuraLoka",
+  },
+];
 
-const sectionVariants = {
-  hidden: { opacity: 0, y: 50 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
-};
-
-const fadeInUpVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
-};
-
-// Jarak antar kartu di carousel 3D
-const ANGLE_STEP = 32; // derajat rotateY per langkah
-const SPACING = 220; // px pergeseran x per langkah
-const DEPTH = 140; // px mundur ke belakang (translateZ) per langkah
-const SECONDS_PER_CARD = 4; // makin kecil makin cepat berputar
-
-const mod = (n, m) => ((n % m) + m) % m;
-
-const CarouselCard = ({ project, index, total, t, pausedRef }) => {
-  const rel = useTransform(t, (v) => {
-    let r = mod(index - v, total);
-    if (r > total / 2) r -= total;
-    return r;
-  });
-
-  const x = useTransform(rel, (r) => r * SPACING);
-  const rotateY = useTransform(rel, (r) => r * -ANGLE_STEP);
-  const z = useTransform(rel, (r) => -Math.abs(r) * DEPTH);
-  const scale = useTransform(rel, (r) => 1 - Math.min(Math.abs(r) * 0.16, 0.5));
-  const opacity = useTransform(rel, (r) => 1 - Math.min(Math.abs(r) * 0.28, 0.75));
-
-  const handleLinkClick = (e) => {
-    e.stopPropagation();
-    pausedRef.current = true;
-  };
-
-  return (
-    <motion.div
-      style={{ x, rotateY, z, scale, opacity }}
-      className="absolute top-0 left-1/2 -ml-[130px] w-[260px] rounded-xl overflow-hidden border-2 border-border bg-card shadow-2xl cursor-pointer [transform-style:preserve-3d]"
-    >
-      <div className="h-56 overflow-hidden">
-        <img
-          src={project.image}
-          alt={project.title}
-          draggable={false}
-          onDragStart={(e) => e.preventDefault()}
-          className="w-full h-full object-cover select-none pointer-events-none"
-        />
-      </div>
-      <div className="p-4">
-        <div className="flex flex-wrap gap-1 mb-2">
-          {project.tags.map((tag) => (
-            <span key={tag} className="px-2 py-0.5 text-[10px] font-medium border rounded-full bg-primary/20 text-secondary-foreground">
-              {tag}
-            </span>
-          ))}
-        </div>
-        <h3 className="font-semibold text-sm mb-1">{project.title}</h3>
-        <p className="text-muted-foreground text-xs mb-3 line-clamp-2">{project.desc}</p>
-        <div className="flex gap-3">
-          <a
-            href={project.demoUrl}
-            target="_blank"
-            rel="noreferrer"
-            onClick={handleLinkClick}
-            className="text-foreground/80 hover:text-primary transition-colors duration-300"
-          >
-            <ExternalLink size={16} />
-          </a>
-          <a
-            href={project.githubUrl}
-            target="_blank"
-            rel="noreferrer"
-            onClick={handleLinkClick}
-            className="text-foreground/80 hover:text-primary transition-colors duration-300"
-          >
-            <Github size={16} />
-          </a>
-        </div>
-      </div>
-    </motion.div>
-  );
-};
+const total = Projects.length;
+const clamp = (n, min, max) => Math.min(Math.max(n, min), max);
 
 export const ProjectSection = () => {
-    const t = useMotionValue(0);
-    const pausedRef = useRef(false);
-    const draggingRef = useRef(false);
-    const movedRef = useRef(false);
-    const startXRef = useRef(0);
-    const startTRef = useRef(0);
-    const total = Projects.length;
+  const containerRef = useRef(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [reducedMotion, setReducedMotion] = useState(false);
 
-    useAnimationFrame((_, delta) => {
-        if (pausedRef.current) return;
-        t.set(t.get() + delta / 1000 / SECONDS_PER_CARD);
+  useEffect(() => {
+    const mql = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReducedMotion(mql.matches);
+    const handleChange = (e) => setReducedMotion(e.matches);
+    mql.addEventListener("change", handleChange);
+    return () => mql.removeEventListener("change", handleChange);
+  }, []);
+
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end end"],
+  });
+
+  useMotionValueEvent(scrollYProgress, "change", (v) => {
+    setActiveIndex(clamp(Math.floor(v * total), 0, total - 1));
+  });
+
+  const goToIndex = (i) => {
+    setActiveIndex(i);
+    const container = containerRef.current;
+    if (!container) return;
+    const containerTop = window.scrollY + container.getBoundingClientRect().top;
+    const scrollRange = container.offsetHeight - window.innerHeight;
+    const progress = (i + 0.5) / total;
+    window.scrollTo({
+      top: containerTop + progress * scrollRange,
+      behavior: reducedMotion ? "auto" : "smooth",
     });
+  };
 
-    const focusCard = (index) => {
-        const current = t.get();
-        const candidates = [index - total, index, index + total];
-        const target = candidates.reduce((best, c) =>
-            Math.abs(c - current) < Math.abs(best - current) ? c : best
-        );
-        pausedRef.current = true;
-        animate(t, target, {
-            duration: 0.6,
-            ease: "easeInOut",
-            onComplete: () => {
-                pausedRef.current = false;
-            },
-        });
-    };
+  const active = Projects[activeIndex];
 
-    // Kartu yang dirotasi 3D punya bounding box yang tidak pas dengan bentuk
-    // visualnya, jadi klik dideteksi lewat posisi kursor relatif ke tengah
-    // track, bukan lewat hit-test elemen kartu satu-satu.
-    const handleTrackClick = (e) => {
-        if (movedRef.current) return; // baru saja digeser, jangan anggap sebagai klik
-        const rect = e.currentTarget.getBoundingClientRect();
-        const offsetFromCenter = e.clientX - (rect.left + rect.width / 2);
-        const approxRel = Math.round(offsetFromCenter / SPACING);
-        if (approxRel === 0) return; // klik di kartu depan, tidak ada yang perlu berubah
-        const targetIndex = mod(Math.round(t.get() + approxRel), total);
-        focusCard(targetIndex);
-    };
-
-    const handlePointerDown = (e) => {
-        draggingRef.current = true;
-        movedRef.current = false;
-        pausedRef.current = true;
-        startXRef.current = e.clientX;
-        startTRef.current = t.get();
-        e.currentTarget.setPointerCapture(e.pointerId);
-    };
-
-    const handlePointerMove = (e) => {
-        if (!draggingRef.current) return;
-        const deltaX = e.clientX - startXRef.current;
-        if (Math.abs(deltaX) > 4) movedRef.current = true;
-        t.set(startTRef.current - deltaX / SPACING);
-    };
-
-    const endDrag = (e) => {
-        if (!draggingRef.current) return;
-        draggingRef.current = false;
-        pausedRef.current = false;
-        try {
-            e.currentTarget.releasePointerCapture(e.pointerId);
-        } catch {}
-        // reset flag setelah event klik yang menyertai pointerup selesai diproses
-        setTimeout(() => (movedRef.current = false), 0);
-    };
-
-    return (
-        <motion.section
-            id="projects"
-            className="pt-8 pb-16 px-4 relative overflow-x-hidden md:h-[calc(100vh-5rem)] md:overflow-y-hidden md:flex md:flex-col md:justify-center"
-            variants={sectionVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.3 }}
-        >
-            <div className="container mx-auto max-w-5xl">
-                <motion.h2
-                    className="text-2xl md:text-4xl font-bold mb-4 text-center pixel-font"
-                    style={{ textShadow: "0 2px 12px rgba(0,0,0,0.9), 0 0 24px rgba(0,0,0,0.6)" }}
-                    variants={fadeInUpVariants}
-                >
-                    Featured <span className="text-primary">Projects</span>
-                </motion.h2>
-                <motion.p
-                    className="text-center text-foreground/80 mb-6 max-w-2xl mx-auto"
-                    style={{ textShadow: "0 1px 8px rgba(0,0,0,0.9)" }}
-                    variants={fadeInUpVariants}
-                >
-                    Beberapa proyek pilihan yang menunjukkan keahlian saya di bidang web dan mobile.
-                </motion.p>
-
-                <div
-                    className="relative h-[380px] md:h-[420px] cursor-grab active:cursor-grabbing touch-pan-y"
-                    style={{ perspective: "1400px" }}
-                    onPointerDown={handlePointerDown}
-                    onPointerMove={handlePointerMove}
-                    onPointerUp={endDrag}
-                    onPointerCancel={endDrag}
-                    onClick={handleTrackClick}
-                >
-                    <div className="absolute inset-0" style={{ transformStyle: "preserve-3d" }}>
-                        {Projects.map((project, index) => (
-                            <CarouselCard
-                                key={`${project.id}-${index}`}
-                                project={project}
-                                index={index}
-                                total={total}
-                                t={t}
-                                pausedRef={pausedRef}
-                            />
-                        ))}
-                    </div>
-                </div>
-
-                <div className="text-center mt-5">
-                    <motion.a
-                        href="https://github.com/Devx-cloud"
-                        className="text-sm cosmic-button w-fit flex items-center mx-auto gap-2"
-                        target="_blank"
-                        whileHover={{ scale: 1.05, boxShadow: "0px 10px 20px rgba(0, 0, 0, 0.2)" }}
-                        transition={{ duration: 0.2 }}
-                    >
-                        Check My Github <ArrowRight size={16}/>
-                    </motion.a>
-                </div>
+  return (
+    <>
+      <motion.section
+        id="projects"
+        ref={containerRef}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        className="relative"
+        style={{ height: `${total * 100}vh` }}
+      >
+        <div className="sticky top-20 h-[calc(100vh-5rem)] flex flex-col justify-center px-4">
+          <div className="container mx-auto max-w-5xl grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-6 md:gap-10 items-center">
+            {/* Kolom kiri: headline statis */}
+            <div className="text-center md:text-left">
+              <h2
+                className="pixel-font text-2xl md:text-4xl font-bold mb-3"
+                style={{ textShadow: "0 2px 12px rgba(0,0,0,0.9), 0 0 24px rgba(0,0,0,0.6)" }}
+              >
+                Featured <span className="text-primary">Projects</span>
+              </h2>
+              <p
+                className="text-foreground/80 max-w-md mx-auto md:mx-0"
+                style={{ textShadow: "0 1px 8px rgba(0,0,0,0.9)" }}
+              >
+                Beberapa proyek pilihan yang menunjukkan keahlian saya di bidang web dan mobile.
+              </p>
+              <motion.a
+                href="https://github.com/Devx-cloud"
+                className="text-sm cosmic-button w-fit inline-flex items-center gap-2 mt-5"
+                target="_blank"
+                rel="noreferrer"
+                whileHover={{ scale: 1.05, boxShadow: "0px 10px 20px rgba(0, 0, 0, 0.2)" }}
+                transition={{ duration: 0.2 }}
+              >
+                View My Github <ArrowRight size={16} />
+              </motion.a>
             </div>
-        </motion.section>
-    )
-}
+
+            {/* Navigasi angka */}
+            <div className="flex md:flex-col items-center justify-center gap-4 md:gap-6 md:border-l md:border-border md:pl-6 order-first md:order-none">
+              {Projects.map((project, i) => (
+                <button
+                  key={project.id}
+                  type="button"
+                  onClick={() => goToIndex(i)}
+                  aria-current={activeIndex === i ? "true" : undefined}
+                  aria-label={`Lihat project ${project.title}`}
+                  className={`pixel-font-null text-2xl md:text-3xl leading-none transition-colors duration-300 ${
+                    activeIndex === i
+                      ? "text-primary font-bold"
+                      : "text-foreground/30 hover:text-foreground/60"
+                  }`}
+                >
+                  {i + 1}
+                </button>
+              ))}
+            </div>
+
+            {/* Kolom kanan: kartu konten cross-fade */}
+            <div className="relative min-h-[420px] md:min-h-[480px]">
+              <AnimatePresence initial={false}>
+                <motion.div
+                  key={active.id}
+                  initial={{
+                    opacity: 0,
+                    y: reducedMotion ? 0 : 18,
+                    scale: reducedMotion ? 1 : 0.97,
+                    filter: reducedMotion ? "blur(0px)" : "blur(6px)",
+                  }}
+                  animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
+                  exit={{
+                    opacity: 0,
+                    y: reducedMotion ? 0 : -18,
+                    scale: reducedMotion ? 1 : 0.97,
+                    filter: reducedMotion ? "blur(0px)" : "blur(6px)",
+                  }}
+                  transition={{
+                    duration: reducedMotion ? 0 : 0.6,
+                    ease: [0.16, 1, 0.3, 1],
+                  }}
+                  className="absolute inset-0 flex flex-col"
+                >
+                  <div className="project-image-reveal project-gloss relative h-52 md:h-60 overflow-hidden shrink-0 rounded-2xl">
+                    <img
+                      src={active.image}
+                      alt={active.title}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="pt-4 md:pt-5 flex flex-col flex-1">
+                    <div className="flex flex-wrap gap-3 mb-3">
+                      {active.tags.map((tag, idx) => {
+                        const meta = tagIcons[tag];
+                        return (
+                          <div
+                            key={tag}
+                            className="tag-reveal"
+                            style={{ animationDelay: `${0.35 + idx * 0.07}s` }}
+                          >
+                            <div
+                              title={tag}
+                              aria-label={tag}
+                              style={{ animationDelay: `${idx * 0.15}s` }}
+                              className="tag-float flex items-center justify-center w-10 h-10 rounded-lg bg-card border border-border/60 shadow-sm"
+                            >
+                              {meta ? (
+                                <meta.icon className={`w-5 h-5 ${meta.color}`} />
+                              ) : (
+                                <span className="text-[9px] uppercase text-foreground/70">{tag}</span>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                    <h3
+                      className="project-reveal pixel-font-null uppercase tracking-wide text-lg mb-2"
+                      style={{ animationDelay: "0.2s" }}
+                    >
+                      {active.title}
+                    </h3>
+                    <p
+                      className="project-reveal text-foreground/70 text-sm leading-relaxed mb-4 flex-1"
+                      style={{ animationDelay: "0.3s" }}
+                    >
+                      {active.desc}
+                    </p>
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+            </div>
+          </div>
+        </div>
+      </motion.section>
+
+      {/* CTA persist di semua state: github repo dari project yang sedang aktif */}
+      <a
+        href={active.githubUrl}
+        target="_blank"
+        rel="noreferrer"
+        aria-label={`Github: ${active.title}`}
+        className="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-40 cosmic-button flex items-center justify-center"
+      >
+        <Github size={18} />
+      </a>
+    </>
+  );
+};
