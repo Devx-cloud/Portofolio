@@ -1,6 +1,4 @@
 import { Link } from "react-router-dom";
-import { StarBackground } from "../components/StarBackground";
-import { CloudBackground } from "../components/CloudBackground"
 import { useEffect, useState } from "react";
 
 export const NotFound = () => {
@@ -30,7 +28,6 @@ export const NotFound = () => {
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden relative flex flex-col">
       {/* Background Effects */}
-      <StarBackground />
 
       <main className="relative z-10 flex flex-col items-center justify-center flex-grow px-6 text-center">
         {/* Judul 404 dengan animasi float + glow */}

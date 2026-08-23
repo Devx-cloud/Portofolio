@@ -1,86 +1,214 @@
-import { Send } from "lucide-react";
+import { Send, Mail, MapPin, Download, Github, Instagram, Linkedin } from "lucide-react";
 import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
+
+/* Ganti dengan alamat email yang ingin ditampilkan publik */
+const CONTACT_EMAIL = "email-kamu@contoh.com";
+
+const socialLinks = [
+  { name: "Github", href: "https://github.com/Devx-cloud", icon: Github },
+  { name: "Instagram", href: "https://www.instagram.com/devx.sun/", icon: Instagram },
+  { name: "Linkedin", href: "https://www.linkedin.com/in/deva-surya-5a6568380/", icon: Linkedin },
+];
 
 const containerVariants = {
   hidden: {},
-  visible: { transition: { staggerChildren: 0.12, delayChildren: 0.1 } },
+  visible: { transition: { staggerChildren: 0.1, delayChildren: 0.05 } },
 };
 
 const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
+  hidden: { opacity: 0, y: 18 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: "easeOut" } },
+};
+
+const labelClass = "pixel-font mb-2 block text-[9px] uppercase text-muted-foreground md:text-[10px]";
+
+const fieldClass =
+  "w-full glass-input px-3 py-2.5 text-sm transition-colors duration-150 placeholder:text-muted-foreground/60 focus:stage-border focus:outline-none";
+
+/* Panel bertab, mengikuti bahasa visual stage Profile & Skills */
+const Panel = ({ label, className, children }) => (
+  <div className={cn("relative glass-panel scanlines px-5 pt-7 pb-5", className)}>
+    <span className="pixel-font absolute -top-3 left-4 glass-chip stage-border stage-bg-soft stage-text px-2.5 py-1 text-[9px] uppercase whitespace-nowrap">
+      {label}
+    </span>
+    {children}
+  </div>
+);
+
+const ChannelRow = ({ icon: Icon, label, value, href }) => {
+  const body = (
+    <>
+      <span className="flex h-8 w-8 shrink-0 items-center justify-center glass-chip transition-colors duration-150 group-hover:stage-border group-hover:stage-text">
+        <Icon className="h-3.5 w-3.5" />
+      </span>
+      <span className="min-w-0">
+        <span className="pixel-font block text-[8px] uppercase text-muted-foreground md:text-[9px]">
+          {label}
+        </span>
+        <span className="block truncate text-sm text-foreground/90 transition-colors duration-150 group-hover:stage-text">
+          {value}
+        </span>
+      </span>
+    </>
+  );
+
+  return href ? (
+    <a href={href} className="group flex items-center gap-3">
+      {body}
+    </a>
+  ) : (
+    <div className="group flex items-center gap-3">{body}</div>
+  );
 };
 
 export const ContactSection = () => {
   return (
-    <section id="contact" className="flex items-start justify-center px-4 pt-2 pb-4">
+    <section id="contact" className="relative px-4 pt-4 pb-16 md:pt-6 md:pb-20">
       <motion.div
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="w-full max-w-xl bg-card border border-border rounded-lg p-6 shadow-lg"
+        className="container mx-auto max-w-5xl"
       >
-        <motion.h2 variants={itemVariants} className="pixel-font text-2xl md:text-3xl font-bold mb-2 text-center">
-          Get In <span className="text-primary">Touch</span>
-        </motion.h2>
-        <motion.p variants={itemVariants} className="text-center text-muted-foreground text-sm mb-5">
-          Ada proyek atau ide yang ingin didiskusikan? Kirim pesan lewat form di bawah.
-        </motion.p>
+        {/* Header */}
+        <motion.div
+          variants={itemVariants}
+          className="mb-8 flex flex-col items-center gap-3 text-center md:mb-10"
+        >
+          <span className="pixel-font glass-chip stage-border-soft px-3 py-1 text-[9px] uppercase stage-text md:text-[10px]">
+            Batas Akhir &middot; Kontak
+          </span>
+          <h2 className="pixel-font text-2xl font-bold md:text-4xl">
+            Get In <span className="text-primary">Touch</span>
+          </h2>
+          <p className="max-w-xl text-sm leading-relaxed text-muted-foreground">
+            Punya ide proyek, tawaran kerja, atau sekadar ingin berdiskusi soal teknologi? Pilih
+            jalur tercepat di kiri, atau tinggalkan pesan lewat form.
+          </p>
+        </motion.div>
 
-        <form className="space-y-3">
+        <div className="grid gap-6 md:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] md:gap-5">
+          {/* Kolom kiri: jalur kontak langsung */}
           <motion.div variants={itemVariants}>
-            <label htmlFor="name" className="block text-sm font-medium mb-2">
-              Your Name
-            </label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              required
-              className="w-full px-4 py-3 rounded-md border border-input bg-background focus:outline-hidden focus:ring-2 focus:ring-primary"
-              placeholder="Deva Surya..."
-            />
+            <Panel label="Jalur Langsung" className="h-full">
+              <div className="flex h-full flex-col gap-4">
+                <ChannelRow
+                  icon={Mail}
+                  label="Email"
+                  value={CONTACT_EMAIL}
+                  href={`mailto:${CONTACT_EMAIL}`}
+                />
+                <ChannelRow icon={MapPin} label="Lokasi" value="Tabanan, Bali — Indonesia" />
+
+                <div className="border-t-2 border-border pt-4">
+                  <span className="pixel-font mb-2.5 block text-[8px] uppercase text-muted-foreground md:text-[9px]">
+                    Sosial
+                  </span>
+                  <div className="flex flex-wrap gap-2">
+                    {socialLinks.map(({ name, href, icon: Icon }) => (
+                      <a
+                        key={name}
+                        href={href}
+                        target="_blank"
+                        rel="noreferrer"
+                        aria-label={name}
+                        title={name}
+                        className="flex h-9 w-9 items-center justify-center glass-chip text-foreground/70 transition-colors duration-150 hover:stage-border hover:stage-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                      >
+                        <Icon className="h-4 w-4" />
+                      </a>
+                    ))}
+                  </div>
+                </div>
+
+                <a
+                  href="/cv/cv-1.pdf"
+                  download
+                  className="pixel-font mt-auto flex items-center justify-center gap-2 glass-chip px-3 py-2.5 text-[9px] uppercase text-foreground/80 transition-all duration-150 hover:stage-border hover:stage-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary md:text-[10px]"
+                >
+                  <Download className="h-3.5 w-3.5" />
+                  Unduh CV
+                </a>
+              </div>
+            </Panel>
           </motion.div>
 
+          {/* Kolom kanan: form pesan */}
           <motion.div variants={itemVariants}>
-            <label htmlFor="email" className="block text-sm font-medium mb-2">
-              Your Email
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              required
-              className="w-full px-4 py-3 rounded-md border border-input bg-background focus:outline-hidden focus:ring-2 focus:ring-primary"
-              placeholder="deva@gmail.com"
-            />
-          </motion.div>
+            <Panel label="Kirim Pesan">
+              {/* NOTE: submit belum terhubung ke mana pun - pasang handler/action di sini nanti */}
+              <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <label htmlFor="name" className={labelClass}>
+                      Nama
+                    </label>
+                    <input
+                      type="text"
+                      id="name"
+                      name="name"
+                      required
+                      autoComplete="name"
+                      className={fieldClass}
+                      placeholder="Nama kamu"
+                    />
+                  </div>
 
-          <motion.div variants={itemVariants}>
-            <label htmlFor="message" className="block text-sm font-medium mb-2">
-              Your Message
-            </label>
-            <textarea
-              id="message"
-              name="message"
-              required
-              rows={3}
-              className="w-full px-4 py-3 rounded-md border border-input bg-background focus:outline-hidden focus:ring-2 focus:ring-primary resize-none"
-              placeholder="Hallo, i'd like to talk about..."
-            />
-          </motion.div>
+                  <div>
+                    <label htmlFor="email" className={labelClass}>
+                      Email
+                    </label>
+                    <input
+                      type="email"
+                      id="email"
+                      name="email"
+                      required
+                      autoComplete="email"
+                      className={fieldClass}
+                      placeholder="nama@email.com"
+                    />
+                  </div>
+                </div>
 
-          <motion.button
-            variants={itemVariants}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.97 }}
-            type="submit"
-            className="cosmic-button w-full flex items-center justify-center gap-2"
-          >
-            Send Message
-            <Send size={16} />
-          </motion.button>
-        </form>
+                <div>
+                  <label htmlFor="subject" className={labelClass}>
+                    Subjek
+                  </label>
+                  <input
+                    type="text"
+                    id="subject"
+                    name="subject"
+                    className={fieldClass}
+                    placeholder="Kolaborasi proyek, tawaran kerja, dll."
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="message" className={labelClass}>
+                    Pesan
+                  </label>
+                  <textarea
+                    id="message"
+                    name="message"
+                    required
+                    rows={5}
+                    className={cn(fieldClass, "resize-none")}
+                    placeholder="Halo Deva, saya ingin membahas tentang..."
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  className="pixel-font flex w-full items-center justify-center gap-2 glass-chip stage-border stage-bg-soft stage-text stage-shadow px-4 py-3 text-[10px] uppercase transition-all duration-150 hover:stage-glow active:translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary md:text-xs"
+                >
+                  Kirim Pesan
+                  <Send size={14} />
+                </button>
+              </form>
+            </Panel>
+          </motion.div>
+        </div>
       </motion.div>
     </section>
   );

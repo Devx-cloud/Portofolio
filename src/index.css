@@ -1,28 +1,32 @@
 @import "tailwindcss";
 
-@keyframes cloud-move {
-  0% {
-    transform: translateX(-120%); /* Start completely off-screen left, relative to its own width */
-  }
-  100% {
-    transform: translateX(calc(100vw + 20%)); /* Move completely off-screen right */
-  }
-}
+/* =========================================================
+   THEME: Glassmorphism x Pixel
+   - Sudut keras + border tebal  -> sisi pixel
+   - Isi transparan + backdrop blur -> sisi glass
+   - Palet multi-hue: merah (brand), cyan, amber, violet, emerald
+   ========================================================= */
 
 @theme {
-  --color-border: hsl(var(--border));
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-border: hsl(var(--border));
+  --color-card: hsl(var(--card));
 
   --color-primary: hsl(var(--primary));
   --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-violet: hsl(var(--violet));
+  --color-success: hsl(var(--success));
 
-  --color-card: hsl(var(--card));
+  --color-glass: hsl(var(--glass-bg));
+  --color-glass-border: hsl(var(--glass-border));
 
-
-  --color-card: hsl(var(--card));
-
-  --animete-float: float 6s ease-in-out infinite;
+  --animate-float: float 6s ease-in-out infinite;
   --animate-pulse-subtle: pulse-subtle 4s ease-in-out infinite;
   --animate-fade-in: fade-in 0.7s ease-out forwards;
   --animate-fade-in-delay-1: fade-in 0.7s ease-out 0.2s forwards;
@@ -31,6 +35,7 @@
   --animate-fade-in-delay-4: fade-in 0.7s ease-out 0.8s forwards;
   --animate-meteor: meteor 5s linear infinite;
   --animate-blink: blink 1.2s step-start infinite;
+  --animate-sheen: sheen 2.6s ease-in-out infinite;
 
   @keyframes blink {
     50% {
@@ -39,28 +44,23 @@
   }
 
   @keyframes float {
-
     0%,
     100% {
       transform: translateY(0);
     }
-
     50% {
       transform: translateY(-10px);
     }
   }
 
   @keyframes pulse-subtle {
-
     0%,
     100% {
       opacity: 1;
     }
-
     50% {
       opacity: 0.8;
     }
-
   }
 
   @keyframes fade-in {
@@ -68,12 +68,10 @@
       opacity: 0;
       transform: translateY(20px);
     }
-
     to {
       opacity: 1;
       transform: translateY(0);
     }
-
   }
 
   @keyframes meteor {
@@ -81,52 +79,86 @@
       transform: rotate(215deg) translateX(0);
       opacity: 1;
     }
-
     70% {
       opacity: 1;
     }
-
     100% {
       transform: rotate(215deg) translateX(-500px);
       opacity: 0;
-
     }
-
   }
 
+  @keyframes sheen {
+    0%,
+    100% {
+      opacity: 0.35;
+    }
+    50% {
+      opacity: 0.75;
+    }
+  }
 }
 
 @layer base {
+  /* ---------- LIGHT: siang arcade, identitas hue tetap sama ---------- */
   :root {
-    --background: 200 100% 90%;
-    --foreground: 210 50% 20%;
+    --background: 220 32% 93%;
+    --background-start: 220 40% 96%;
+    --background-end: 216 34% 87%;
+    --foreground: 230 30% 16%;
+    --muted-foreground: 230 12% 42%;
 
-    --card: 200 50% 95%;
+    --card: 220 40% 98%;
+    --border: 225 20% 80%;
 
-    --primary: 220 80% 60%;
-    --primary-foreground: 200 100% 98%;
+    /* Merah tetap jadi brand di kedua tema - ini yang bikin identitas konsisten */
+    --primary: 356 72% 50%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 190 80% 36%;
+    --secondary-foreground: 0 0% 100%;
+    --accent: 35 90% 44%;
+    --accent-foreground: 30 60% 10%;
+    --violet: 265 62% 55%;
+    --success: 152 55% 34%;
 
-    --border: 210 30% 85%;
-    --footer-background: 206 58% 29%; /* Light theme footer color (#1a4a7c) */
+    --glass-bg: 220 45% 99%;
+    --glass-border: 225 28% 62%;
+    --glass-alpha: 0.62;
+    --glass-blur: 14px;
+
+    --footer-background: 206 58% 29%;
   }
-  .dark{
-    
-    --background: 222 47% 4%;
-    --background-start: 0 70% 0%;
-    --background-end: 0 80% 7%;
-    --foreground: 213 31% 91%;
 
-    --card: 222 47% 8%;
+  /* ---------- DARK: malam arcade ---------- */
+  .dark {
+    --background: 232 38% 6%;
+    --background-start: 236 45% 4%;
+    --background-end: 348 45% 8%;
+    --foreground: 220 22% 93%;
+    --muted-foreground: 225 14% 64%;
 
-    --primary: 0 70% 50%;
-    --primary-foreground: 213 31% 91%;
+    --card: 232 32% 11%;
+    --border: 230 24% 26%;
 
-    --border: 217 33% 20%;
-    --footer-background: 0 70% 11%; /* Dark theme footer color (#2e0808) */
+    --primary: 356 82% 58%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 186 84% 55%;
+    --secondary-foreground: 200 60% 6%;
+    --accent: 38 94% 60%;
+    --accent-foreground: 30 60% 8%;
+    --violet: 265 80% 70%;
+    --success: 152 62% 50%;
+
+    --glass-bg: 232 34% 14%;
+    --glass-border: 226 30% 46%;
+    --glass-alpha: 0.5;
+    --glass-blur: 16px;
+
+    --footer-background: 0 70% 11%;
   }
 
-  * padding {
-    @apply border-border;
+  * {
+    border-color: hsl(var(--border));
   }
 
   html {
@@ -134,52 +166,78 @@
   }
 
   body {
-    @apply bg-background text-foreground transition-colors duration-300;
+    @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
-
-    /* background: linear-gradient(to bottom,
-        hsl(var(--background-start)),
-        hsl(var(--background-end))); */
+    transition: background-color 0.3s ease, color 0.3s ease;
     background: radial-gradient(
-    ellipse at bottom center,
-    /* hsl(var(--background-sun)) 0%, */
-    hsl(var(--background-end)) 0%,
-    hsl(var(--background-start)) 100%
-    
-  );
-  /* font-family: 'PixelFont', sans-serif; */
-  /* letter-spacing: 2px; */
+      ellipse at bottom center,
+      hsl(var(--background-end)) 0%,
+      hsl(var(--background-start)) 100%
+    );
+    background-attachment: fixed;
   }
 
-  .star, .meteor {
-    display: none; /* Hidden by default in light theme */
+  /* Langit: bintang & meteor hanya di tema gelap, kecuali adegan night-scene */
+  .star,
+  .meteor {
+    display: none;
   }
 
-  html.dark .star, html.dark .meteor {
-    display: block; /* Visible only in dark theme */
+  html.dark .star,
+  html.dark .meteor {
+    display: block;
+  }
+
+  /* Adegan yang selalu malam (Title Screen, Profile) - langit tetap tampil di tema terang */
+  .night-scene .star,
+  .night-scene .meteor {
+    display: block;
+  }
+
+  /* ...dan paletnya dikunci ke versi gelap apa pun tema yang aktif,
+     supaya komponen di dalamnya bisa pakai token biasa tanpa hardcode warna. */
+  .night-scene {
+    --background: 232 38% 6%;
+    --foreground: 220 22% 93%;
+    --muted-foreground: 225 14% 64%;
+    --card: 232 32% 11%;
+    --border: 230 24% 26%;
+
+    --primary: 356 82% 58%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 186 84% 55%;
+    --secondary-foreground: 200 60% 6%;
+    --accent: 38 94% 60%;
+    --accent-foreground: 30 60% 8%;
+    --violet: 265 80% 70%;
+    --success: 152 62% 50%;
+
+    --glass-bg: 232 34% 14%;
+    --glass-border: 226 30% 46%;
+    --glass-alpha: 0.5;
+    --glass-blur: 16px;
   }
 
   .cloud {
     position: absolute;
-    background-color: rgba(255, 255, 255, 0.7); /* Translucent white */
-    border-radius: 50% 50% 0 0 / 100% 100% 0 0; /* Cloud shape */
-    filter: blur(8px); /* Soft edges */
-    z-index: -1; /* Behind content */
-    display: none; /* Hidden by default in dark theme */
+    background-color: rgba(255, 255, 255, 0.7);
+    border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+    filter: blur(8px);
+    z-index: -1;
+    display: none;
   }
 
-  /* Make visible in light theme */
   html:not(.dark) .cloud {
     display: block;
   }
 
   .pixel-font {
-  font-family: 'PixelFontH', sans-serif;
-  /* letter-spacing: 2px; */
-}  .pixel-font-null {
-  font-family: 'PixelFontNull', sans-serif;
-  /* letter-spacing: 2px; */
-}
+    font-family: "PixelFontH", sans-serif;
+  }
+
+  .pixel-font-null {
+    font-family: "PixelFontNull", sans-serif;
+  }
 
   .tag-float {
     animation: tag-float 2.2s ease-in-out infinite;
@@ -201,10 +259,37 @@
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(100deg, transparent 40%, rgba(255, 255, 255, 0.45) 50%, transparent 60%);
+    background: linear-gradient(
+      100deg,
+      transparent 40%,
+      rgba(255, 255, 255, 0.45) 50%,
+      transparent 60%
+    );
     transform: translateX(-120%) skewX(-15deg);
     animation: project-gloss-sweep 0.9s ease-out 0.15s both;
     pointer-events: none;
+  }
+
+  /* Overlay wipe antar halaman - steps() bikin sapuannya patah-patah ala pixel */
+  .page-wipe {
+    background-image: linear-gradient(
+      180deg,
+      hsl(var(--primary) / 0.92) 0%,
+      hsl(var(--violet) / 0.88) 45%,
+      hsl(var(--secondary) / 0.92) 100%
+    );
+    animation: page-wipe 0.5s steps(10, end) both;
+  }
+
+  .page-wipe::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent 0 3px,
+      hsl(0 0% 0% / 0.22) 3px 6px
+    );
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -215,6 +300,238 @@
     .project-gloss::after {
       animation: none;
     }
+
+    .page-wipe {
+      display: none;
+    }
+
+    html {
+      scroll-behavior: auto;
+    }
+  }
+}
+
+/* =========================================================
+   UTILITIES: Glass x Pixel
+   ========================================================= */
+
+@property --glass-border-color {
+  syntax: "*";
+  inherits: false;
+}
+
+/* Panel utama: kaca buram, sudut keras, border tebal, bayangan pixel */
+@utility glass-panel {
+  background-color: hsl(var(--glass-bg) / var(--glass-alpha));
+  backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  border: 2px solid var(--glass-border-color, hsl(var(--glass-border) / 0.5));
+  box-shadow:
+    inset 0 1px 0 0 hsl(0 0% 100% / 0.12),
+    inset 0 0 0 1px hsl(var(--background) / 0.35),
+    0 12px 32px -14px hsl(var(--background) / 0.9);
+}
+
+/* Varian lebih pekat untuk area yang memuat teks panjang */
+@utility glass-panel-solid {
+  background-color: hsl(var(--glass-bg) / calc(var(--glass-alpha) + 0.28));
+  backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  border: 2px solid var(--glass-border-color, hsl(var(--glass-border) / 0.55));
+  box-shadow:
+    inset 0 1px 0 0 hsl(0 0% 100% / 0.12),
+    0 12px 32px -14px hsl(var(--background) / 0.9);
+}
+
+/* Kaca tipis untuk chip / tombol kecil */
+@utility glass-chip {
+  background-color: hsl(var(--glass-bg) / calc(var(--glass-alpha) - 0.2));
+  backdrop-filter: blur(8px) saturate(140%);
+  -webkit-backdrop-filter: blur(8px) saturate(140%);
+  border: 2px solid var(--glass-border-color, hsl(var(--glass-border) / 0.45));
+}
+
+/* Field input bergaya kaca */
+@utility glass-input {
+  background-color: hsl(var(--glass-bg) / calc(var(--glass-alpha) - 0.1));
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 2px solid var(--glass-border-color, hsl(var(--glass-border) / 0.45));
+}
+
+/* Bayangan keras tanpa blur - detail khas pixel art */
+@utility pixel-shadow {
+  box-shadow: 4px 4px 0 0 hsl(var(--primary) / 0.35);
+}
+
+@utility pixel-shadow-sm {
+  box-shadow: 3px 3px 0 0 hsl(var(--primary) / 0.3);
+}
+
+/* Empat sudut bertanda - bikin panel kaca tetap terbaca sebagai pixel UI */
+@utility pixel-corners {
+  position: relative;
+
+  &::before,
+  &::after {
+    content: "";
+    position: absolute;
+    width: 7px;
+    height: 7px;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  &::before {
+    top: -2px;
+    left: -2px;
+    border-top: 2px solid hsl(var(--stage-accent, var(--primary)));
+    border-left: 2px solid hsl(var(--stage-accent, var(--primary)));
+  }
+
+  &::after {
+    bottom: -2px;
+    right: -2px;
+    border-bottom: 2px solid hsl(var(--stage-accent, var(--primary)));
+    border-right: 2px solid hsl(var(--stage-accent, var(--primary)));
+  }
+}
+
+/* Garis pindai CRT tipis di atas panel */
+@utility scanlines {
+  position: relative;
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent 0 2px,
+      hsl(var(--foreground) / 0.04) 2px 4px
+    );
+  }
+}
+
+/* Sorotan gradien multi-hue - dipakai tipis supaya warna tidak berat sebelah */
+@utility aurora {
+  background-image:
+    radial-gradient(60% 80% at 15% 10%, hsl(var(--primary) / 0.16), transparent 60%),
+    radial-gradient(50% 70% at 85% 20%, hsl(var(--secondary) / 0.14), transparent 60%),
+    radial-gradient(60% 60% at 50% 95%, hsl(var(--violet) / 0.12), transparent 60%);
+}
+
+/* Hue identitas per stage. Komponen memasang --stage-accent lewat inline style,
+   utility di bawah ini yang memakainya - jadi satu set kelas untuk lima warna. */
+@utility stage-text {
+  color: hsl(var(--stage-accent, var(--primary)));
+}
+
+@utility stage-ink {
+  color: hsl(var(--stage-ink, var(--primary-foreground)));
+}
+
+@utility stage-bg {
+  background-color: hsl(var(--stage-accent, var(--primary)));
+}
+
+@utility stage-bg-soft {
+  background-image: linear-gradient(
+    hsl(var(--stage-accent, var(--primary)) / 0.14),
+    hsl(var(--stage-accent, var(--primary)) / 0.14)
+  );
+}
+
+@utility stage-border {
+  --glass-border-color: hsl(var(--stage-accent, var(--primary)));
+  border-color: hsl(var(--stage-accent, var(--primary)));
+}
+
+@utility stage-border-soft {
+  --glass-border-color: hsl(var(--stage-accent, var(--primary)) / 0.45);
+  border-color: hsl(var(--stage-accent, var(--primary)) / 0.45);
+}
+
+@utility stage-glow {
+  box-shadow: 0 0 22px -4px hsl(var(--stage-accent, var(--primary)) / 0.55);
+}
+
+@utility stage-shadow {
+  box-shadow: 3px 3px 0 0 hsl(var(--stage-accent, var(--primary)) / 0.35);
+}
+
+@utility text-glow {
+  text-shadow: 0 0 12px hsl(var(--primary) / 0.55);
+}
+
+@utility card-hover {
+  @apply transition-transform duration-300;
+}
+
+/* Tombol utama bergaya pixel (dulu rounded-full) */
+@utility cosmic-button {
+  @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 font-medium transition-all duration-200 active:translate-y-0.5;
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  border: 2px solid hsl(var(--primary));
+  box-shadow: 3px 3px 0 0 hsl(var(--primary) / 0.35);
+}
+
+@utility container {
+  margin-inline: auto;
+  padding-inline: 2rem;
+
+  @media (width >=640px) {
+    max-width: 640px;
+  }
+
+  @media (width >=768px) {
+    max-width: 768px;
+  }
+
+  @media (width >=1024px) {
+    max-width: 1024px;
+  }
+
+  @media (width >=1280px) {
+    max-width: 1280px;
+  }
+
+  @media (width >=1400px) {
+    max-width: 1400px;
+  }
+}
+
+@utility star {
+  @apply absolute;
+  background: hsl(var(--primary));
+  box-shadow: 0 0 10px 2px hsl(var(--primary) / 0.4);
+  filter: blur(0.5px);
+}
+
+@utility meteor {
+  @apply absolute;
+  background-image: linear-gradient(
+    to right,
+    hsl(var(--primary)),
+    hsl(var(--accent) / 0.8),
+    transparent
+  );
+  box-shadow: -5px 0 10px 5px hsl(var(--primary) / 0.3);
+}
+
+/* =========================================================
+   KEYFRAMES
+   ========================================================= */
+
+@keyframes cloud-move {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(calc(100vw + 20%));
   }
 }
 
@@ -275,102 +592,40 @@
   }
 }
 
-@utility container {
-  margin-inline: auto;
-  padding-inline: 2rem;
-
-  @media (width >=640px) {
-    max-width: 640px;
+/* Transisi antar halaman: wipe pixel bertahap */
+@keyframes page-wipe {
+  0% {
+    clip-path: inset(0 0 100% 0);
+    opacity: 1;
   }
-
-  @media (width >=768px) {
-    max-width: 768px;
+  45% {
+    clip-path: inset(0 0 0 0);
+    opacity: 1;
   }
-
-  @media (width >=1024px) {
-    max-width: 1024px;
+  55% {
+    clip-path: inset(0 0 0 0);
+    opacity: 1;
   }
-
-  @media (width >=1280px) {
-    max-width: 1280px;
-  }
-
-  @media (width >=1400px) {
-    max-width: 1400px;
+  100% {
+    clip-path: inset(100% 0 0 0);
+    opacity: 1;
   }
 }
-
-@utility text-glow {
-  @apply relative;
-  text-shadow: 0 0 10px rgba(167, 139, 250, 0.5)
-}
-
-@utility card-hover {
-  @apply transition-transform duration-300;
-}
-
-/* @utility card-hover {
-  @apply transition-transform duration-300 hover: scale-[1.02] hover: shadow-lg;
-} */
-
-@utility gradien-border {
-  @apply relative rounded-md;
-  background: linear-gradient(to right, hsl(var(--card)), hsl(var(--card)));
-  background-clip: padding-box;
-  border: 1px solid transparent;
-}
-
-@utility cosmic-button {
-  @apply px-6 py-2 rounded-full bg-primary text-primary-foreground font-medium transition-all duration-300 active:scale-95;
-}
-
-/* @utility cosmic-button {
-  @apply px-6 py-2 rounded-full bg-primary text-primary-foreground font-medium 
-  transition-all duration-300 hover:shadow-[0_0_10px_rgba(139,92,246,0.5)]
-  hover: scale-105 active:scale-95; 
-} */
-  
-/* @utility star {
-  @apply absolute rounded-full bg-white;
-  box-shadow: 0 0 10px 2px rgba(255, 255, 255, 0.4);
-}
-
-@utility meteor {
-  @apply absolute bg-linear-to-r from-white via-white to-transparent rounded-full;
-  box-shadow: -5px 0px 10px 5px rgba(255, 255, 255, 0.3);
-} */
-
-@utility star {
-  @apply absolute;
-  background: hsl(0, 70%, 50%); /* merah */
-  box-shadow: 0 0 10px 2px rgba(255, 50, 50, 0.4);
-  filter: blur(0.5px); /* Subtle blur */
-}
-
-@utility meteor {
-  @apply absolute bg-linear-to-r from-red-500 via-red-400 to-transparent;
-  /* @apply absolute bg-linear-to-r from-red-500 via-red-400 to-transparent rounded-full; */
-  box-shadow: -5px 0px 10px 5px rgba(255, 50, 50, 0.3);
-}
-/* src/App.css atau berkas CSS lainnya */
 
 @font-face {
-  font-family: 'PixelFontH'; /* Beri nama sesuai keinginan Anda */
-  /* src: url('./assets/fonts/upheavtt.ttf') format('truetype');  */
-  /* Arahkan ke berkas font .ttf */
-  /* src: url('./assets/fonts/Better.ttf') format('truetype');  */
-  src: url('./assets/fonts/big-shot.ttf') format('truetype'); 
-  /* src: url('./assets/fonts/Goblin.otf') format('opentype');  */
+  font-family: "PixelFontH";
+  src: url("./assets/fonts/big-shot.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
+  font-display: swap;
 }
+
 @font-face {
-  font-family: 'PixelFontNull'; /* Beri nama sesuai keinginan Anda */
-
-  src: url('./assets/fonts/deltarune.ttf') format('truetype'); 
-
+  font-family: "PixelFontNull";
+  src: url("./assets/fonts/deltarune.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
+  font-display: swap;
 }
 
 :root {

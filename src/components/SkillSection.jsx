@@ -1,169 +1,210 @@
-import { useState, useEffect, useRef } from "react"; // Re-introduced useEffect
+import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { FaReact, FaHtml5, FaCss3Alt, FaJava, FaGitAlt, FaPython, FaLaravel } from "react-icons/fa";
-import { SiJavascript, SiTailwindcss, SiMysql, SiCanva, SiTensorflow, SiAndroidstudio, SiPhp, SiFlutter } from "react-icons/si";
+import { SiJavascript, SiTailwindcss, SiMysql, SiPhp, SiFlutter, SiAndroidstudio } from "react-icons/si";
 import { motion, AnimatePresence } from "framer-motion";
-import Tilt from "react-parallax-tilt";
+
+/* Tier dipakai sebagai "stat bar" ala RPG - sesuaikan kalau porsinya berubah */
+const TIERS = {
+  core: { label: "Utama", blocks: 3 },
+  support: { label: "Pendukung", blocks: 2 },
+  explore: { label: "Eksplorasi", blocks: 1 },
+};
+
+const iconClass = "h-10 w-10 md:h-12 md:w-12";
 
 const skills = [
   // Web
-  {name: "ReactJs", icon: <FaReact className="h-16 w-16 text-sky-400" />, category: "web"},
-  {name: "HTML", icon: <FaHtml5 className="h-16 w-16 text-orange-500" />, category: "web"},
-  {name: "CSS", icon: <FaCss3Alt className="h-16 w-16 text-blue-500" />, category: "web"},
-  {name: "JavaScript", icon: <SiJavascript className="h-16 w-16 text-yellow-400" />, category: "web"},
-  {name: "Tailwind CSS", icon: <SiTailwindcss className="h-16 w-16 text-cyan-400" />, category: "web"},
-  {name: "MySQL", icon: <SiMysql className="h-16 w-16 text-sky-600" />, category: "web"},
-  {name: "Laravel", icon: <FaLaravel className="h-16 w-16 text-red-600" />, category: "web"},
-  {name: "PHP", icon: <SiPhp className="h-16 w-16 text-indigo-500" />, category: "web"},
+  { name: "Laravel", icon: <FaLaravel className={`${iconClass} text-red-600`} />, category: "web", tier: "core" },
+  { name: "PHP", icon: <SiPhp className={`${iconClass} text-indigo-500`} />, category: "web", tier: "core" },
+  { name: "JavaScript", icon: <SiJavascript className={`${iconClass} text-yellow-400`} />, category: "web", tier: "core" },
+  { name: "HTML", icon: <FaHtml5 className={`${iconClass} text-orange-500`} />, category: "web", tier: "core" },
+  { name: "CSS", icon: <FaCss3Alt className={`${iconClass} text-blue-500`} />, category: "web", tier: "core" },
+  { name: "Tailwind CSS", icon: <SiTailwindcss className={`${iconClass} text-cyan-400`} />, category: "web", tier: "core" },
+  { name: "MySQL", icon: <SiMysql className={`${iconClass} text-sky-600`} />, category: "web", tier: "support" },
+  { name: "ReactJs", icon: <FaReact className={`${iconClass} text-sky-400`} />, category: "web", tier: "support" },
 
-  // App
-  {name: "Java", icon: <FaJava className="h-16 w-16 text-red-500" />, category: "app"},
-  {name: "Flutter", icon: <SiFlutter className="h-16 w-16 text-blue-400" />, category: "app"},
-  {name: "Android Studio", icon: <SiAndroidstudio className="h-16 w-16 text-green-600" />, category: "app"},
-  {name: "Git", icon: <FaGitAlt className="h-16 w-16 text-orange-600" />, category: "app"},
+  // Mobile
+  { name: "Flutter", icon: <SiFlutter className={`${iconClass} text-blue-400`} />, category: "app", tier: "core" },
+  { name: "Android Studio", icon: <SiAndroidstudio className={`${iconClass} text-green-600`} />, category: "app", tier: "support" },
+  { name: "Git", icon: <FaGitAlt className={`${iconClass} text-orange-600`} />, category: "app", tier: "support" },
+  { name: "Java", icon: <FaJava className={`${iconClass} text-red-500`} />, category: "app", tier: "explore" },
 
-  // AI
-  {name: "Python", icon: <FaPython className="h-16 w-16 text-yellow-500" />, category: "ai"},
-  //   { name: "TensorFlow", icon: <SiTensorflow className="h-16 w-16 text-orange-400" />, category: "ai" },
-
-  // Tools (tetap bisa dimasukkan juga kalau mau)
-  //   { name: "Canva", icon: <SiCanva className="h-16 w-16 text-teal-400" />, category: "web" },
+  // AI / Data
+  { name: "Python", icon: <FaPython className={`${iconClass} text-yellow-500`} />, category: "ai", tier: "explore" },
 ];
 
-const category = ["all", "web", "app", "ai"];
+const categories = [
+  { id: "all", label: "Semua" },
+  { id: "web", label: "Web" },
+  { id: "app", label: "Mobile" },
+  { id: "ai", label: "AI / Data" },
+];
 
-const sectionVariants = {
-  hidden: { opacity: 0, y: 50 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
-};
+const countFor = (id) =>
+  id === "all" ? skills.length : skills.filter((s) => s.category === id).length;
 
-const fadeInUpVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
+const gridVariants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.05 } },
 };
 
 const cardVariants = {
-  hidden: { opacity: 0, scale: 0.8 },
-  visible: {
-    opacity: 1,
-    scale: 1,
-    transition: { duration: 0.5, ease: "easeOut" },
-  },
+  hidden: { opacity: 0, y: 14 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.35, ease: "easeOut" } },
+  exit: { opacity: 0, y: -10, transition: { duration: 0.18 } },
 };
+
+const StatBar = ({ blocks }) => (
+  <div className="flex w-full items-center gap-1">
+    {[0, 1, 2].map((i) => (
+      <span
+        key={i}
+        className={cn(
+          "h-2 flex-1 border-2 transition-colors duration-200",
+          i < blocks ? "stage-border stage-bg" : "border-border bg-transparent"
+        )}
+      />
+    ))}
+  </div>
+);
 
 export const SkillSection = () => {
   const [activeCategory, setActiveCategory] = useState("all");
-  const [hasAnimated, setHasAnimated] = useState(false); // Re-introduced state
-  const sectionRef = useRef(null); // Re-introduced ref
-
-  useEffect(() => {
-    // Re-introduced useEffect
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && !hasAnimated) {
-          setHasAnimated(true);
-          observer.disconnect();
-        }
-      },
-      {
-        threshold: 0.1,
-      },
-    );
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
-
-    return () => {
-      if (sectionRef.current) {
-        observer.disconnect();
-      }
-    };
-  }, [hasAnimated]);
 
   const filteredSkill = skills.filter(
-    (skill) => activeCategory === "all" || skill.category === activeCategory,
+    (skill) => activeCategory === "all" || skill.category === activeCategory
   );
 
   return (
-    <motion.section
-      id="skills"
-      className="py-24 px-4 relative bg-secondary/30"
-      ref={sectionRef} // Ref added back
-      // Removed initial, whileInView, viewport from here as children will control
-    >
+    <section id="skills" className="relative px-4 pt-4 pb-16 md:pt-6 md:pb-20">
       <div className="container mx-auto max-w-5xl">
-        <motion.h2
-          initial="hidden" // Set initial state
-          animate={hasAnimated ? "visible" : "hidden"} // Animate based on state
-          variants={fadeInUpVariants}
-          className="text-2xl md:text-4xl font-bold mb-12 text-center pixel-font"
-        >
-          My <span className="text-primary">Skills</span>
-        </motion.h2>
-
+        {/* Header */}
         <motion.div
-          initial="hidden" // Set initial state
-          animate={hasAnimated ? "visible" : "hidden"} // Animate based on state
-          variants={fadeInUpVariants}
-          className="flex flex-wrap justify-center gap-4 mb-12"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="mb-7 flex flex-col items-center gap-3 text-center md:mb-9"
         >
-          {category.map((category, key) => (
-            <button
-              key={key}
-              onClick={() => setActiveCategory(category)}
-              className={cn(
-                "px-3 py-2 rounded-full capitalize transition-all duration-300",
-                activeCategory === category
-                  ? "bg-primary text-primary-foreground hover:scale-105 hover:shadow-md"
-                  : "bg-secondary/70 text-foreground hover:bg-secondary hover:scale-105 hover:shadow-md",
-              )}
-            >
-              {category}
-            </button>
-          ))}
+          <span className="pixel-font glass-chip stage-border-soft px-3 py-1 text-[9px] uppercase stage-text md:text-[10px]">
+            Status &middot; Kemampuan
+          </span>
+          <h2 className="pixel-font text-2xl font-bold md:text-4xl">
+            My <span className="text-primary">Skills</span>
+          </h2>
+          <p className="max-w-xl text-sm leading-relaxed text-muted-foreground">
+            Laravel untuk web, Flutter untuk mobile, dan React saat antarmuka butuh sentuhan yang
+            lebih modern. Pilih kategori untuk menyaring daftar di bawah.
+          </p>
         </motion.div>
 
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeCategory}
-            initial="hidden" // Set initial state
-            animate={hasAnimated ? "visible" : "hidden"} // Animate based on state
-            variants={cardVariants}
-            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
-          >
-            {filteredSkill.map((skill, key) => (
-              <motion.div
-                key={skill.name}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 20 }}
-                transition={{ delay: key * 0.1, duration: 0.3 }}
+        {/* Filter kategori: gaya menu pixel */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
+          className="mb-7 flex flex-wrap justify-center gap-2 md:mb-9"
+        >
+          {categories.map((cat) => {
+            const isActive = activeCategory === cat.id;
+            return (
+              <button
+                key={cat.id}
+                type="button"
+                onClick={() => setActiveCategory(cat.id)}
+                aria-pressed={isActive}
+                className={cn(
+                  "group pixel-font flex items-center gap-2 border-2 px-3 py-2 text-[9px] uppercase transition-all duration-150 md:text-[10px]",
+                  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+                  isActive
+                    ? "stage-border stage-bg-soft stage-text stage-shadow"
+                    : "glass-chip text-foreground/70 hover:stage-border hover:text-foreground"
+                )}
               >
-                <Tilt
-                  perspective={500}
-                  glareEnable={true}
-                  glareMaxOpacity={0.45}
-                  scale={1.05}
-                  gyroscope={true}
-                  className="h-full"
-                  style={{ transformStyle: "preserve-3d" }}
+                <span
+                  className={cn(
+                    "transition-opacity",
+                    isActive ? "opacity-100" : "opacity-0 group-hover:opacity-40"
+                  )}
                 >
-                  <div className="bg-card p-6 rounded-lg shadow-xs flex flex-col items-center justify-center text-center hover:shadow-2xl transition-all duration-300 cursor-pointer border border-border/50 h-full" style={{ transformStyle: "preserve-3d" }}>
-                  <div style={{ transform: "translateZ(50px)" }} className="drop-shadow-xl">
-                    {skill.icon}
-                  </div>
+                  &#9654;
+                </span>
+                {cat.label}
+                <span
+                  className={cn(
+                    "border-l pl-2",
+                    isActive ? "stage-border-soft" : "border-border"
+                  )}
+                >
+                  {countFor(cat.id)}
+                </span>
+              </button>
+            );
+          })}
+        </motion.div>
 
-                  <h3 className="font-semibold text-lg mt-4" style={{ transform: "translateZ(30px)" }}>
-                    {skill.name}
-                  </h3>
-                </div>
-                </Tilt>
-              </motion.div>
-            ))}
-          </motion.div>
+        {/* Grid skill */}
+        <AnimatePresence mode="wait">
+          <motion.ul
+            key={activeCategory}
+            variants={gridVariants}
+            initial="hidden"
+            animate="visible"
+            exit="hidden"
+            className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 lg:grid-cols-4"
+          >
+            {filteredSkill.map((skill) => {
+              const tier = TIERS[skill.tier];
+              return (
+                <motion.li key={skill.name} variants={cardVariants} className="list-none">
+                  <div className="group relative flex h-full flex-col items-center gap-3 glass-panel scanlines p-4 text-center transition-all duration-200 hover:-translate-y-1 hover:stage-border hover:stage-glow">
+                    <span className="pixel-font absolute right-2 top-2 text-[8px] uppercase text-muted-foreground/70">
+                      {skill.category === "ai" ? "AI" : skill.category}
+                    </span>
+
+                    <div className="mt-1 transition-transform duration-200 group-hover:scale-110">
+                      {skill.icon}
+                    </div>
+
+                    <h3 className="pixel-font-null text-sm uppercase leading-tight tracking-wide md:text-base">
+                      {skill.name}
+                    </h3>
+
+                    <div className="mt-auto w-full pt-1">
+                      <StatBar blocks={tier.blocks} />
+                      <p className="pixel-font mt-2 text-[8px] uppercase text-muted-foreground md:text-[9px]">
+                        {tier.label}
+                      </p>
+                    </div>
+                  </div>
+                </motion.li>
+              );
+            })}
+          </motion.ul>
         </AnimatePresence>
+
+        {/* Legenda stat bar */}
+        <div className="mt-7 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 border-t-2 border-border pt-5 md:mt-9">
+          {Object.entries(TIERS).map(([key, tier]) => (
+            <div key={key} className="flex items-center gap-2">
+              <div className="flex w-12 items-center gap-1">
+                {[0, 1, 2].map((i) => (
+                  <span
+                    key={i}
+                    className={cn(
+                      "h-1.5 flex-1 border",
+                      i < tier.blocks ? "stage-border stage-bg" : "border-border"
+                    )}
+                  />
+                ))}
+              </div>
+              <span className="pixel-font text-[8px] uppercase text-muted-foreground md:text-[9px]">
+                {tier.label}
+              </span>
+            </div>
+          ))}
+        </div>
       </div>
-    </motion.section>
+    </section>
   );
 };

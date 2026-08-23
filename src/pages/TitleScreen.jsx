@@ -1,29 +1,47 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { stages } from "../data/stages";
 import { StarBackground } from "../components/StarBackground";
+import { useTypewriter } from "../hooks/useTypewriter";
 import { cn } from "@/lib/utils";
 
 export const TitleScreen = () => {
   const [selected, setSelected] = useState(0);
   const [entering, setEntering] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(false);
   const navigate = useNavigate();
 
-  const enterStage = (index) => {
-    if (entering) return;
-    setSelected(index);
-    setEntering(true);
-  };
+  const activeStage = stages[selected];
+  const typed = useTypewriter(activeStage.desc, 18);
+  const dialogue = reducedMotion ? activeStage.desc : typed;
+
+  useEffect(() => {
+    const mql = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReducedMotion(mql.matches);
+    const handleChange = (e) => setReducedMotion(e.matches);
+    mql.addEventListener("change", handleChange);
+    return () => mql.removeEventListener("change", handleChange);
+  }, []);
+
+  const enterStage = useCallback(
+    (index) => {
+      if (entering) return;
+      setSelected(index);
+      setEntering(true);
+    },
+    [entering]
+  );
 
   useEffect(() => {
     if (!entering) return;
-    const timeout = setTimeout(() => navigate(stages[selected].path), 220);
+    const timeout = setTimeout(() => navigate(stages[selected].path), 260);
     return () => clearTimeout(timeout);
   }, [entering, selected, navigate]);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (entering) return;
+
       if (e.key === "ArrowDown") {
         e.preventDefault();
         setSelected((prev) => (prev + 1) % stages.length);
@@ -33,89 +51,125 @@ export const TitleScreen = () => {
       } else if (e.key === "Enter") {
         e.preventDefault();
         enterStage(selected);
+      } else if (/^[1-9]$/.test(e.key)) {
+        const index = Number(e.key) - 1;
+        if (index < stages.length) {
+          e.preventDefault();
+          setSelected(index);
+        }
       }
     };
+
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selected, entering]);
+  }, [selected, entering, enterStage]);
 
   return (
-    <div className="fixed inset-0 z-20 bg-black overflow-hidden">
+    <div
+      className="night-scene fixed inset-0 z-20 overflow-hidden bg-background"
+      style={{ "--stage-accent": activeStage.accent }}
+    >
       <StarBackground />
 
-      <div className="relative z-10 min-h-screen flex items-center justify-center px-6 py-16">
+      {/* Sorotan multi-hue tipis supaya latar tidak cuma hitam-merah */}
+      <div aria-hidden="true" className="aurora pointer-events-none absolute inset-0 z-[1]" />
+
+      <div className="relative z-10 flex min-h-screen items-center justify-center overflow-y-auto px-5 py-12 md:px-8">
         <div
           className={cn(
-            "w-full max-w-5xl flex flex-col md:flex-row items-center justify-between gap-12 transition-all duration-200 ease-in",
-            entering ? "opacity-0 scale-95" : "opacity-100 scale-100"
+            "flex w-full max-w-5xl flex-col items-center gap-10 transition-all duration-200 ease-in",
+            "md:flex-row md:items-center md:justify-between md:gap-12",
+            entering ? "scale-95 opacity-0" : "scale-100 opacity-100"
           )}
         >
-          {/* Left: menu */}
-          <div className="flex flex-col items-start">
-            <div className="flex items-center mb-2">
-              <h1 className="pixel-font text-3xl md:text-6xl font-bold ml-2">
-                <span className="text-glow text-white">Dev</span>
-                <span className="text-red-500">_X</span>
-              </h1>
-            </div>
-            <p className="pixel-font text-[10px] md:text-xs text-red-500 mb-10 animate-blink">
+          {/* Kiri: judul + menu */}
+          <div className="flex w-full flex-col items-start md:w-auto">
+            <h1 className="pixel-font text-4xl font-bold leading-none md:text-6xl">
+              <span className="text-glow text-foreground">Dev</span>
+              <span className="text-primary">_X</span>
+            </h1>
+            <p className="pixel-font mt-2 text-[9px] uppercase tracking-[0.3em] text-muted-foreground md:text-[10px]">
+              Portofolio &middot; Deva Surya
+            </p>
+
+            <p className="pixel-font stage-text mt-7 mb-4 animate-blink text-[10px] md:text-xs">
               PRESS ENTER TO SELECT
             </p>
 
-            <nav className="flex flex-col items-stretch gap-3 w-64 md:w-80">
+            <nav aria-label="Menu utama" className="flex w-full flex-col gap-2 md:w-80">
               {stages.map((stage, index) => {
                 const isSelected = index === selected;
                 return (
                   <button
                     key={stage.id}
+                    type="button"
                     onClick={() => enterStage(index)}
                     onMouseEnter={() => !entering && setSelected(index)}
+                    onFocus={() => !entering && setSelected(index)}
+                    aria-current={isSelected ? "true" : undefined}
+                    /* Tiap stage bawa hue-nya sendiri - ini sumber variasi warna menu */
+                    style={{ "--stage-accent": stage.accent }}
                     className={cn(
-                      "pixel-font text-left px-4 py-3 border-2 transition-all duration-150 flex items-center gap-3",
+                      "glass-chip pixel-font flex items-center gap-3 px-3 py-2.5 text-left text-[11px] transition-all duration-150 md:text-sm",
+                      "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[hsl(var(--stage-accent))]",
                       isSelected
-                        ? "bg-red-600 text-white border-red-500 scale-105 shadow-lg"
-                        : "bg-neutral-900/70 text-neutral-300 border-neutral-700 hover:border-red-500/60"
+                        ? "stage-border stage-bg-soft stage-text stage-glow translate-x-1"
+                        : "text-muted-foreground hover:stage-border hover:text-foreground",
+                      entering && isSelected && "border-foreground bg-foreground/90 text-background"
                     )}
                   >
-                    <span className={cn("w-4 shrink-0", isSelected ? "opacity-100" : "opacity-0")}>
+                    <span className={cn("w-3 shrink-0", isSelected ? "opacity-100" : "opacity-0")}>
                       ▶
                     </span>
-                    {stage.label.toUpperCase()}
+                    <span
+                      className={cn(
+                        "text-[9px] tabular-nums md:text-[10px]",
+                        isSelected ? "opacity-70" : "opacity-40"
+                      )}
+                    >
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
+                    <span className="flex-1">{stage.label.toUpperCase()}</span>
                   </button>
                 );
               })}
             </nav>
 
-            <p className="pixel-font text-[9px] md:text-[10px] text-neutral-500 mt-10">
-              ↑↓ Move &nbsp;·&nbsp; Enter Select
+            <p className="pixel-font mt-7 text-[8px] leading-relaxed text-muted-foreground/70 md:text-[9px]">
+              ↑↓ Pilih &nbsp;·&nbsp; Enter Masuk &nbsp;·&nbsp; 1-5 Lompat
             </p>
           </div>
 
-          {/* Right: character + dialogue box (Fire Emblem style) */}
-          <div className="w-64 md:w-96 flex flex-col items-center shrink-0">
+          {/* Kanan: karakter + kotak dialog yang ikut babak terpilih */}
+          <div className="flex w-full max-w-sm shrink-0 flex-col items-center md:w-96">
             <img
               src="/dev_left.png"
               alt="Deva Surya"
               style={{ imageRendering: "pixelated" }}
-              className="w-48 h-48 md:w-64 md:h-64 object-cover -mb-4 z-10 drop-shadow-[0_0_25px_rgba(220,38,38,0.35)]"
+              className="z-10 -mb-4 h-44 w-44 object-cover drop-shadow-[0_0_25px_hsl(var(--stage-accent)/0.45)] md:h-64 md:w-64"
             />
 
-            <div className="relative w-full bg-neutral-900 border-4 border-red-700 px-5 pt-7 pb-5 shadow-lg">
-              <span className="absolute -top-4 left-3 bg-red-600 border-2 border-red-400 px-3 py-1 pixel-font text-[10px] md:text-xs text-white">
+            <div className="glass-panel-solid scanlines pixel-corners stage-border relative w-full px-5 pt-7 pb-6">
+              <span className="glass-chip stage-border stage-bg-soft stage-text pixel-font absolute -top-4 left-3 px-3 py-1 text-[10px] md:text-xs">
                 DEV_X
               </span>
+              <span className="glass-chip pixel-font absolute -top-3.5 right-3 px-2 py-1 text-[8px] tabular-nums text-muted-foreground md:text-[9px]">
+                {String(selected + 1).padStart(2, "0")} / {String(stages.length).padStart(2, "0")}
+              </span>
 
-              <p className="pixel-font text-[11px] md:text-sm text-neutral-200 leading-relaxed">
-                Selamat datang, traveler.
-                <br />
-                Siap menjelajahi dunia project-ku?
+              <p className="pixel-font relative z-[2] min-h-[3.75rem] text-[11px] leading-relaxed text-foreground/90 md:min-h-[4.5rem] md:text-sm">
+                {dialogue}
               </p>
 
-              <span className="absolute bottom-2 right-3 text-red-500 animate-blink">▼</span>
+              <span className="stage-text absolute bottom-2 right-3 z-[2] animate-blink">▼</span>
             </div>
           </div>
         </div>
       </div>
+
+      <p className="pixel-font pointer-events-none absolute bottom-3 left-1/2 z-10 -translate-x-1/2 text-[8px] uppercase tracking-widest text-muted-foreground/40">
+        Deva Surya &middot; Portofolio v2
+      </p>
     </div>
   );
 };

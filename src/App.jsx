@@ -1,49 +1,69 @@
-import { Route, Routes, useLocation } from "react-router-dom"
-import { TitleScreen } from "./pages/TitleScreen"
-import { StagePage } from "./pages/StagePage"
-import { NotFound } from "./pages/NotFound"
-import { StarBackground } from "./components/StarBackground"
-import { CloudBackground } from "./components/CloudBackground"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react";
+import { Route, Routes, useLocation } from "react-router-dom";
+import { AnimatePresence, motion } from "framer-motion";
+import { TitleScreen } from "./pages/TitleScreen";
+import { StagePage } from "./pages/StagePage";
+import { NotFound } from "./pages/NotFound";
+import { StarBackground } from "./components/StarBackground";
+import { CloudBackground } from "./components/CloudBackground";
+import { useTheme } from "./context/ThemeContext";
+
+/* Halaman ini punya langitnya sendiri - jangan tumpuk background global di atasnya */
+const SELF_LIT_ROUTES = ["/", "/profile"];
 
 function App() {
-  const [isDarkTheme, setIsDarkTheme] = useState(document.documentElement.classList.contains("dark"));
   const location = useLocation();
+  const { isDarkMode } = useTheme();
+
+  const hasOwnBackdrop = SELF_LIT_ROUTES.includes(location.pathname);
   const isHomePage = location.pathname === "/";
 
+  const isFirstRender = useRef(true);
+  const [wipeKey, setWipeKey] = useState(null);
+
+  /* Wipe hanya dipicu saat pindah halaman, bukan saat load pertama */
   useEffect(() => {
-    const checkTheme = () => {
-      setIsDarkTheme(document.documentElement.classList.contains("dark"));
-    };
-
-    // No need to call checkTheme() here as useState is initialized directly
-    // The observer will handle subsequent changes
-
-    const observer = new MutationObserver(checkTheme);
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
-
-    return () => observer.disconnect();
-  }, []);
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    setWipeKey(`${location.pathname}-${Date.now()}`);
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
 
   return (
     <>
-      {isDarkTheme ? (
-        <StarBackground isHomePage={isHomePage} />
-      ) : (
-        <CloudBackground isHomePage={isHomePage} />
-      )}
-      <Routes>
-        <Route index element={<TitleScreen/>}/>
-        <Route path="/profile" element={<StagePage stageId="profile" />}/>
-        <Route path="/skills" element={<StagePage stageId="skills" />}/>
-        <Route path="/projects" element={<StagePage stageId="projects" />}/>
-        <Route path="/assistant" element={<StagePage stageId="assistant" />}/>
-        <Route path="/contact" element={<StagePage stageId="contact" />}/>
+      {!hasOwnBackdrop &&
+        (isDarkMode ? <StarBackground /> : <CloudBackground isHomePage={isHomePage} />)}
 
-        <Route path="*" element={<NotFound/>}/>
-      </Routes>
+      {/* Crossfade route: sengaja opacity saja. transform/filter di sini akan
+          membuat containing block baru dan merusak position:fixed & sticky di dalamnya. */}
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.div
+          key={location.pathname}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.22, ease: "easeOut" }}
+        >
+          <Routes location={location}>
+            <Route index element={<TitleScreen />} />
+            <Route path="/profile" element={<StagePage stageId="profile" />} />
+            <Route path="/skills" element={<StagePage stageId="skills" />} />
+            <Route path="/projects" element={<StagePage stageId="projects" />} />
+            <Route path="/assistant" element={<StagePage stageId="assistant" />} />
+            <Route path="/contact" element={<StagePage stageId="contact" />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </motion.div>
+      </AnimatePresence>
+
+      {/* Overlay wipe berdiri sendiri di luar wrapper route supaya tidak ikut memengaruhi layout */}
+      {wipeKey && (
+        <div key={wipeKey} aria-hidden="true" className="page-wipe pointer-events-none fixed inset-0 z-[60]" />
+      )}
     </>
-  )
+  );
 }
 
-export default App
+export default App;

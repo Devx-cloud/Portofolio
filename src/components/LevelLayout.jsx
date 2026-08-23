@@ -4,42 +4,32 @@ import { stages } from "../data/stages";
 
 export const LevelLayout = ({ stage, children }) => {
   const index = stages.findIndex((s) => s.id === stage.id);
-  const prevStage = index > 0 ? stages[index - 1] : null;
-  const nextStage = index < stages.length - 1 ? stages[index + 1] : null;
 
   return (
-    <div className="min-h-screen bg-background text-foreground relative">
-      <div className="fixed top-0 left-0 right-0 z-30 flex items-center justify-between px-4 py-3 bg-background/50 backdrop-blur-sm">
+    <div
+      className="relative min-h-screen bg-background text-foreground"
+      style={{ "--stage-accent": stage.accent }}
+    >
+      <header className="glass-panel fixed inset-x-0 top-0 z-30 flex items-center justify-between border-x-0 border-t-0 px-4 py-3">
         <Link
           to="/"
-          className="pixel-font text-xs md:text-sm text-foreground/80 hover:text-primary transition-colors duration-300 border-2 border-border px-3 py-2"
+          className="glass-chip pixel-font stage-border-soft px-3 py-2 text-xs text-foreground/80 transition-all duration-200 hover:stage-text hover:stage-border md:text-sm"
         >
-          «« MENU
+          &laquo;&laquo; MENU
         </Link>
-        <span className="pixel-font text-[10px] md:text-xs text-primary hidden sm:block">
-          STAGE {String(index + 1).padStart(2, "0")} · {stage.label.toUpperCase()}
+
+        <span className="pixel-font stage-text hidden text-[10px] uppercase sm:block md:text-xs">
+          Stage {String(index + 1).padStart(2, "0")} &middot; {stage.label}
         </span>
+
         <ThemeToggle />
-      </div>
 
-      <main className="pt-20">{children}</main>
+        <span aria-hidden="true" className="stage-bg absolute inset-x-0 bottom-0 h-0.5 opacity-70" />
+      </header>
 
-      {prevStage && (
-        <Link
-          to={prevStage.path}
-          aria-label={`Previous: ${prevStage.label}`}
-          className="fixed left-2 md:left-4 top-1/2 -translate-y-1/2 z-30 hover:opacity-70 transition-opacity"
-        >
-          <img src="/arrow.png" alt="" className="w-12 md:w-16 h-auto scale-x-[-1]" />
-        </Link>
-      )}
-      <Link
-        to={nextStage ? nextStage.path : "/"}
-        aria-label={nextStage ? `Next: ${nextStage.label}` : "Back to menu"}
-        className="fixed right-2 md:right-4 top-1/2 -translate-y-1/2 z-30 hover:opacity-70 transition-opacity"
-      >
-        <img src="/arrow.png" alt="" className="w-12 md:w-16 h-auto" />
-      </Link>
+      <div aria-hidden="true" className="ember-wash pointer-events-none fixed inset-0 z-0" />
+
+      <main className="relative z-10 pt-20">{children}</main>
     </div>
   );
 };
