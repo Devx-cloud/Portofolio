@@ -24,7 +24,7 @@ export const CloudBackground = ({ isHomePage }) => {
         for (let i = 0; i < numberOfClouds; i++) {
             newClouds.push({
                 id: `moving-${i}`,
-                size: Math.random() * (150 - 80) + 80, // Random size between 80px and 150px
+                size: Math.round((Math.random() * (144 - 80) + 80) / 8) * 8,
                 initialX: Math.random() * -50 - 20, // Start off-screen to the left (-20% to -70%)
                 y: Math.random() * 80, // Random vertical position (0% to 80%)
                 speed: Math.random() * (40 - 20) + 20, // Random speed (20s to 40s for animation duration)
@@ -41,7 +41,7 @@ export const CloudBackground = ({ isHomePage }) => {
         for (let i = 0; i < numberOfStaticClouds; i++) {
             newStaticClouds.push({
                 id: `static-${i}`,
-                size: Math.random() * (200 - 100) + 100, // Random size between 100px and 200px
+                size: Math.round((Math.random() * (200 - 96) + 96) / 8) * 8,
                 x: Math.random() * 100, // Random horizontal position (0% to 100%)
                 y: Math.random() * 80, // Random vertical position (0% to 80%)
             });
@@ -60,7 +60,7 @@ export const CloudBackground = ({ isHomePage }) => {
                     className="cloud"
                     style={{
                         width: cloud.size + "px",
-                        height: cloud.size * 0.6 + "px",
+                        height: Math.round(cloud.size * 0.6 / 8) * 8 + "px",
                         top: cloud.y + "%",
                         animation: `cloud-move ${cloud.speed}s linear infinite`,
                         animationDelay: `-${cloud.delay}s`,
@@ -73,7 +73,7 @@ export const CloudBackground = ({ isHomePage }) => {
                     className="cloud"
                     style={{
                         width: cloud.size + "px",
-                        height: cloud.size * 0.6 + "px",
+                        height: Math.round(cloud.size * 0.6 / 8) * 8 + "px",
                         left: cloud.x + "%",
                         top: cloud.y + "%",
                     }}

@@ -14,9 +14,9 @@ const socialLinks = [
 ];
 
 const focusStack = [
-  { name: "Laravel", icon: <FaLaravel className="h-3.5 w-3.5" /> },
-  { name: "Flutter", icon: <SiFlutter className="h-3.5 w-3.5" /> },
-  { name: "React", icon: <FaReact className="h-3.5 w-3.5" /> },
+  { name: "Laravel", icon: <FaLaravel className="h-4 w-4" /> },
+  { name: "Flutter", icon: <SiFlutter className="h-4 w-4" /> },
+  { name: "React", icon: <FaReact className="h-4 w-4" /> },
 ];
 
 const projectTeasers = [
@@ -36,7 +36,30 @@ const ACTS = [
 // Aksen dideklarasikan ulang di dalam .night-scene, bukan diwarisi dari LevelLayout:
 // custom property menyubstitusi var() di elemen tempat ia ditulis, jadi kalau diwarisi
 // nilainya terkunci ke --primary tema terang dan merahnya jadi lebih kusam.
-const STAGE_VARS = { "--stage-accent": "var(--primary)" };
+const STAGE_VARS = {
+  "--stage-accent": "var(--primary)",
+
+  /* Seberapa besar kota diperbesar. 1 = tingginya PAS panggung.
+     Ini satu-satunya angka yang perlu disetel; naikkan untuk zoom ke
+     level jalan, dengan konsekuensi skyline atas terpotong. */
+  "--city-zoom": "1",
+
+  /* Lebar diturunkan DARI tinggi panggung, bukan dari lebar viewport.
+     Yang memotong gambar adalah batas vertikal (overflow-hidden + bottom-0),
+     jadi mengukurnya dengan vw tidak akan pernah benar di semua layar -
+     kebutuhannya bergantung pada rasio viewport, bukan lebarnya.
+
+     Dua batas bawah:
+       134vw  - parallax menggeser gambar -25% lebarnya sendiri, jadi butuh
+                lebar >= 100vw / 0.75 supaya tepi kanannya tidak pernah masuk layar.
+       1500px - menahan garis tanah tetap di atas HUD di layar sangat kecil. */
+  "--city-w": "max(calc((190vh - 5rem) * 3 * var(--city-zoom)), 134vw, 1500px)",
+
+  /* Garis trotoar di city-px.png ada di 15.47% tinggi gambar dari bawah
+     (diukur oleh scripts/pixelate.py). Gambarnya 3:1, jadi tingginya
+     --city-w / 3 dan garis tanahnya 15.47% dari itu. */
+  "--ground": "calc(var(--city-w) / 3 * 0.1547)",
+};
 
 const RANGES = {
   hero: [0, 0.16, 0.22],
@@ -60,25 +83,25 @@ const panelWrap = cn(
 );
 
 const actionClass =
-  "group inline-flex w-fit items-center gap-2 glass-chip stage-border-soft px-4 py-2 pixel-font text-[10px] md:text-xs text-foreground transition-all duration-150 hover:stage-border hover:stage-bg-soft hover:translate-x-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[hsl(var(--stage-accent))]";
+  "group inline-flex w-fit items-center gap-2 pix-chip stage-border-soft px-4 py-2 pixel-font text-pix-xs md:text-pix-sm text-foreground transition-all duration-100 ease-pix hover:stage-border hover:stage-bg-soft hover:translate-x-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[hsl(var(--stage-accent))]";
 
 /* Chrome panel: mengikuti bahasa visual dialogue-box di Title Screen */
 const PanelFrame = ({ index, label, hint, children }) => (
-  <div className="glass-panel-solid scanlines pixel-corners stage-border relative w-full max-w-lg md:max-w-2xl px-4 pt-8 pb-7 sm:px-5 md:px-7">
-    <span className="border-2 stage-border stage-bg stage-ink absolute -top-4 left-4 px-3 py-1 pixel-font text-[9px] md:text-[10px] whitespace-nowrap">
+  <div className="pix-dialog crt pix-corners stage-border relative w-full max-w-lg md:max-w-2xl px-4 pt-8 pb-7 sm:px-5 md:px-7">
+    <span className="border-2 stage-border stage-bg stage-ink absolute -top-4 left-4 px-3 py-1 pixel-font text-pix-xs md:text-pix-sm whitespace-nowrap">
       BABAK {String(index + 1).padStart(2, "0")} · {label.toUpperCase()}
     </span>
     <div className="flex flex-col items-start gap-3">{children}</div>
-    <span className="absolute bottom-2 right-3 pixel-font text-[8px] md:text-[9px] stage-text">
+    <span className="absolute bottom-2 right-3 pixel-font text-pix-xs md:text-pix-sm stage-text">
       {hint === "end" ? "◆ BATAS AKHIR" : <span className="animate-blink">▼</span>}
     </span>
   </div>
 );
 
 const StatRow = ({ icon: Icon, label, children }) => (
-  <div className="flex items-start gap-2.5">
-    <Icon className="mt-0.5 h-3.5 w-3.5 shrink-0 stage-text" />
-    <span className="pixel-font w-14 shrink-0 pt-px text-[9px] uppercase text-foreground/70">
+  <div className="flex items-start gap-3">
+    <Icon className="mt-1 h-4 w-4 shrink-0 stage-text" />
+    <span className="pixel-font w-14 shrink-0 text-pix-xs uppercase text-foreground/70">
       {label}
     </span>
     <span className="min-w-0 text-xs md:text-sm text-foreground/90">{children}</span>
@@ -190,36 +213,38 @@ export const ProfileSection = () => {
         {/* Layer langit: bintang & meteor */}
         <StarBackground />
 
-        {/* Layer tengah: siluet kota */}
+        {/* Layer tengah: pelat jalan kota. Langitnya transparan supaya bintang tembus. */}
         <motion.img
-          src="/kota.png"
+          src="/city-v2.png"
           alt=""
           style={{ x: mountainX }}
-          className="absolute bottom-0 left-0 w-[140%] max-w-none pointer-events-none select-none z-[1]"
+          className="sprite absolute bottom-0 left-0 w-[var(--city-w)] max-w-none pointer-events-none select-none z-[1]"
         />
 
-        {/* Sprite: berdiri tepat di atas garis HUD, jalan di tempat, hadap sesuai arah navigasi */}
+        {/* Sprite: berdiri di aspal. idle.png menyisakan 6.6% ruang kosong di bawah
+            kaki, jadi ditarik turun ~10% lebar tampilnya supaya telapaknya menyentuh
+            tanah, bukan melayang. */}
         <motion.img
           src="/idle.png"
           alt=""
-          style={{ imageRendering: "pixelated", scaleX: facingRight ? 1 : -1 }}
-          animate={!reducedMotion && isMoving ? { y: [0, -6, 0] } : { y: 0 }}
+          style={{ scaleX: facingRight ? 1 : -1 }}
+          animate={!reducedMotion && isMoving ? { y: [0, -4, 0] } : { y: 0 }}
           transition={
             !reducedMotion && isMoving
               ? { duration: 0.5, repeat: Infinity, ease: "linear" }
               : { duration: 0.2 }
           }
-          className="absolute bottom-[68px] md:bottom-[76px] left-3 sm:left-6 md:left-12 z-10 w-14 sm:w-20 md:w-28 drop-shadow-[0_0_25px_hsl(var(--stage-accent)/0.45)]"
+          className="sprite absolute bottom-[calc(var(--ground)-6px)] sm:bottom-[calc(var(--ground)-8px)] md:bottom-[calc(var(--ground)-11px)] left-3 sm:left-6 md:left-12 z-10 w-14 sm:w-20 md:w-28 drop-shadow-[4px_4px_0_hsl(var(--pit))]"
         />
 
         {/* Babak 1: Data diri */}
         <motion.div style={{ opacity: heroOpacity }} {...actProps(0)}>
           <PanelFrame index={0} label="Data Diri">
             <div>
-              <h1 className="pixel-font text-2xl md:text-4xl font-bold leading-none text-foreground">
+              <h1 className="pixel-font text-pix-xl md:text-pix-2xl font-bold leading-none text-foreground">
                 Deva <span className="stage-text">Surya</span>
               </h1>
-              <p className="pixel-font-null mt-2 text-[11px] md:text-sm uppercase tracking-[0.18em] stage-text">
+              <p className="pixel-font-null mt-2 text-pix-sm md:text-pix-md uppercase tracking-[2px] stage-text">
                 Web &amp; Mobile Developer
               </p>
             </div>
@@ -232,8 +257,8 @@ export const ProfileSection = () => {
                 Laravel &middot; Flutter &middot; React
               </StatRow>
               <StatRow icon={Signal} label="Status">
-                <span className="inline-flex items-center gap-1.5">
-                  <span className="inline-block h-1.5 w-1.5 shrink-0 stage-bg stage-glow animate-pulse-subtle" />
+                <span className="inline-flex items-center gap-2">
+                  <span className="inline-block h-2 w-2 shrink-0 stage-bg animate-pulse-subtle" />
                   Terbuka untuk proyek &amp; kolaborasi
                 </span>
               </StatRow>
@@ -251,7 +276,7 @@ export const ProfileSection = () => {
         {/* Babak 2: Skills */}
         <motion.div style={{ opacity: skillsOpacity }} {...actProps(1)}>
           <PanelFrame index={1} label="Skills">
-            <h2 className="pixel-font text-xl md:text-3xl font-bold leading-none text-foreground">
+            <h2 className="pixel-font text-pix-lg md:text-pix-xl font-bold leading-none text-foreground">
               My <span className="stage-text">Skills</span>
             </h2>
             <p className="text-[13px] md:text-sm leading-relaxed text-foreground/80">
@@ -263,7 +288,7 @@ export const ProfileSection = () => {
               {focusStack.map((s) => (
                 <span
                   key={s.name}
-                  className="flex items-center gap-1.5 glass-chip stage-border-soft px-2.5 py-1 pixel-font text-[9px] md:text-[10px] text-foreground/90"
+                  className="flex items-center gap-2 pix-chip stage-border-soft px-3 py-1 pixel-font text-pix-xs md:text-pix-sm text-foreground/90"
                 >
                   {s.icon} {s.name.toUpperCase()}
                 </span>
@@ -279,7 +304,7 @@ export const ProfileSection = () => {
         {/* Babak 3: Projects */}
         <motion.div style={{ opacity: projectsOpacity }} {...actProps(2)}>
           <PanelFrame index={2} label="Projects">
-            <h2 className="pixel-font text-xl md:text-3xl font-bold leading-none text-foreground">
+            <h2 className="pixel-font text-pix-lg md:text-pix-xl font-bold leading-none text-foreground">
               Featured <span className="stage-text">Projects</span>
             </h2>
             <p className="text-[13px] md:text-sm leading-relaxed text-foreground/80">
@@ -289,7 +314,7 @@ export const ProfileSection = () => {
             <ul className="flex w-full flex-col gap-2 border-l-2 stage-border-soft pl-3">
               {projectTeasers.map((p) => (
                 <li key={p.name} className="text-xs md:text-sm leading-snug text-muted-foreground">
-                  <span className="pixel-font-null uppercase tracking-wide text-foreground">
+                  <span className="pixel-font-null uppercase tracking-[1px] text-foreground">
                     {p.name}
                   </span>{" "}
                   &mdash; {p.desc}
@@ -306,7 +331,7 @@ export const ProfileSection = () => {
         {/* Babak 4: Ask AI */}
         <motion.div style={{ opacity: aiOpacity }} {...actProps(3)}>
           <PanelFrame index={3} label="Ask AI">
-            <h2 className="pixel-font flex items-center gap-2 text-xl md:text-3xl font-bold leading-none text-foreground">
+            <h2 className="pixel-font flex items-center gap-2 text-pix-lg md:text-pix-xl font-bold leading-none text-foreground">
               <Bot className="h-6 w-6 shrink-0 stage-text" />
               Ask <span className="stage-text">AI</span>
             </h2>
@@ -325,7 +350,7 @@ export const ProfileSection = () => {
         {/* Babak 5: Contact - penanda batas akhir, tidak fade out */}
         <motion.div style={{ opacity: contactOpacity }} {...actProps(4)}>
           <PanelFrame index={4} label="Contact" hint="end">
-            <h2 className="pixel-font text-xl md:text-3xl font-bold leading-none text-foreground">
+            <h2 className="pixel-font text-pix-lg md:text-pix-xl font-bold leading-none text-foreground">
               Get In <span className="stage-text">Touch</span>
             </h2>
             <p className="text-[13px] md:text-sm leading-relaxed text-foreground/80">
@@ -342,13 +367,13 @@ export const ProfileSection = () => {
                   rel="noreferrer"
                   aria-label={name}
                   title={name}
-                  className="flex h-9 w-9 items-center justify-center glass-chip stage-border-soft text-foreground/80 transition-colors duration-150 hover:stage-border hover:stage-bg-soft hover:stage-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[hsl(var(--stage-accent))]"
+                  className="flex h-9 w-9 items-center justify-center pix-chip stage-border-soft text-foreground/80 transition-colors duration-100 ease-pix hover:stage-border hover:stage-bg-soft hover:stage-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[hsl(var(--stage-accent))]"
                 >
                   <Icon className="h-4 w-4" />
                 </a>
               ))}
               <a href="/cv/cv-1.pdf" download className={actionClass}>
-                <Download className="h-3.5 w-3.5 stage-text transition-colors group-hover:text-foreground" />
+                <Download className="h-4 w-4 stage-text transition-colors group-hover:text-foreground" />
                 UNDUH CV
               </a>
             </div>
@@ -361,8 +386,8 @@ export const ProfileSection = () => {
         </motion.div>
 
         {/* HUD babak: stepper + progress + petunjuk kontrol */}
-        <div className="absolute inset-x-0 bottom-0 z-30 h-[68px] md:h-[76px] overflow-hidden glass-panel border-x-0 border-b-0">
-          <div className="mx-auto flex h-full max-w-3xl flex-col justify-center gap-1.5 px-3 md:px-6">
+        <div className="absolute inset-x-0 bottom-0 z-30 h-[68px] md:h-[76px] overflow-hidden pix-veil border-t-4 stage-border">
+          <div className="mx-auto flex h-full max-w-3xl flex-col justify-center gap-2 px-3 md:px-6">
             <div className="flex items-stretch gap-1">
               {ACTS.map((act, i) => {
                 const isActive = activeIndex === i;
@@ -375,17 +400,17 @@ export const ProfileSection = () => {
                     aria-current={isActive ? "step" : undefined}
                     aria-label={`Ke babak ${i + 1}: ${act.label}`}
                     className={cn(
-                      "flex flex-1 flex-col items-center justify-center border-2 px-1 py-1 transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[hsl(var(--stage-accent))]",
+                      "flex flex-1 flex-col items-center justify-center border-2 px-1 py-1 transition-colors duration-100 ease-pix focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[hsl(var(--stage-accent))]",
                       isActive
                         ? "stage-border stage-bg stage-ink"
                         : isPast
                         ? "stage-border-soft stage-bg-soft hover:stage-border"
-                        : "glass-chip hover:stage-border"
+                        : "pix-chip hover:stage-border"
                     )}
                   >
                     <span
                       className={cn(
-                        "pixel-font text-[8px] md:text-[9px] leading-tight",
+                        "pixel-font text-pix-xs md:text-pix-sm leading-tight",
                         isActive ? "stage-ink" : "text-foreground/70"
                       )}
                     >
@@ -393,7 +418,7 @@ export const ProfileSection = () => {
                     </span>
                     <span
                       className={cn(
-                        "hidden truncate pixel-font text-[8px] leading-tight sm:block md:text-[9px]",
+                        "hidden truncate pixel-font text-pix-xs leading-tight sm:block md:text-pix-xs",
                         isActive ? "stage-ink" : "text-foreground/70"
                       )}
                     >
@@ -405,10 +430,10 @@ export const ProfileSection = () => {
             </div>
 
             <div className="flex items-center gap-3">
-              <div className="h-1.5 flex-1 border-2 stage-border-soft glass-chip">
+              <div className="h-3 flex-1 pix-inset">
                 <motion.div style={{ width: progressWidth }} className="h-full stage-bg" />
               </div>
-              <p className="pixel-font shrink-0 text-[8px] md:text-[9px] text-foreground/70">
+              <p className="pixel-font shrink-0 text-pix-xs md:text-pix-sm text-foreground/70">
                 ← → PINDAH BABAK
               </p>
             </div>

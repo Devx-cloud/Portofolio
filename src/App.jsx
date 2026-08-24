@@ -6,6 +6,7 @@ import { StagePage } from "./pages/StagePage";
 import { NotFound } from "./pages/NotFound";
 import { StarBackground } from "./components/StarBackground";
 import { CloudBackground } from "./components/CloudBackground";
+import { CursorTracker } from "./components/CursorTracker";
 import { useTheme } from "./context/ThemeContext";
 
 /* Halaman ini punya langitnya sendiri - jangan tumpuk background global di atasnya */
@@ -57,6 +58,8 @@ function App() {
           </Routes>
         </motion.div>
       </AnimatePresence>
+
+      <CursorTracker />
 
       {/* Overlay wipe berdiri sendiri di luar wrapper route supaya tidak ikut memengaruhi layout */}
       {wipeKey && (

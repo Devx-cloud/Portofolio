@@ -11,27 +11,29 @@ const TIERS = {
   explore: { label: "Eksplorasi", blocks: 1 },
 };
 
-const iconClass = "h-10 w-10 md:h-12 md:w-12";
+/* Logo memakai warna mereknya sendiri - lihat catatan --brand-* di index.css.
+   Warnanya dari token, bukan hex mentah, supaya ikut menyesuaikan tema. */
+const iconClass = "h-10 w-10 md:h-12 md:w-12 transition-transform duration-100 ease-pix";
 
 const skills = [
   // Web
-  { name: "Laravel", icon: <FaLaravel className={`${iconClass} text-red-600`} />, category: "web", tier: "core" },
-  { name: "PHP", icon: <SiPhp className={`${iconClass} text-indigo-500`} />, category: "web", tier: "core" },
-  { name: "JavaScript", icon: <SiJavascript className={`${iconClass} text-yellow-400`} />, category: "web", tier: "core" },
-  { name: "HTML", icon: <FaHtml5 className={`${iconClass} text-orange-500`} />, category: "web", tier: "core" },
-  { name: "CSS", icon: <FaCss3Alt className={`${iconClass} text-blue-500`} />, category: "web", tier: "core" },
-  { name: "Tailwind CSS", icon: <SiTailwindcss className={`${iconClass} text-cyan-400`} />, category: "web", tier: "core" },
-  { name: "MySQL", icon: <SiMysql className={`${iconClass} text-sky-600`} />, category: "web", tier: "support" },
-  { name: "ReactJs", icon: <FaReact className={`${iconClass} text-sky-400`} />, category: "web", tier: "support" },
+  { name: "Laravel", icon: <FaLaravel className={`${iconClass} text-brand-laravel`} />, category: "web", tier: "core" },
+  { name: "PHP", icon: <SiPhp className={`${iconClass} text-brand-php`} />, category: "web", tier: "core" },
+  { name: "JavaScript", icon: <SiJavascript className={`${iconClass} text-brand-js`} />, category: "web", tier: "core" },
+  { name: "HTML", icon: <FaHtml5 className={`${iconClass} text-brand-html`} />, category: "web", tier: "core" },
+  { name: "CSS", icon: <FaCss3Alt className={`${iconClass} text-brand-css`} />, category: "web", tier: "core" },
+  { name: "Tailwind CSS", icon: <SiTailwindcss className={`${iconClass} text-brand-tailwind`} />, category: "web", tier: "core" },
+  { name: "MySQL", icon: <SiMysql className={`${iconClass} text-brand-mysql`} />, category: "web", tier: "support" },
+  { name: "ReactJs", icon: <FaReact className={`${iconClass} text-brand-react`} />, category: "web", tier: "support" },
 
   // Mobile
-  { name: "Flutter", icon: <SiFlutter className={`${iconClass} text-blue-400`} />, category: "app", tier: "core" },
-  { name: "Android Studio", icon: <SiAndroidstudio className={`${iconClass} text-green-600`} />, category: "app", tier: "support" },
-  { name: "Git", icon: <FaGitAlt className={`${iconClass} text-orange-600`} />, category: "app", tier: "support" },
-  { name: "Java", icon: <FaJava className={`${iconClass} text-red-500`} />, category: "app", tier: "explore" },
+  { name: "Flutter", icon: <SiFlutter className={`${iconClass} text-brand-flutter`} />, category: "app", tier: "core" },
+  { name: "Android Studio", icon: <SiAndroidstudio className={`${iconClass} text-brand-android`} />, category: "app", tier: "support" },
+  { name: "Git", icon: <FaGitAlt className={`${iconClass} text-brand-git`} />, category: "app", tier: "support" },
+  { name: "Java", icon: <FaJava className={`${iconClass} text-brand-java`} />, category: "app", tier: "explore" },
 
   // AI / Data
-  { name: "Python", icon: <FaPython className={`${iconClass} text-yellow-500`} />, category: "ai", tier: "explore" },
+  { name: "Python", icon: <FaPython className={`${iconClass} text-brand-python`} />, category: "ai", tier: "explore" },
 ];
 
 const categories = [
@@ -61,7 +63,7 @@ const StatBar = ({ blocks }) => (
       <span
         key={i}
         className={cn(
-          "h-2 flex-1 border-2 transition-colors duration-200",
+          "h-2 flex-1 border-2 transition-colors duration-100 ease-pix",
           i < blocks ? "stage-border stage-bg" : "border-border bg-transparent"
         )}
       />
@@ -86,10 +88,10 @@ export const SkillSection = () => {
           transition={{ duration: 0.5, ease: "easeOut" }}
           className="mb-7 flex flex-col items-center gap-3 text-center md:mb-9"
         >
-          <span className="pixel-font glass-chip stage-border-soft px-3 py-1 text-[9px] uppercase stage-text md:text-[10px]">
+          <span className="pixel-font pix-chip stage-border-soft px-3 py-1 text-pix-xs uppercase stage-text md:text-pix-xs">
             Status &middot; Kemampuan
           </span>
-          <h2 className="pixel-font text-2xl font-bold md:text-4xl">
+          <h2 className="pixel-font text-pix-lg font-bold md:text-pix-xl">
             My <span className="text-primary">Skills</span>
           </h2>
           <p className="max-w-xl text-sm leading-relaxed text-muted-foreground">
@@ -114,11 +116,11 @@ export const SkillSection = () => {
                 onClick={() => setActiveCategory(cat.id)}
                 aria-pressed={isActive}
                 className={cn(
-                  "group pixel-font flex items-center gap-2 border-2 px-3 py-2 text-[9px] uppercase transition-all duration-150 md:text-[10px]",
+                  "group pixel-font flex items-center gap-2 border-2 px-3 py-2 text-pix-xs uppercase transition-all duration-100 ease-pix md:text-pix-xs",
                   "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
                   isActive
                     ? "stage-border stage-bg-soft stage-text stage-shadow"
-                    : "glass-chip text-foreground/70 hover:stage-border hover:text-foreground"
+                    : "pix-chip text-foreground/70 hover:stage-border hover:text-foreground"
                 )}
               >
                 <span
@@ -157,22 +159,22 @@ export const SkillSection = () => {
               const tier = TIERS[skill.tier];
               return (
                 <motion.li key={skill.name} variants={cardVariants} className="list-none">
-                  <div className="group relative flex h-full flex-col items-center gap-3 glass-panel scanlines p-4 text-center transition-all duration-200 hover:-translate-y-1 hover:stage-border hover:stage-glow">
-                    <span className="pixel-font absolute right-2 top-2 text-[8px] uppercase text-muted-foreground/70">
+                  <div className="group relative flex h-full flex-col items-center gap-3 pix-panel crt p-4 text-center transition-all duration-100 ease-pix hover:-translate-y-1 hover:stage-border hover:stage-glow">
+                    <span className="pixel-font absolute right-2 top-2 text-pix-xs uppercase text-muted-foreground/70">
                       {skill.category === "ai" ? "AI" : skill.category}
                     </span>
 
-                    <div className="mt-1 transition-transform duration-200 group-hover:scale-110">
+                    <div className="mt-1 transition-transform duration-100 ease-pix group-hover:scale-110">
                       {skill.icon}
                     </div>
 
-                    <h3 className="pixel-font-null text-sm uppercase leading-tight tracking-wide md:text-base">
+                    <h3 className="pixel-font-null text-sm uppercase leading-tight tracking-[1px] md:text-base">
                       {skill.name}
                     </h3>
 
                     <div className="mt-auto w-full pt-1">
                       <StatBar blocks={tier.blocks} />
-                      <p className="pixel-font mt-2 text-[8px] uppercase text-muted-foreground md:text-[9px]">
+                      <p className="pixel-font mt-2 text-pix-xs uppercase text-muted-foreground md:text-pix-xs">
                         {tier.label}
                       </p>
                     </div>
@@ -192,13 +194,13 @@ export const SkillSection = () => {
                   <span
                     key={i}
                     className={cn(
-                      "h-1.5 flex-1 border",
+                      "h-2 flex-1 border",
                       i < tier.blocks ? "stage-border stage-bg" : "border-border"
                     )}
                   />
                 ))}
               </div>
-              <span className="pixel-font text-[8px] uppercase text-muted-foreground md:text-[9px]">
+              <span className="pixel-font text-pix-xs uppercase text-muted-foreground md:text-pix-xs">
                 {tier.label}
               </span>
             </div>

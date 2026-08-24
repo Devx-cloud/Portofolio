@@ -11,22 +11,39 @@ export const AssistantSection = () => {
   const typedReply = useTypewriter(lastAssistantMessage?.content ?? "");
 
   return (
-    <section className="min-h-[75vh] flex flex-col items-center px-4 py-16 relative">
+    /* night-scene: ruangannya selalu malam. Tanpa ini, di tema terang panel
+       chat jadi putih di depan ruangan gelap - dua dunia yang bertabrakan. */
+    <section
+      className="night-scene relative flex min-h-[75vh] flex-col items-center bg-background px-4 py-16"
+      /* Aksen dideklarasikan ULANG di sini, bukan diwarisi dari LevelLayout:
+         custom property menyubstitusi var() di elemen tempat ia ditulis, jadi
+         warisan akan membawa --primary tema terang ke dalam adegan malam. */
+      style={{ "--stage-accent": "var(--primary)" }}
+    >
+      {/* Ruangan: lapisan paling belakang, menutup penuh section */}
+      <img
+        src="/room.png"
+        alt=""
+        aria-hidden="true"
+        className="sprite pointer-events-none absolute inset-0 z-0 h-full w-full select-none object-cover"
+      />
+
       <img
         src="/ai-ask.png"
         alt="Deva Surya"
-        style={{ imageRendering: "pixelated" }}
-        className="absolute left-1/2 -translate-x-1/2 top-0 w-80 h-80 md:w-[28rem] md:h-[28rem] object-cover z-0 pointer-events-none drop-shadow-[0_0_35px_rgba(220,38,38,0.4)]"
+        className="sprite absolute left-1/2 -translate-x-1/2 top-12 w-80 h-80 md:w-[28rem] md:h-[28rem] object-cover z-[1] pointer-events-none drop-shadow-[4px_4px_0_hsl(var(--pit))]"
       />
 
-      <div className="relative z-10 w-full max-w-3xl mt-56 md:mt-72 glass-panel scanlines flex flex-col">
-        <span className="absolute -top-4 left-3 glass-chip stage-border stage-bg-soft stage-text px-3 py-1 pixel-font text-[10px] md:text-xs z-10">
+      {/* Turun 48px mengikuti karakter (top-12), supaya tumpang tindih panel
+          dengan tangannya tetap sama seperti sebelumnya */}
+      <div className="relative z-10 w-full max-w-3xl mt-68 md:mt-84 pix-panel crt flex flex-col">
+        <span className="absolute -top-4 left-3 pix-chip stage-border stage-bg-soft stage-text px-3 py-1 pixel-font text-pix-xs md:text-xs z-10">
           DEV_X AI
         </span>
 
         <div ref={messagesContainerRef} className="flex-1 h-[55vh] overflow-y-auto p-4 pt-8 space-y-4">
           {!isLoading && lastAssistantMessage && (
-            <div className="text-left text-sm pixel-font text-foreground/90">
+            <div className="text-left text-sm leading-relaxed text-foreground/90">
               {typedReply}
             </div>
           )}
@@ -45,7 +62,7 @@ export const AssistantSection = () => {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Tanya sesuatu tentang Deva..."
-              className="w-full pl-4 pr-12 py-3 glass-input text-sm text-foreground placeholder:text-muted-foreground/60 outline-none transition-all"
+              className="w-full pl-4 pr-12 py-3 pix-inset text-sm text-foreground placeholder:text-muted-foreground/60 outline-none transition-all"
               disabled={isLoading}
             />
             <button

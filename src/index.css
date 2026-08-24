@@ -1,45 +1,102 @@
 @import "tailwindcss";
 
 /* =========================================================
-   THEME: Glassmorphism x Pixel
-   - Sudut keras + border tebal  -> sisi pixel
-   - Isi transparan + backdrop blur -> sisi glass
-   - Palet multi-hue: merah (brand), cyan, amber, violet, emerald
+   PIXEL WORLD
+   Chrome-nya dunia game, kontennya dokumen profesional.
+
+   Empat aturan yang menahan seluruh sistem ini. Kalau salah satu
+   dilanggar, tampilannya langsung balik terasa "web modern berfont pixel":
+
+   1. GRID   - semua ukuran kelipatan 4px. Tidak ada nilai pecahan,
+               tidak ada .5, tidak ada rem yang bisa bergeser.
+   2. PALET  - hanya 11 warna di ramp bawah. Jangan karang warna atau
+               alpha baru di komponen; tambahkan langkah di ramp kalau kurang.
+   3. TEPI   - tidak ada blur di elemen UI. Blur hanya boleh di lapisan
+               latar (pix-veil), tempat ia membantu keterbacaan.
+   4. TIPO   - font pixel hanya di kelipatan 8px dan hanya untuk label
+               pendek. Teks panjang memakai sans biasa - ini sisi
+               profesionalnya, dan tidak bisa ditawar.
    ========================================================= */
 
 @theme {
+  /* Grid piksel: 1 satuan spacing = 4px persis. Default Tailwind 0.25rem
+     ikut bergeser kalau pengunjung mengubah ukuran font browser, dan
+     pergeseran pecahan itulah yang membuat font pixel jadi buram. */
+  --spacing: 4px;
+
   --color-background: hsl(var(--background));
+  --color-surface: hsl(var(--surface));
+  --color-raised: hsl(var(--raised));
   --color-foreground: hsl(var(--foreground));
   --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-faint: hsl(var(--faint));
   --color-border: hsl(var(--border));
-  --color-card: hsl(var(--card));
+  --color-pit: hsl(var(--pit));
 
   --color-primary: hsl(var(--primary));
+  --color-primary-dim: hsl(var(--primary-dim));
+  --color-primary-bright: hsl(var(--primary-bright));
   --color-primary-foreground: hsl(var(--primary-foreground));
-  --color-secondary: hsl(var(--secondary));
-  --color-secondary-foreground: hsl(var(--secondary-foreground));
-  --color-accent: hsl(var(--accent));
-  --color-accent-foreground: hsl(var(--accent-foreground));
-  --color-violet: hsl(var(--violet));
-  --color-success: hsl(var(--success));
 
-  --color-glass: hsl(var(--glass-bg));
-  --color-glass-border: hsl(var(--glass-border));
+  /* Warna merek logo - lihat catatan di blok palet di bawah */
+  --color-brand-laravel: hsl(var(--brand-laravel));
+  --color-brand-php: hsl(var(--brand-php));
+  --color-brand-js: hsl(var(--brand-js));
+  --color-brand-html: hsl(var(--brand-html));
+  --color-brand-css: hsl(var(--brand-css));
+  --color-brand-tailwind: hsl(var(--brand-tailwind));
+  --color-brand-mysql: hsl(var(--brand-mysql));
+  --color-brand-react: hsl(var(--brand-react));
+  --color-brand-flutter: hsl(var(--brand-flutter));
+  --color-brand-android: hsl(var(--brand-android));
+  --color-brand-git: hsl(var(--brand-git));
+  --color-brand-java: hsl(var(--brand-java));
+  --color-brand-python: hsl(var(--brand-python));
+  --color-brand-alpine: hsl(var(--brand-alpine));
+  --color-brand-three: hsl(var(--brand-three));
 
-  --animate-float: float 6s ease-in-out infinite;
-  --animate-pulse-subtle: pulse-subtle 4s ease-in-out infinite;
-  --animate-fade-in: fade-in 0.7s ease-out forwards;
-  --animate-fade-in-delay-1: fade-in 0.7s ease-out 0.2s forwards;
-  --animate-fade-in-delay-2: fade-in 0.7s ease-out 0.4s forwards;
-  --animate-fade-in-delay-3: fade-in 0.7s ease-out 0.6s forwards;
-  --animate-fade-in-delay-4: fade-in 0.7s ease-out 0.8s forwards;
+  /* Skala font pixel. big-shot.ttf: unitsPerEm 2048, capHeight 1536,
+     jadi cap = 0.75em dan tiap kelipatan 8px mendarat pas di grid piksel
+     (8px -> cap 6px, 16px -> 12px, 24px -> 18px). 12px dipakai sebagai
+     setengah langkah untuk baris yang tidak muat di 16px. */
+  --text-pix-xs: 8px;
+  --text-pix-sm: 12px;
+  --text-pix-md: 16px;
+  --text-pix-lg: 24px;
+  --text-pix-xl: 32px;
+  --text-pix-2xl: 48px;
+  --text-pix-3xl: 64px;
+
+  /* Gerak patah-patah. UI game tidak melakukan easing halus - ia
+     berpindah dalam beberapa frame diskret. */
+  --ease-pix: steps(4, end);
+  --ease-pix-2: steps(2, end);
+
+  --animate-blink: blink 1s step-start infinite;
+  --animate-bob: bob 0.6s steps(2, end) infinite;
+  --animate-pulse-subtle: pulse-subtle 1.2s steps(2, end) infinite;
+  --animate-float: float 4s steps(8, end) infinite;
   --animate-meteor: meteor 5s linear infinite;
-  --animate-blink: blink 1.2s step-start infinite;
-  --animate-sheen: sheen 2.6s ease-in-out infinite;
+  --animate-fade-in: fade-in 0.4s steps(6, end) forwards;
+  --animate-fade-in-delay-1: fade-in 0.4s steps(6, end) 0.15s forwards;
+  --animate-fade-in-delay-2: fade-in 0.4s steps(6, end) 0.3s forwards;
+  --animate-fade-in-delay-3: fade-in 0.4s steps(6, end) 0.45s forwards;
+  --animate-fade-in-delay-4: fade-in 0.4s steps(6, end) 0.6s forwards;
 
   @keyframes blink {
     50% {
       opacity: 0;
+    }
+  }
+
+  /* Naik-turun 4px: satu langkah grid, bukan gerak halus */
+  @keyframes bob {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-4px);
     }
   }
 
@@ -49,7 +106,7 @@
       transform: translateY(0);
     }
     50% {
-      transform: translateY(-10px);
+      transform: translateY(-8px);
     }
   }
 
@@ -59,14 +116,14 @@
       opacity: 1;
     }
     50% {
-      opacity: 0.8;
+      opacity: 0.55;
     }
   }
 
   @keyframes fade-in {
     from {
       opacity: 0;
-      transform: translateY(20px);
+      transform: translateY(16px);
     }
     to {
       opacity: 1;
@@ -87,74 +144,118 @@
       opacity: 0;
     }
   }
-
-  @keyframes sheen {
-    0%,
-    100% {
-      opacity: 0.35;
-    }
-    50% {
-      opacity: 0.75;
-    }
-  }
 }
 
 @layer base {
-  /* ---------- LIGHT: siang arcade, identitas hue tetap sama ---------- */
+  /* =======================================================
+     PALET TERKUNCI - 11 warna, satu hue aksen.
+
+     Ramp gelap -> terang: pit, ground, panel, raised, edge,
+     faint, muted, ink. Ditambah tiga langkah aksen merah.
+
+     Nilainya sengaja ditulis literal di tiap tema, bukan lewat
+     alias var(). Custom property menyubstitusi var() di elemen
+     tempat ia ditulis, jadi alias yang dideklarasikan di :root
+     tidak akan ikut berubah saat .night-scene menimpa ramp-nya.
+     ======================================================= */
+
+  /* ---------- SIANG ---------- */
   :root {
-    --background: 220 32% 93%;
-    --background-start: 220 40% 96%;
-    --background-end: 216 34% 87%;
-    --foreground: 230 30% 16%;
-    --muted-foreground: 230 12% 42%;
+    --pit: 220 28% 62%;
+    --background: 220 32% 90%;
+    --surface: 220 44% 98%;
+    --raised: 220 30% 93%;
+    --border: 224 20% 64%;
+    --faint: 226 14% 55%;
+    --muted-foreground: 228 18% 34%;
+    --foreground: 230 34% 10%;
 
-    --card: 220 40% 98%;
-    --border: 225 20% 80%;
-
-    /* Merah tetap jadi brand di kedua tema - ini yang bikin identitas konsisten */
-    --primary: 356 72% 50%;
+    --primary-dim: 356 68% 36%;
+    --primary: 356 74% 46%;
+    --primary-bright: 356 62% 58%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 190 80% 36%;
-    --secondary-foreground: 0 0% 100%;
-    --accent: 35 90% 44%;
-    --accent-foreground: 30 60% 10%;
-    --violet: 265 62% 55%;
-    --success: 152 55% 34%;
 
-    --glass-bg: 220 45% 99%;
-    --glass-border: 225 28% 62%;
-    --glass-alpha: 0.62;
-    --glass-blur: 14px;
+    /* ---- Warna merek logo: SATU-SATUNYA pengecualian palet terkunci ----
+       Logo membawa identitas, dan mengabu-abukannya menghilangkan pengenalan
+       instan - itu sebabnya aturan "jangan karang warna baru" tidak berlaku
+       di sini. Yang berwarna hanya logonya; bingkai, stat bar, dan seluruh
+       chrome tetap satu aksen merah.
 
-    --footer-background: 206 58% 29%;
+       Tiap merek punya dua nilai karena warna resminya tidak bisa dipakai
+       apa adanya di kedua tema: kuning JavaScript #F7DF1E hanya 1.3:1 di
+       atas panel terang, dan biru Flutter #02569B hanya 1.9:1 di atas panel
+       gelap. Hue-nya dipertahankan supaya tetap dikenali, lightness-nya
+       yang digeser.
+
+       Catatan: .night-scene tidak menimpa token ini. Kalau suatu saat logo
+       dipakai di dalamnya, nilai tema siang akan ikut terbawa ke panel
+       gelap - tambahkan blok ini di sana juga. */
+    --brand-laravel: 4 85% 45%;
+    --brand-php: 237 35% 45%;
+    --brand-js: 45 95% 28%;
+    --brand-html: 14 80% 44%;
+    --brand-css: 205 79% 36%;
+    --brand-tailwind: 189 94% 29%;
+    --brand-mysql: 202 50% 34%;
+    --brand-react: 193 90% 32%;
+    --brand-flutter: 199 92% 34%;
+    --brand-android: 150 78% 27%;
+    --brand-git: 11 85% 44%;
+    --brand-java: 33 95% 31%;
+    --brand-python: 207 55% 36%;
+    --brand-alpine: 192 55% 35%;
+    --brand-three: 0 0% 12%;
   }
 
-  /* ---------- DARK: malam arcade ---------- */
+  /* ---------- MALAM ---------- */
   .dark {
-    --background: 232 38% 6%;
-    --background-start: 236 45% 4%;
-    --background-end: 348 45% 8%;
-    --foreground: 220 22% 93%;
-    --muted-foreground: 225 14% 64%;
+    --pit: 232 45% 3%;
+    --background: 232 36% 7%;
+    --surface: 231 30% 11%;
+    --raised: 230 26% 17%;
+    --border: 228 20% 30%;
+    --faint: 226 14% 44%;
+    --muted-foreground: 222 16% 70%;
+    --foreground: 214 28% 95%;
 
-    --card: 232 32% 11%;
-    --border: 230 24% 26%;
-
-    --primary: 356 82% 58%;
+    --primary-dim: 356 60% 32%;
+    --primary: 356 80% 56%;
+    --primary-bright: 6 88% 72%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 186 84% 55%;
-    --secondary-foreground: 200 60% 6%;
-    --accent: 38 94% 60%;
-    --accent-foreground: 30 60% 8%;
-    --violet: 265 80% 70%;
-    --success: 152 62% 50%;
 
-    --glass-bg: 232 34% 14%;
-    --glass-border: 226 30% 46%;
-    --glass-alpha: 0.5;
-    --glass-blur: 16px;
+    --brand-laravel: 4 100% 62%;
+    --brand-php: 237 45% 68%;
+    --brand-js: 53 93% 58%;
+    --brand-html: 14 82% 58%;
+    --brand-css: 205 79% 55%;
+    --brand-tailwind: 189 90% 50%;
+    --brand-mysql: 202 55% 60%;
+    --brand-react: 193 95% 68%;
+    --brand-flutter: 199 92% 65%;
+    --brand-android: 150 70% 55%;
+    --brand-git: 11 87% 60%;
+    --brand-java: 35 100% 52%;
+    --brand-python: 207 60% 60%;
+    --brand-alpine: 192 55% 65%;
+    --brand-three: 0 0% 92%;
+  }
 
-    --footer-background: 0 70% 11%;
+  /* Adegan yang selalu malam (Title Screen, Profile): paletnya dikunci ke
+     versi gelap apa pun tema yang aktif, ditulis penuh karena alasan di atas. */
+  .night-scene {
+    --pit: 232 45% 3%;
+    --background: 232 36% 7%;
+    --surface: 231 30% 11%;
+    --raised: 230 26% 17%;
+    --border: 228 20% 30%;
+    --faint: 226 14% 44%;
+    --muted-foreground: 222 16% 70%;
+    --foreground: 214 28% 95%;
+
+    --primary-dim: 356 60% 32%;
+    --primary: 356 80% 56%;
+    --primary-bright: 6 88% 72%;
+    --primary-foreground: 0 0% 100%;
   }
 
   * {
@@ -164,17 +265,44 @@
   html {
     @apply scroll-smooth;
   }
+  /* Catatan: font-size root sengaja TIDAK dikunci. Grid tetap eksak karena
+     --spacing sudah absolut 4px dan label pixel memakai px, sementara teks
+     panjang tetap dalam rem sehingga masih ikut membesar bagi pengunjung
+     yang menaikkan ukuran font default browsernya. */
 
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
-    transition: background-color 0.3s ease, color 0.3s ease;
-    background: radial-gradient(
-      ellipse at bottom center,
-      hsl(var(--background-end)) 0%,
-      hsl(var(--background-start)) 100%
+  }
+
+  /* Vignette dithering: gradasi dibuat dari pita keras + kotak-kotak 2px,
+     bukan gradien halus. Inilah cara palet terbatas memalsukan gradasi. */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-color: hsl(var(--background));
+    background-image: repeating-conic-gradient(
+      hsl(var(--pit) / 0.5) 0% 25%,
+      transparent 0% 50%
     );
-    background-attachment: fixed;
+    background-size: 4px 4px;
+    -webkit-mask-image: linear-gradient(
+      to bottom,
+      transparent 0 35%,
+      rgb(0 0 0 / 0.3) 35% 55%,
+      rgb(0 0 0 / 0.6) 55% 78%,
+      rgb(0 0 0) 78%
+    );
+    mask-image: linear-gradient(
+      to bottom,
+      transparent 0 35%,
+      rgb(0 0 0 / 0.3) 35% 55%,
+      rgb(0 0 0 / 0.6) 55% 78%,
+      rgb(0 0 0) 78%
+    );
   }
 
   /* Langit: bintang & meteor hanya di tema gelap, kecuali adegan night-scene */
@@ -184,221 +312,191 @@
   }
 
   html.dark .star,
-  html.dark .meteor {
-    display: block;
-  }
-
-  /* Adegan yang selalu malam (Title Screen, Profile) - langit tetap tampil di tema terang */
+  html.dark .meteor,
   .night-scene .star,
   .night-scene .meteor {
     display: block;
   }
 
-  /* ...dan paletnya dikunci ke versi gelap apa pun tema yang aktif,
-     supaya komponen di dalamnya bisa pakai token biasa tanpa hardcode warna. */
-  .night-scene {
-    --background: 232 38% 6%;
-    --foreground: 220 22% 93%;
-    --muted-foreground: 225 14% 64%;
-    --card: 232 32% 11%;
-    --border: 230 24% 26%;
-
-    --primary: 356 82% 58%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 186 84% 55%;
-    --secondary-foreground: 200 60% 6%;
-    --accent: 38 94% 60%;
-    --accent-foreground: 30 60% 8%;
-    --violet: 265 80% 70%;
-    --success: 152 62% 50%;
-
-    --glass-bg: 232 34% 14%;
-    --glass-border: 226 30% 46%;
-    --glass-alpha: 0.5;
-    --glass-blur: 16px;
-  }
-
   .cloud {
     position: absolute;
-    background-color: rgba(255, 255, 255, 0.7);
-    border-radius: 50% 50% 0 0 / 100% 100% 0 0;
-    filter: blur(8px);
+    background-color: hsl(var(--surface));
     z-index: -1;
     display: none;
+    /* Awan pixel: balok bertumpuk, bukan elips ber-blur */
+    box-shadow:
+      0 -8px 0 0 hsl(var(--surface)),
+      -12px 4px 0 0 hsl(var(--surface)),
+      12px 4px 0 0 hsl(var(--surface)),
+      0 0 0 4px hsl(var(--border) / 0.5);
   }
 
   html:not(.dark) .cloud {
     display: block;
   }
 
+  /* Font pixel: anti-alias dimatikan supaya tepinya tetap keras.
+     letter-spacing dinolkan - jarak pecahan menggeser glyph ke antar-piksel. */
+  .pixel-font,
+  .pixel-font-null {
+    -webkit-font-smoothing: none;
+    -moz-osx-font-smoothing: grayscale;
+    font-smooth: never;
+    letter-spacing: 0;
+  }
+
   .pixel-font {
-    font-family: "PixelFontH", sans-serif;
+    font-family: "PixelFontH", monospace;
   }
 
   .pixel-font-null {
-    font-family: "PixelFontNull", sans-serif;
-  }
-
-  .tag-float {
-    animation: tag-float 2.2s ease-in-out infinite;
-  }
-
-  .tag-reveal {
-    animation: tag-reveal 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
-  }
-
-  .project-reveal {
-    animation: project-reveal 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
-  }
-
-  .project-image-reveal {
-    animation: project-image-reveal 0.75s cubic-bezier(0.16, 1, 0.3, 1) both;
-  }
-
-  .project-gloss::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      100deg,
-      transparent 40%,
-      rgba(255, 255, 255, 0.45) 50%,
-      transparent 60%
-    );
-    transform: translateX(-120%) skewX(-15deg);
-    animation: project-gloss-sweep 0.9s ease-out 0.15s both;
-    pointer-events: none;
-  }
-
-  /* Overlay wipe antar halaman - steps() bikin sapuannya patah-patah ala pixel */
-  .page-wipe {
-    background-image: linear-gradient(
-      180deg,
-      hsl(var(--primary) / 0.92) 0%,
-      hsl(var(--violet) / 0.88) 45%,
-      hsl(var(--secondary) / 0.92) 100%
-    );
-    animation: page-wipe 0.5s steps(10, end) both;
-  }
-
-  .page-wipe::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: repeating-linear-gradient(
-      to bottom,
-      transparent 0 3px,
-      hsl(0 0% 0% / 0.22) 3px 6px
-    );
+    font-family: "PixelFontNull", monospace;
   }
 
   @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
     .tag-float,
     .tag-reveal,
     .project-reveal,
     .project-image-reveal,
-    .project-gloss::after {
+    .project-gloss::after,
+    .page-wipe {
       animation: none;
     }
 
     .page-wipe {
       display: none;
     }
-
-    html {
-      scroll-behavior: auto;
-    }
   }
 }
 
 /* =========================================================
-   UTILITIES: Glass x Pixel
+   UTILITIES
    ========================================================= */
 
-@property --glass-border-color {
+/* Warna tepi dititipkan lewat custom property, bukan diadu urutan.
+   Tailwind memancarkan utility bingkai SETELAH stage-border, jadi
+   shorthand `border:` di sana akan menimpa warna aksen. Variabel selalu
+   menang atas urutan; inherits:false menahannya agar tidak menetes ke
+   chip di dalam panel. */
+@property --pix-edge {
   syntax: "*";
   inherits: false;
 }
 
-/* Panel utama: kaca buram, sudut keras, border tebal, bayangan pixel */
-@utility glass-panel {
-  background-color: hsl(var(--glass-bg) / var(--glass-alpha));
-  backdrop-filter: blur(var(--glass-blur)) saturate(150%);
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%);
-  border: 2px solid var(--glass-border-color, hsl(var(--glass-border) / 0.5));
+/* ---------- Bingkai: kotak dialog RPG ---------- */
+
+/* Panel utama. Garis luar tebal, bevel dalam satu tingkat lebih terang,
+   bayangan keras tanpa blur sama sekali. */
+@utility pix-panel {
+  background-color: hsl(var(--surface));
+  border: 4px solid var(--pix-edge, hsl(var(--border)));
   box-shadow:
-    inset 0 1px 0 0 hsl(0 0% 100% / 0.12),
-    inset 0 0 0 1px hsl(var(--background) / 0.35),
-    0 12px 32px -14px hsl(var(--background) / 0.9);
+    inset 0 0 0 2px hsl(var(--raised)),
+    6px 6px 0 0 hsl(var(--pit));
 }
 
-/* Varian lebih pekat untuk area yang memuat teks panjang */
-@utility glass-panel-solid {
-  background-color: hsl(var(--glass-bg) / calc(var(--glass-alpha) + 0.28));
-  backdrop-filter: blur(var(--glass-blur)) saturate(150%);
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%);
-  border: 2px solid var(--glass-border-color, hsl(var(--glass-border) / 0.55));
+/* Varian kotak dialog: sama, tapi bayangannya lebih dalam supaya panel
+   ini terbaca sebagai lapisan paling depan. */
+@utility pix-dialog {
+  background-color: hsl(var(--surface));
+  border: 4px solid var(--pix-edge, hsl(var(--primary)));
   box-shadow:
-    inset 0 1px 0 0 hsl(0 0% 100% / 0.12),
-    0 12px 32px -14px hsl(var(--background) / 0.9);
+    inset 0 0 0 2px hsl(var(--raised)),
+    inset 0 0 0 4px hsl(var(--surface)),
+    8px 8px 0 0 hsl(var(--pit));
 }
 
-/* Kaca tipis untuk chip / tombol kecil */
-@utility glass-chip {
-  background-color: hsl(var(--glass-bg) / calc(var(--glass-alpha) - 0.2));
-  backdrop-filter: blur(8px) saturate(140%);
-  -webkit-backdrop-filter: blur(8px) saturate(140%);
-  border: 2px solid var(--glass-border-color, hsl(var(--glass-border) / 0.45));
+/* Chip / tombol kecil. Border tipis, bayangan pendek. */
+@utility pix-chip {
+  background-color: hsl(var(--raised));
+  border: 2px solid var(--pix-edge, hsl(var(--border)));
+  box-shadow: 2px 2px 0 0 hsl(var(--pit));
 }
 
-/* Field input bergaya kaca */
-@utility glass-input {
-  background-color: hsl(var(--glass-bg) / calc(var(--glass-alpha) - 0.1));
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 2px solid var(--glass-border-color, hsl(var(--glass-border) / 0.45));
+/* Area cekung: field input, track progress, slot kosong. Bevel dibalik. */
+@utility pix-inset {
+  background-color: hsl(var(--background));
+  border: 2px solid var(--pix-edge, hsl(var(--border)));
+  box-shadow: inset 2px 2px 0 0 hsl(var(--pit));
 }
 
-/* Bayangan keras tanpa blur - detail khas pixel art */
-@utility pixel-shadow {
-  box-shadow: 4px 4px 0 0 hsl(var(--primary) / 0.35);
+/* Tombol yang benar-benar tertekan: bayangannya hilang saat ditekan,
+   dan tombolnya turun mengisi ruang itu. */
+@utility pix-press {
+  transition: box-shadow 0s, transform 0s;
+
+  &:active {
+    transform: translate(2px, 2px);
+    box-shadow: 0 0 0 0 hsl(var(--pit));
+  }
 }
 
-@utility pixel-shadow-sm {
-  box-shadow: 3px 3px 0 0 hsl(var(--primary) / 0.3);
+/* Sudut ternotch ala 9-slice. Memotong box-shadow dan anak yang meluber,
+   jadi hanya untuk elemen rata tanpa badge menggantung. */
+@utility pix-notch {
+  clip-path: polygon(
+    0 4px, 4px 4px, 4px 0,
+    calc(100% - 4px) 0, calc(100% - 4px) 4px, 100% 4px,
+    100% calc(100% - 4px), calc(100% - 4px) calc(100% - 4px), calc(100% - 4px) 100%,
+    4px 100%, 4px calc(100% - 4px), 0 calc(100% - 4px)
+  );
 }
 
-/* Empat sudut bertanda - bikin panel kaca tetap terbaca sebagai pixel UI */
-@utility pixel-corners {
+/* Empat siku penanda - menjaga panel tetap terbaca sebagai UI game */
+@utility pix-corners {
   position: relative;
 
   &::before,
   &::after {
     content: "";
     position: absolute;
-    width: 7px;
-    height: 7px;
+    width: 8px;
+    height: 8px;
     pointer-events: none;
     z-index: 2;
   }
 
   &::before {
-    top: -2px;
-    left: -2px;
-    border-top: 2px solid hsl(var(--stage-accent, var(--primary)));
-    border-left: 2px solid hsl(var(--stage-accent, var(--primary)));
+    top: -4px;
+    left: -4px;
+    border-top: 4px solid hsl(var(--stage-accent, var(--primary)));
+    border-left: 4px solid hsl(var(--stage-accent, var(--primary)));
   }
 
   &::after {
-    bottom: -2px;
-    right: -2px;
-    border-bottom: 2px solid hsl(var(--stage-accent, var(--primary)));
-    border-right: 2px solid hsl(var(--stage-accent, var(--primary)));
+    bottom: -4px;
+    right: -4px;
+    border-bottom: 4px solid hsl(var(--stage-accent, var(--primary)));
+    border-right: 4px solid hsl(var(--stage-accent, var(--primary)));
   }
 }
 
-/* Garis pindai CRT tipis di atas panel */
-@utility scanlines {
+/* ---------- Tekstur ---------- */
+
+/* Kotak-kotak 2px. Cara palet terbatas membuat nada antara dua warna. */
+@utility dither {
+  background-image: repeating-conic-gradient(
+    hsl(var(--dither-ink, var(--pit))) 0% 25%,
+    transparent 0% 50%
+  );
+  background-size: 4px 4px;
+}
+
+/* Versi renggang untuk bidang luas */
+@utility dither-soft {
+  background-image: repeating-conic-gradient(
+    hsl(var(--dither-ink, var(--pit)) / 0.55) 0% 25%,
+    transparent 0% 50%
+  );
+  background-size: 8px 8px;
+}
+
+/* Garis pindai CRT - 2px penuh, 2px kosong. Tidak ada nilai pecahan. */
+@utility crt {
   position: relative;
 
   &::after {
@@ -410,21 +508,75 @@
     background: repeating-linear-gradient(
       to bottom,
       transparent 0 2px,
-      hsl(var(--foreground) / 0.04) 2px 4px
+      hsl(var(--pit) / 0.35) 2px 4px
     );
   }
 }
 
-/* Sorotan gradien multi-hue - dipakai tipis supaya warna tidak berat sebelah */
-@utility aurora {
-  background-image:
-    radial-gradient(60% 80% at 15% 10%, hsl(var(--primary) / 0.16), transparent 60%),
-    radial-gradient(50% 70% at 85% 20%, hsl(var(--secondary) / 0.14), transparent 60%),
-    radial-gradient(60% 60% at 50% 95%, hsl(var(--violet) / 0.12), transparent 60%);
+/* Satu-satunya blur yang diizinkan: lapisan latar yang menumpuk di atas
+   konten bergerak, tempat blur benar-benar menolong keterbacaan. */
+@utility pix-veil {
+  background-color: hsl(var(--background) / 0.82);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
 }
 
-/* Hue identitas per stage. Komponen memasang --stage-accent lewat inline style,
-   utility di bawah ini yang memakainya - jadi satu set kelas untuk lima warna. */
+/* ---------- Kursor petak ---------- */
+
+/* Reticle: empat siku yang dibangun dari 8 lapis background, bukan 8 elemen
+   DOM - kursor ini digambar ulang tiap gerak, jadi makin sedikit node makin
+   baik. --arm memanjang saat mengunci sampai keempat siku bertemu jadi kotak
+   utuh, memberi umpan balik "bisa diklik" tanpa menambah elemen apa pun. */
+@utility pix-reticle {
+  --arm: 8px;
+  --thick: 2px;
+  --ink: hsl(var(--stage-accent, var(--primary)));
+  width: 24px;
+  height: 24px;
+  opacity: 0;
+  will-change: transform;
+  transition: opacity 0.1s steps(2, end);
+  background-repeat: no-repeat;
+  background-image:
+    linear-gradient(var(--ink) 0 0), linear-gradient(var(--ink) 0 0),
+    linear-gradient(var(--ink) 0 0), linear-gradient(var(--ink) 0 0),
+    linear-gradient(var(--ink) 0 0), linear-gradient(var(--ink) 0 0),
+    linear-gradient(var(--ink) 0 0), linear-gradient(var(--ink) 0 0);
+  background-size:
+    var(--arm) var(--thick), var(--thick) var(--arm),
+    var(--arm) var(--thick), var(--thick) var(--arm),
+    var(--arm) var(--thick), var(--thick) var(--arm),
+    var(--arm) var(--thick), var(--thick) var(--arm);
+  background-position:
+    0 0, 0 0,
+    100% 0, 100% 0,
+    0 100%, 0 100%,
+    100% 100%, 100% 100%;
+
+  /* Siku bertemu di tengah - kotak penuh saat menyorot sesuatu yang bisa diklik */
+  &.is-locked {
+    --arm: 12px;
+  }
+}
+
+/* Jejak petak yang baru dilewati */
+@utility pix-mote {
+  width: 8px;
+  height: 8px;
+  opacity: 0;
+  will-change: transform;
+  background-color: hsl(var(--stage-accent, var(--primary)));
+}
+
+/* Gambar diperbesar dengan nearest-neighbor. WAJIB dipasangkan dengan
+   ukuran tampil kelipatan bulat dari resolusi asli aset - kalau tidak,
+   pikselnya jadi tidak sama lebar. */
+@utility sprite {
+  image-rendering: pixelated;
+}
+
+/* ---------- Aksen per stage ---------- */
+
 @utility stage-text {
   color: hsl(var(--stage-accent, var(--primary)));
 }
@@ -437,51 +589,80 @@
   background-color: hsl(var(--stage-accent, var(--primary)));
 }
 
+/* background-image, bukan background-color: supaya menumpuk sebagai
+   lapisan tint di atas isian bingkai, bukan menggantikannya. */
 @utility stage-bg-soft {
   background-image: linear-gradient(
-    hsl(var(--stage-accent, var(--primary)) / 0.14),
-    hsl(var(--stage-accent, var(--primary)) / 0.14)
+    hsl(var(--stage-accent, var(--primary)) / 0.16),
+    hsl(var(--stage-accent, var(--primary)) / 0.16)
   );
 }
 
 @utility stage-border {
-  --glass-border-color: hsl(var(--stage-accent, var(--primary)));
+  --pix-edge: hsl(var(--stage-accent, var(--primary)));
   border-color: hsl(var(--stage-accent, var(--primary)));
 }
 
 @utility stage-border-soft {
-  --glass-border-color: hsl(var(--stage-accent, var(--primary)) / 0.45);
-  border-color: hsl(var(--stage-accent, var(--primary)) / 0.45);
+  --pix-edge: hsl(var(--stage-accent, var(--primary)) / 0.5);
+  border-color: hsl(var(--stage-accent, var(--primary)) / 0.5);
 }
 
+/* Cahaya di dunia pixel bukan gradien lembut - ia cincin blok yang melebar */
 @utility stage-glow {
-  box-shadow: 0 0 22px -4px hsl(var(--stage-accent, var(--primary)) / 0.55);
+  box-shadow:
+    0 -4px 0 0 hsl(var(--stage-accent, var(--primary)) / 0.5),
+    0 4px 0 0 hsl(var(--stage-accent, var(--primary)) / 0.5),
+    -4px 0 0 0 hsl(var(--stage-accent, var(--primary)) / 0.5),
+    4px 0 0 0 hsl(var(--stage-accent, var(--primary)) / 0.5);
 }
 
 @utility stage-shadow {
-  box-shadow: 3px 3px 0 0 hsl(var(--stage-accent, var(--primary)) / 0.35);
+  box-shadow: 4px 4px 0 0 hsl(var(--stage-accent, var(--primary)) / 0.4);
 }
 
+/* Halo teks berbentuk blok, bukan sebaran kabur */
 @utility text-glow {
-  text-shadow: 0 0 12px hsl(var(--primary) / 0.55);
+  text-shadow:
+    -2px 0 0 hsl(var(--primary) / 0.55),
+    2px 0 0 hsl(var(--primary) / 0.55),
+    0 -2px 0 hsl(var(--primary) / 0.55),
+    0 2px 0 hsl(var(--primary) / 0.55);
 }
 
-@utility card-hover {
-  @apply transition-transform duration-300;
+/* Sorotan latar - dibuat dari pita dithering, satu hue saja */
+@utility aurora {
+  background-image: repeating-conic-gradient(
+    hsl(var(--primary) / 0.14) 0% 25%,
+    transparent 0% 50%
+  );
+  background-size: 8px 8px;
+  -webkit-mask-image: radial-gradient(70% 60% at 50% 25%, rgb(0 0 0), transparent 70%);
+  mask-image: radial-gradient(70% 60% at 50% 25%, rgb(0 0 0), transparent 70%);
 }
 
-/* Tombol utama bergaya pixel (dulu rounded-full) */
 @utility cosmic-button {
-  @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 font-medium transition-all duration-200 active:translate-y-0.5;
+  @apply inline-flex items-center justify-center gap-2 px-5 py-3;
+  /* pixel-font hidup di layer base, bukan utility, jadi tidak bisa di-@apply */
+  font-family: "PixelFontH", monospace;
+  -webkit-font-smoothing: none;
+  font-size: var(--text-pix-sm);
+  letter-spacing: 0;
+  text-transform: uppercase;
   background-color: hsl(var(--primary));
   color: hsl(var(--primary-foreground));
-  border: 2px solid hsl(var(--primary));
-  box-shadow: 3px 3px 0 0 hsl(var(--primary) / 0.35);
+  border: 4px solid hsl(var(--primary-dim));
+  box-shadow: 4px 4px 0 0 hsl(var(--pit));
+
+  &:active {
+    transform: translate(4px, 4px);
+    box-shadow: 0 0 0 0 hsl(var(--pit));
+  }
 }
 
 @utility container {
   margin-inline: auto;
-  padding-inline: 2rem;
+  padding-inline: 32px;
 
   @media (width >=640px) {
     max-width: 640px;
@@ -504,27 +685,71 @@
   }
 }
 
+/* Bintang: kotak keras, tanpa blur, tanpa lingkaran */
 @utility star {
   @apply absolute;
-  background: hsl(var(--primary));
-  box-shadow: 0 0 10px 2px hsl(var(--primary) / 0.4);
-  filter: blur(0.5px);
+  background: hsl(var(--foreground));
+  box-shadow: 0 0 0 2px hsl(var(--primary) / 0.25);
 }
 
 @utility meteor {
   @apply absolute;
+  /* Selama animation-delay berjalan, elemen memakai style normalnya - bukan
+     keyframe 0%. Tanpa baris ini meteor tampil diam sampai delaynya habis. */
+  opacity: 0;
   background-image: linear-gradient(
     to right,
     hsl(var(--primary)),
-    hsl(var(--accent) / 0.8),
+    hsl(var(--primary-dim)),
     transparent
   );
-  box-shadow: -5px 0 10px 5px hsl(var(--primary) / 0.3);
 }
 
 /* =========================================================
-   KEYFRAMES
+   ANIMASI KOMPONEN
    ========================================================= */
+
+.tag-float {
+  animation: tag-float 2.4s steps(4, end) infinite;
+}
+
+.tag-reveal {
+  animation: tag-reveal 0.24s steps(4, end) both;
+}
+
+.project-reveal {
+  animation: project-reveal 0.32s steps(5, end) both;
+}
+
+.project-image-reveal {
+  animation: project-image-reveal 0.4s steps(8, end) both;
+}
+
+.project-gloss::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    transparent 40%,
+    hsl(var(--foreground) / 0.35) 50%,
+    transparent 60%
+  );
+  transform: translateX(-120%);
+  animation: project-gloss-sweep 0.6s steps(8, end) 0.15s both;
+  pointer-events: none;
+}
+
+/* Wipe antar halaman: sapuan patah-patah, satu hue */
+.page-wipe {
+  background-color: hsl(var(--primary));
+  background-image: repeating-conic-gradient(
+    hsl(var(--primary-dim)) 0% 25%,
+    transparent 0% 50%
+  );
+  background-size: 8px 8px;
+  animation: page-wipe 0.4s steps(8, end) both;
+}
 
 @keyframes cloud-move {
   0% {
@@ -541,25 +766,25 @@
     transform: translateY(0);
   }
   50% {
-    transform: translateY(-6px);
+    transform: translateY(-4px);
   }
 }
 
 @keyframes tag-reveal {
   from {
     opacity: 0;
-    transform: scale(0.4);
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
-    transform: scale(1);
+    transform: translateY(0);
   }
 }
 
 @keyframes project-reveal {
   from {
     opacity: 0;
-    transform: translateY(14px);
+    transform: translateY(12px);
   }
   to {
     opacity: 1;
@@ -570,45 +795,36 @@
 @keyframes project-image-reveal {
   from {
     clip-path: inset(0 0 0 100%);
-    transform: scale(1.08);
   }
   to {
-    clip-path: inset(0 0 0 0%);
-    transform: scale(1);
+    clip-path: inset(0 0 0 0);
   }
 }
 
 @keyframes project-gloss-sweep {
   from {
-    transform: translateX(-120%) skewX(-15deg);
+    transform: translateX(-120%);
     opacity: 0;
   }
-  15% {
-    opacity: 0.6;
+  20% {
+    opacity: 0.7;
   }
-  100% {
-    transform: translateX(120%) skewX(-15deg);
+  to {
+    transform: translateX(120%);
     opacity: 0;
   }
 }
 
-/* Transisi antar halaman: wipe pixel bertahap */
 @keyframes page-wipe {
   0% {
     clip-path: inset(0 0 100% 0);
-    opacity: 1;
   }
-  45% {
-    clip-path: inset(0 0 0 0);
-    opacity: 1;
-  }
+  45%,
   55% {
     clip-path: inset(0 0 0 0);
-    opacity: 1;
   }
   100% {
     clip-path: inset(100% 0 0 0);
-    opacity: 1;
   }
 }
 
@@ -628,9 +844,13 @@
   font-display: swap;
 }
 
+/* Sisa boilerplate Vite. `text-align: center` sengaja DIHAPUS dari sini:
+   ia membuat seluruh teks situs rata tengah secara diam-diam, termasuk
+   paragraf panjang di panel Profile, Projects, dan Contact. Semua tempat
+   yang memang ingin rata tengah sudah menyatakannya sendiri dengan
+   text-center - jangan kembalikan baris itu. */
 :root {
   max-width: 100%;
   margin: 0 auto;
   padding: 0;
-  text-align: center;
 }

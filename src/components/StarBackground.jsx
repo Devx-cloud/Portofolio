@@ -26,11 +26,12 @@ export const StarBackground = () =>{
         for (let i = 0; i<numberOfStars; i++){
             newStars.push({
                 id:i,
-                size: Math.random()*3+1,
+                size: Math.random() < 0.75 ? 2 : 4, // kotak 2px atau 4px - tidak ada di antaranya
                 x: Math.random() * 100,
                 y: Math.random() * 100,
-                opacity: Math.random()* 0.5 + 0.5,
-                animationDuratin: Math.random()*4+2,
+                // opacity dikuantisasi ke 3 langkah, bukan nilai bebas
+                opacity: [0.4, 0.7, 1][Math.floor(Math.random() * 3)],
+                animationDuration: Math.round(Math.random() * 4 + 2),
 
             });
         }
@@ -46,11 +47,12 @@ export const StarBackground = () =>{
         for (let i = 0; i<numberOfMeteors; i++){
             newMeteors.push({
                 id:i,
-                size: Math.random()*2+1,
+                size: Math.random() < 0.5 ? 1 : 2,
                 x: Math.random() * 100,
                 y: Math.random() * 20,
-                delay: Math.random()* 15,
-                animationDuratin: Math.random()*3+3,
+                // Negatif: animasi dimulai di tengah siklus, bukan menunggu dulu
+                delay: -Math.round(Math.random() * 15),
+                animationDuration: Math.round(Math.random() * 3 + 3),
 
             });
         }
@@ -71,12 +73,12 @@ export const StarBackground = () =>{
         
         {meteors.map((meteor)=>(
             <div key={meteor.id} className="meteor animate-meteor" style={{
-                width: meteor.size * 50 + "px",
-                height: meteor.size * 2+ "px",
+                width: meteor.size * 48 + "px",
+                height: meteor.size * 4 + "px",
                 left: meteor.x + "%",
                 top: meteor.y + "%", 
-                animationDelay: meteor.delay,
-                animationDuration: meteor.animationDuratin + "s", 
+                animationDelay: meteor.delay + "s",
+                animationDuration: meteor.animationDuration + "s", 
             }}/>
         ))}
     </div>;

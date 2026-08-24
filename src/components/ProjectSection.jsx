@@ -5,14 +5,16 @@ import { FaHtml5, FaCss3Alt, FaLaravel } from "react-icons/fa";
 import { SiJavascript, SiAlpinedotjs, SiThreedotjs, SiTailwindcss } from "react-icons/si";
 import { cn } from "@/lib/utils";
 
+/* Warna merek, sama seperti logo di stage Skills - lihat catatan --brand-*
+   di index.css. Token-nya menyesuaikan tema; hex mentah tidak bisa. */
 const tagIcons = {
-  html: { icon: FaHtml5, color: "text-orange-500" },
-  css: { icon: FaCss3Alt, color: "text-blue-500" },
-  js: { icon: SiJavascript, color: "text-yellow-400" },
-  laravel: { icon: FaLaravel, color: "text-red-600" },
-  alpine: { icon: SiAlpinedotjs, color: "text-teal-400" },
-  three: { icon: SiThreedotjs, color: "text-foreground" },
-  tailwind: { icon: SiTailwindcss, color: "text-cyan-400" },
+  html: { icon: FaHtml5, color: "text-brand-html" },
+  css: { icon: FaCss3Alt, color: "text-brand-css" },
+  js: { icon: SiJavascript, color: "text-brand-js" },
+  laravel: { icon: FaLaravel, color: "text-brand-laravel" },
+  alpine: { icon: SiAlpinedotjs, color: "text-brand-alpine" },
+  three: { icon: SiThreedotjs, color: "text-brand-three" },
+  tailwind: { icon: SiTailwindcss, color: "text-brand-tailwind" },
 };
 
 /* id harus unik - dipakai sebagai key AnimatePresence, kalau kembar transisinya tidak jalan */
@@ -44,7 +46,7 @@ const clamp = (n, min, max) => Math.min(Math.max(n, min), max);
 const hasLink = (url) => Boolean(url) && url !== "#";
 
 const linkClass =
-  "pixel-font inline-flex items-center gap-2 border-2 px-3 py-2 text-[9px] uppercase transition-all duration-150 md:text-[10px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
+  "pixel-font inline-flex items-center gap-2 border-2 px-3 py-2 text-pix-xs uppercase transition-all duration-100 ease-pix md:text-pix-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
 
 export const ProjectSection = () => {
   const containerRef = useRef(null);
@@ -99,11 +101,11 @@ export const ProjectSection = () => {
         <div className="container mx-auto grid max-w-5xl grid-cols-1 items-center gap-6 md:grid-cols-[1fr_auto_1fr] md:gap-10">
           {/* Kolom kiri: headline statis */}
           <div className="text-center md:text-left">
-            <span className="pixel-font inline-block glass-chip stage-border-soft px-3 py-1 text-[9px] uppercase stage-text md:text-[10px]">
+            <span className="pixel-font inline-block pix-chip stage-border-soft px-3 py-1 text-pix-xs uppercase stage-text md:text-pix-xs">
               Showcase &middot; Karya
             </span>
 
-            <h2 className="pixel-font mt-3 mb-3 text-2xl font-bold md:text-4xl">
+            <h2 className="pixel-font mt-3 mb-3 text-pix-lg font-bold md:text-pix-xl">
               Featured <span className="text-primary">Projects</span>
             </h2>
 
@@ -114,10 +116,10 @@ export const ProjectSection = () => {
 
             {/* Indikator posisi */}
             <div className="mx-auto mt-5 flex max-w-md items-center gap-3 md:mx-0">
-              <span className="pixel-font shrink-0 text-[9px] tabular-nums text-muted-foreground md:text-[10px]">
+              <span className="pixel-font shrink-0 text-pix-xs tabular-nums text-muted-foreground md:text-pix-xs">
                 {String(activeIndex + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
               </span>
-              <div className="h-1.5 flex-1 glass-chip">
+              <div className="h-4 flex-1 pix-inset">
                 <motion.div style={{ width: progressWidth }} className="h-full stage-bg" />
               </div>
             </div>
@@ -128,7 +130,7 @@ export const ProjectSection = () => {
               rel="noreferrer"
               className={cn(
                 linkClass,
-                "mt-5 stage-border stage-bg-soft stage-text stage-shadow hover:stage-glow active:translate-y-0.5"
+                "mt-5 stage-border stage-bg-soft stage-text stage-shadow hover:stage-glow active:translate-y-1"
               )}
             >
               View My Github <ArrowRight size={14} />
@@ -145,11 +147,11 @@ export const ProjectSection = () => {
                 aria-current={activeIndex === i ? "true" : undefined}
                 aria-label={`Lihat project ${project.title}`}
                 className={cn(
-                  "pixel-font flex h-9 w-9 items-center justify-center border-2 text-[10px] tabular-nums transition-all duration-200",
+                  "pixel-font flex h-9 w-9 items-center justify-center border-2 text-pix-xs tabular-nums transition-all duration-100 ease-pix",
                   "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
                   activeIndex === i
                     ? "stage-border stage-bg-soft stage-text"
-                    : "glass-chip text-muted-foreground hover:stage-border hover:text-foreground"
+                    : "pix-chip text-muted-foreground hover:stage-border hover:text-foreground"
                 )}
               >
                 {String(i + 1).padStart(2, "0")}
@@ -158,29 +160,27 @@ export const ProjectSection = () => {
           </div>
 
           {/* Kolom kanan: kartu konten cross-fade */}
-          <div className="relative min-h-[430px] md:min-h-[480px]">
+          <div className="relative min-h-[432px] md:min-h-[480px]">
             <AnimatePresence initial={false}>
               <motion.div
                 key={active.id}
                 initial={{
                   opacity: 0,
                   y: reducedMotion ? 0 : 18,
-                  scale: reducedMotion ? 1 : 0.97,
-                  filter: reducedMotion ? "blur(0px)" : "blur(6px)",
+                  scale: 1,
                 }}
-                animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{
                   opacity: 0,
                   y: reducedMotion ? 0 : -18,
-                  scale: reducedMotion ? 1 : 0.97,
-                  filter: reducedMotion ? "blur(0px)" : "blur(6px)",
+                  scale: 1,
                 }}
-                transition={{ duration: reducedMotion ? 0 : 0.6, ease: [0.16, 1, 0.3, 1] }}
+                transition={{ duration: reducedMotion ? 0 : 0.25, ease: "linear" }}
                 className="absolute inset-0 flex flex-col"
               >
                 <div className="project-image-reveal project-gloss relative h-48 shrink-0 overflow-hidden border-2 stage-border-soft md:h-56">
                   <img src={active.image} alt={active.title} className="h-full w-full object-cover" />
-                  <span className="pixel-font absolute right-2 top-2 glass-chip px-2 py-1 text-[8px] tabular-nums text-foreground/80 md:text-[9px]">
+                  <span className="pixel-font absolute right-2 top-2 pix-chip px-2 py-1 text-pix-xs tabular-nums text-foreground/80 md:text-pix-xs">
                     {active.year}
                   </span>
                 </div>
@@ -199,12 +199,12 @@ export const ProjectSection = () => {
                             title={tag}
                             aria-label={tag}
                             style={{ animationDelay: `${idx * 0.15}s` }}
-                            className="tag-float flex h-9 w-9 items-center justify-center glass-chip"
+                            className="tag-float flex h-9 w-9 items-center justify-center pix-chip"
                           >
                             {meta ? (
                               <meta.icon className={`h-4 w-4 ${meta.color}`} />
                             ) : (
-                              <span className="text-[9px] uppercase text-muted-foreground">{tag}</span>
+                              <span className="text-pix-xs uppercase text-muted-foreground">{tag}</span>
                             )}
                           </div>
                         </div>
@@ -213,7 +213,7 @@ export const ProjectSection = () => {
                   </div>
 
                   <h3
-                    className="project-reveal pixel-font-null mb-2 text-lg uppercase tracking-wide"
+                    className="project-reveal pixel-font-null mb-2 text-lg uppercase tracking-[1px]"
                     style={{ animationDelay: "0.2s" }}
                   >
                     {active.title}
@@ -237,7 +237,7 @@ export const ProjectSection = () => {
                       rel="noreferrer"
                       className={cn(
                         linkClass,
-                        "glass-chip text-foreground/80 hover:stage-border hover:stage-text"
+                        "pix-chip text-foreground/80 hover:stage-border hover:stage-text"
                       )}
                     >
                       <Github size={14} /> Lihat Kode

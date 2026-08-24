@@ -21,15 +21,15 @@ const itemVariants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: "easeOut" } },
 };
 
-const labelClass = "pixel-font mb-2 block text-[9px] uppercase text-muted-foreground md:text-[10px]";
+const labelClass = "pixel-font mb-2 block text-pix-xs uppercase text-muted-foreground md:text-pix-xs";
 
 const fieldClass =
-  "w-full glass-input px-3 py-2.5 text-sm transition-colors duration-150 placeholder:text-muted-foreground/60 focus:stage-border focus:outline-none";
+  "w-full pix-inset px-3 py-3 text-sm transition-colors duration-100 ease-pix placeholder:text-muted-foreground/60 focus:stage-border focus:outline-none";
 
 /* Panel bertab, mengikuti bahasa visual stage Profile & Skills */
 const Panel = ({ label, className, children }) => (
-  <div className={cn("relative glass-panel scanlines px-5 pt-7 pb-5", className)}>
-    <span className="pixel-font absolute -top-3 left-4 glass-chip stage-border stage-bg-soft stage-text px-2.5 py-1 text-[9px] uppercase whitespace-nowrap">
+  <div className={cn("relative pix-panel crt px-5 pt-7 pb-5", className)}>
+    <span className="pixel-font absolute -top-3 left-4 pix-chip stage-border stage-bg-soft stage-text px-3 py-1 text-pix-xs uppercase whitespace-nowrap">
       {label}
     </span>
     {children}
@@ -39,14 +39,14 @@ const Panel = ({ label, className, children }) => (
 const ChannelRow = ({ icon: Icon, label, value, href }) => {
   const body = (
     <>
-      <span className="flex h-8 w-8 shrink-0 items-center justify-center glass-chip transition-colors duration-150 group-hover:stage-border group-hover:stage-text">
-        <Icon className="h-3.5 w-3.5" />
+      <span className="flex h-8 w-8 shrink-0 items-center justify-center pix-chip transition-colors duration-100 ease-pix group-hover:stage-border group-hover:stage-text">
+        <Icon className="h-4 w-4" />
       </span>
       <span className="min-w-0">
-        <span className="pixel-font block text-[8px] uppercase text-muted-foreground md:text-[9px]">
+        <span className="pixel-font block text-pix-xs uppercase text-muted-foreground md:text-pix-xs">
           {label}
         </span>
-        <span className="block truncate text-sm text-foreground/90 transition-colors duration-150 group-hover:stage-text">
+        <span className="block truncate text-sm text-foreground/90 transition-colors duration-100 ease-pix group-hover:stage-text">
           {value}
         </span>
       </span>
@@ -76,10 +76,10 @@ export const ContactSection = () => {
           variants={itemVariants}
           className="mb-8 flex flex-col items-center gap-3 text-center md:mb-10"
         >
-          <span className="pixel-font glass-chip stage-border-soft px-3 py-1 text-[9px] uppercase stage-text md:text-[10px]">
+          <span className="pixel-font pix-chip stage-border-soft px-3 py-1 text-pix-xs uppercase stage-text md:text-pix-xs">
             Batas Akhir &middot; Kontak
           </span>
-          <h2 className="pixel-font text-2xl font-bold md:text-4xl">
+          <h2 className="pixel-font text-pix-lg font-bold md:text-pix-xl">
             Get In <span className="text-primary">Touch</span>
           </h2>
           <p className="max-w-xl text-sm leading-relaxed text-muted-foreground">
@@ -102,7 +102,7 @@ export const ContactSection = () => {
                 <ChannelRow icon={MapPin} label="Lokasi" value="Tabanan, Bali — Indonesia" />
 
                 <div className="border-t-2 border-border pt-4">
-                  <span className="pixel-font mb-2.5 block text-[8px] uppercase text-muted-foreground md:text-[9px]">
+                  <span className="pixel-font mb-3 block text-pix-xs uppercase text-muted-foreground md:text-pix-xs">
                     Sosial
                   </span>
                   <div className="flex flex-wrap gap-2">
@@ -114,7 +114,7 @@ export const ContactSection = () => {
                         rel="noreferrer"
                         aria-label={name}
                         title={name}
-                        className="flex h-9 w-9 items-center justify-center glass-chip text-foreground/70 transition-colors duration-150 hover:stage-border hover:stage-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                        className="flex h-9 w-9 items-center justify-center pix-chip text-foreground/70 transition-colors duration-100 ease-pix hover:stage-border hover:stage-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                       >
                         <Icon className="h-4 w-4" />
                       </a>
@@ -125,9 +125,9 @@ export const ContactSection = () => {
                 <a
                   href="/cv/cv-1.pdf"
                   download
-                  className="pixel-font mt-auto flex items-center justify-center gap-2 glass-chip px-3 py-2.5 text-[9px] uppercase text-foreground/80 transition-all duration-150 hover:stage-border hover:stage-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary md:text-[10px]"
+                  className="pixel-font mt-auto flex items-center justify-center gap-2 pix-chip px-3 py-3 text-pix-xs uppercase text-foreground/80 transition-all duration-100 ease-pix hover:stage-border hover:stage-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary md:text-pix-xs"
                 >
-                  <Download className="h-3.5 w-3.5" />
+                  <Download className="h-4 w-4" />
                   Unduh CV
                 </a>
               </div>
@@ -200,7 +200,7 @@ export const ContactSection = () => {
 
                 <button
                   type="submit"
-                  className="pixel-font flex w-full items-center justify-center gap-2 glass-chip stage-border stage-bg-soft stage-text stage-shadow px-4 py-3 text-[10px] uppercase transition-all duration-150 hover:stage-glow active:translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary md:text-xs"
+                  className="pixel-font flex w-full items-center justify-center gap-2 pix-chip stage-border stage-bg-soft stage-text stage-shadow px-4 py-3 text-pix-xs uppercase transition-all duration-100 ease-pix hover:stage-glow active:translate-y-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary md:text-xs"
                 >
                   Kirim Pesan
                   <Send size={14} />

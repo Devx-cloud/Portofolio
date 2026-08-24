@@ -77,22 +77,22 @@ export const TitleScreen = () => {
       <div className="relative z-10 flex min-h-screen items-center justify-center overflow-y-auto px-5 py-12 md:px-8">
         <div
           className={cn(
-            "flex w-full max-w-5xl flex-col items-center gap-10 transition-all duration-200 ease-in",
+            "flex w-full max-w-5xl flex-col items-center gap-10 transition-all duration-100 ease-pix",
             "md:flex-row md:items-center md:justify-between md:gap-12",
             entering ? "scale-95 opacity-0" : "scale-100 opacity-100"
           )}
         >
           {/* Kiri: judul + menu */}
           <div className="flex w-full flex-col items-start md:w-auto">
-            <h1 className="pixel-font text-4xl font-bold leading-none md:text-6xl">
+            <h1 className="pixel-font text-pix-2xl font-bold leading-none md:text-pix-3xl">
               <span className="text-glow text-foreground">Dev</span>
               <span className="text-primary">_X</span>
             </h1>
-            <p className="pixel-font mt-2 text-[9px] uppercase tracking-[0.3em] text-muted-foreground md:text-[10px]">
+            <p className="pixel-font mt-2 text-pix-xs uppercase tracking-[4px] text-muted-foreground md:text-pix-xs">
               Portofolio &middot; Deva Surya
             </p>
 
-            <p className="pixel-font stage-text mt-7 mb-4 animate-blink text-[10px] md:text-xs">
+            <p className="pixel-font stage-text mt-7 mb-4 animate-blink text-pix-xs md:text-xs">
               PRESS ENTER TO SELECT
             </p>
 
@@ -110,7 +110,7 @@ export const TitleScreen = () => {
                     /* Tiap stage bawa hue-nya sendiri - ini sumber variasi warna menu */
                     style={{ "--stage-accent": stage.accent }}
                     className={cn(
-                      "glass-chip pixel-font flex items-center gap-3 px-3 py-2.5 text-left text-[11px] transition-all duration-150 md:text-sm",
+                      "pix-chip pixel-font flex items-center gap-3 px-3 py-3 text-left text-pix-sm transition-all duration-100 ease-pix md:text-pix-md",
                       "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[hsl(var(--stage-accent))]",
                       isSelected
                         ? "stage-border stage-bg-soft stage-text stage-glow translate-x-1"
@@ -123,7 +123,7 @@ export const TitleScreen = () => {
                     </span>
                     <span
                       className={cn(
-                        "text-[9px] tabular-nums md:text-[10px]",
+                        "text-pix-xs tabular-nums md:text-pix-xs",
                         isSelected ? "opacity-70" : "opacity-40"
                       )}
                     >
@@ -135,7 +135,7 @@ export const TitleScreen = () => {
               })}
             </nav>
 
-            <p className="pixel-font mt-7 text-[8px] leading-relaxed text-muted-foreground/70 md:text-[9px]">
+            <p className="pixel-font mt-7 text-pix-xs leading-relaxed text-faint md:text-pix-xs">
               ↑↓ Pilih &nbsp;·&nbsp; Enter Masuk &nbsp;·&nbsp; 1-5 Lompat
             </p>
           </div>
@@ -145,19 +145,18 @@ export const TitleScreen = () => {
             <img
               src="/dev_left.png"
               alt="Deva Surya"
-              style={{ imageRendering: "pixelated" }}
-              className="z-10 -mb-4 h-44 w-44 object-cover drop-shadow-[0_0_25px_hsl(var(--stage-accent)/0.45)] md:h-64 md:w-64"
+              className="sprite z-10 -mb-4 h-44 w-44 object-cover drop-shadow-[4px_4px_0_hsl(var(--pit))] md:h-64 md:w-64"
             />
 
-            <div className="glass-panel-solid scanlines pixel-corners stage-border relative w-full px-5 pt-7 pb-6">
-              <span className="glass-chip stage-border stage-bg-soft stage-text pixel-font absolute -top-4 left-3 px-3 py-1 text-[10px] md:text-xs">
+            <div className="pix-dialog crt pix-corners stage-border relative w-full px-5 pt-7 pb-6">
+              <span className="pix-chip stage-border stage-bg-soft stage-text pixel-font absolute -top-4 left-3 px-3 py-1 text-pix-xs md:text-xs">
                 DEV_X
               </span>
-              <span className="glass-chip pixel-font absolute -top-3.5 right-3 px-2 py-1 text-[8px] tabular-nums text-muted-foreground md:text-[9px]">
+              <span className="pix-chip pixel-font absolute -top-4 right-3 px-2 py-1 text-pix-xs tabular-nums text-muted-foreground md:text-pix-xs">
                 {String(selected + 1).padStart(2, "0")} / {String(stages.length).padStart(2, "0")}
               </span>
 
-              <p className="pixel-font relative z-[2] min-h-[3.75rem] text-[11px] leading-relaxed text-foreground/90 md:min-h-[4.5rem] md:text-sm">
+              <p className="pixel-font relative z-[2] min-h-[60px] text-pix-sm leading-relaxed text-foreground/90 md:min-h-[72px] md:text-pix-md">
                 {dialogue}
               </p>
 
@@ -167,7 +166,7 @@ export const TitleScreen = () => {
         </div>
       </div>
 
-      <p className="pixel-font pointer-events-none absolute bottom-3 left-1/2 z-10 -translate-x-1/2 text-[8px] uppercase tracking-widest text-muted-foreground/40">
+      <p className="pixel-font pointer-events-none absolute bottom-3 left-1/2 z-10 -translate-x-1/2 text-pix-xs uppercase tracking-[2px] text-faint">
         Deva Surya &middot; Portofolio v2
       </p>
     </div>

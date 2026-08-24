@@ -31,7 +31,7 @@ export const NotFound = () => {
 
       <main className="relative z-10 flex flex-col items-center justify-center flex-grow px-6 text-center">
         {/* Judul 404 dengan animasi float + glow */}
-        <h1 className="text-9xl font-bold tracking-widest flex pixel-font-null">
+        <h1 className="text-[96px] md:text-[128px] font-bold tracking-[4px] flex pixel-font-null leading-none">
           <span className="animate-float text-primary">4</span>
           <span className="animate-bounce">0</span>
           <span className="animate-float text-primary">4</span>  
