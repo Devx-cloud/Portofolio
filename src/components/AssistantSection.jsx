@@ -1,6 +1,7 @@
 import { Send, Loader2 } from "lucide-react";
 import { useChatAgent } from "../hooks/useChatAgent";
 import { useTypewriter } from "../hooks/useTypewriter";
+import { RoomLamp } from "./RoomLamp";
 
 export const AssistantSection = () => {
   const { messages, input, setInput, isLoading, handleSubmit, messagesContainerRef } = useChatAgent(
@@ -14,19 +15,32 @@ export const AssistantSection = () => {
     /* night-scene: ruangannya selalu malam. Tanpa ini, di tema terang panel
        chat jadi putih di depan ruangan gelap - dua dunia yang bertabrakan. */
     <section
-      className="night-scene relative flex min-h-[75vh] flex-col items-center bg-background px-4 py-16"
+      className="night-scene relative flex min-h-[75vh] flex-col items-center overflow-hidden bg-background px-4 py-16"
       /* Aksen dideklarasikan ULANG di sini, bukan diwarisi dari LevelLayout:
          custom property menyubstitusi var() di elemen tempat ia ditulis, jadi
          warisan akan membawa --primary tema terang ke dalam adegan malam. */
       style={{ "--stage-accent": "var(--primary)" }}
     >
-      {/* Ruangan: lapisan paling belakang, menutup penuh section */}
+      {/* Ruangan: lapisan paling belakang.
+
+          --room-lift menaikkan isinya. Kotak gambar dibuat lebih tinggi dari
+          section lalu ditambat ke tepi BAWAH, jadi kelebihannya keluar lewat
+          atas dan langit-langit terpotong, bukan menyisakan celah di bawah.
+
+          object-position sengaja tidak dipakai: object-cover di sini selalu
+          pas di sumbu tinggi (section jauh lebih jangkung dari rasio 16:9
+          gambarnya), jadi tidak ada potongan vertikal untuk digeser dan
+          object-top/-bottom tidak akan berefek apa pun. */}
       <img
-        src="/room.png"
+        src="/room-without-lamp.png"
         alt=""
         aria-hidden="true"
-        className="sprite pointer-events-none absolute inset-0 z-0 h-full w-full select-none object-cover"
+        style={{ "--room-lift": "35px" }}
+        className="sprite pointer-events-none absolute inset-x-0 bottom-0 z-0 w-full select-none object-cover
+                   top-[calc(-1*var(--room-lift))] h-[calc(100%+var(--room-lift))]"
       />
+
+      <RoomLamp />
 
       <img
         src="/ai-ask.png"
