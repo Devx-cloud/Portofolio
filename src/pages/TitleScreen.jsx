@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { stages } from "../data/stages";
 import { StarBackground } from "../components/StarBackground";
+import { Fireflies } from "../components/Fireflies";
 import { useTypewriter } from "../hooks/useTypewriter";
 import { cn } from "@/lib/utils";
 
@@ -73,6 +74,21 @@ export const TitleScreen = () => {
 
       {/* Sorotan multi-hue tipis supaya latar tidak cuma hitam-merah */}
       <div aria-hidden="true" className="aurora pointer-events-none absolute inset-0 z-[1]" />
+
+      {/* Siluet atap kota - langit di atasnya transparan, biar bintang & meteor dari StarBackground tetap kelihatan */}
+      <img
+        src="/menu-bg.png"
+        alt=""
+        aria-hidden="true"
+className="sprite pointer-events-none absolute inset-x-0 bottom-0 z-[2] h-[170vh] w-full object-cover object-bottom select-none"
+      />
+
+      {/* Kunang-kunang melayang di atas atap - lintasannya menyimpang & kedipnya acak, bukan garis lurus kaku */}
+      {!reducedMotion && (
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-[3]">
+          <Fireflies count={22} size={3} seed={73} warmRatio={0.6} />
+        </div>
+      )}
 
       <div className="relative z-10 flex min-h-screen items-center justify-center overflow-y-auto px-5 py-12 md:px-8">
         <div

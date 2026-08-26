@@ -5,7 +5,7 @@ import { MapPin, Download, Github, Instagram, Linkedin, Bot, Crosshair, Signal }
 import { FaLaravel, FaReact } from "react-icons/fa";
 import { SiFlutter } from "react-icons/si";
 import { StarBackground } from "./StarBackground";
-import { CityParticles } from "./CityParticles";
+import { Fireflies } from "./Fireflies";
 import { cn } from "@/lib/utils";
 
 const socialLinks = [
@@ -96,9 +96,9 @@ const LAYERS = [
   { src: "/layer-3-fix.png", travel: "-32%", z: "z-[5]" },
 ];
 
-/* Pita bara di antara layer. Kecepatannya berada DI ANTARA dua layer yang
-   mengapitnya - itu yang mengisi ruang di antara mereka, alih-alih membiarkan
-   dua bidang datar saling geser.
+/* Pita kunang-kunang di antara layer. Kecepatannya berada DI ANTARA dua layer
+   yang mengapitnya - itu yang mengisi ruang di antara mereka, alih-alih
+   membiarkan dua bidang datar saling geser.
 
    Makin ke depan makin besar dan makin cepat, mengikuti aturan kedalaman yang
    sama: 2px di belakang, 4px di depan. */
@@ -300,7 +300,7 @@ export const ProfileSection = () => {
           />
         ))}
 
-        {/* Bara disisipkan DI ANTARA layer lewat z-index, bukan ditumpuk di
+        {/* Kunang-kunang disisipkan DI ANTARA layer lewat z-index, bukan ditumpuk di
             atas semuanya - itu yang membuatnya terbaca sebagai udara di dalam
             kota, bukan lapisan efek di depan kota. */}
         {!reducedMotion &&
@@ -315,7 +315,7 @@ export const ProfileSection = () => {
                 band.z
               )}
             >
-              <CityParticles
+              <Fireflies
                 count={band.count}
                 size={band.size}
                 seed={band.seed}
@@ -337,7 +337,7 @@ export const ProfileSection = () => {
               ? { duration: 0.5, repeat: Infinity, ease: "linear" }
               : { duration: 0.2 }
           }
-          className="sprite absolute bottom-[calc(var(--ground)-6px)] sm:bottom-[calc(var(--ground)-8px)] md:bottom-[calc(var(--ground)-11px)] left-3 sm:left-6 md:left-12 z-10 w-14 sm:w-20 md:w-28 drop-shadow-[4px_4px_0_hsl(var(--pit))]"
+          className="sprite absolute bottom-[calc(var(--ground)-6px)] sm:bottom-[calc(var(--ground)-8px)] md:bottom-[calc(var(--ground)-11px)] left-3 sm:left-6 md:left-12 z-10 w-14 sm:w-20 md:w-22 drop-shadow-[4px_4px_0_hsl(var(--pit))]"
         />
 
         {/* Babak 1: Data diri */}

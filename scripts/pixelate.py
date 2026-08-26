@@ -136,6 +136,11 @@ TARGETS = [
     ("public/layer-1.png", "public/layer-1-fix.png", 2172, 724, None, False, "solid"),
     ("public/layer-2.png", "public/layer-2-fix.png", 2172, 724, None, False, "column"),
     ("public/layer-3.png", "public/layer-3-fix.png", 2172, 724, None, False, None),
+
+    # Rooftop menu-bg: sumbernya terlalu jenuh dan lampunya condong pink/magenta
+    # dibanding layer-1/2/3 (yang sudah pas dari sononya). Resolusi dipertahankan,
+    # cuma tiap piksel di-snap ke LAYER_PALETTE yang sama supaya satu keluarga warna.
+    ("public/menu-bg.png", "public/menu-bg-fix.png", 2172, 724, LAYER_PALETTE, False, None),
 ]
 
 

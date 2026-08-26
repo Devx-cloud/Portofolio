@@ -495,27 +495,55 @@
   background-size: 8px 8px;
 }
 
-/* Bara yang melayang di antara layer kota. Kotak keras, bukan titik kabur -
-   steps() membuatnya berpindah dalam lompatan diskret seperti sprite. */
-.ember {
+/* Kunang-kunang: kotak keras, tanpa blur, tanpa lingkaran - lintasannya menyimpang
+   lewat 4 titik acak (bukan satu vektor lurus) dan kedip-nya lepas dari
+   gerakannya sendiri - dua animasi independen, jadi tidak terasa mekanis. */
+.firefly {
   position: absolute;
   opacity: 0;
   pointer-events: none;
-  animation: ember-drift var(--ember-dur, 9s) steps(20, end) var(--ember-delay, 0s) infinite;
+  animation:
+    firefly-wander var(--firefly-dur, 14s) ease-in-out var(--firefly-delay, 0s) infinite,
+    firefly-blink var(--blink-dur, 3s) steps(2, end) var(--blink-delay, 0s) infinite;
 }
 
-@keyframes ember-drift {
+@keyframes firefly-wander {
   0% {
     transform: translate(0, 0);
-    opacity: 0;
   }
-  10%,
-  80% {
-    opacity: 1;
+  25% {
+    transform: translate(var(--fx1, 0), var(--fy1, -20px));
+  }
+  50% {
+    transform: translate(var(--fx2, 0), var(--fy2, -40px));
+  }
+  75% {
+    transform: translate(var(--fx3, 0), var(--fy3, -60px));
   }
   100% {
-    transform: translate(var(--ember-x, 0), var(--ember-y, -120px));
+    transform: translate(var(--fx4, 0), var(--fy4, -80px));
+  }
+}
+
+@keyframes firefly-blink {
+  0%,
+  100% {
     opacity: 0;
+  }
+  15% {
+    opacity: 0.85;
+  }
+  30% {
+    opacity: 0.15;
+  }
+  48% {
+    opacity: 1;
+  }
+  62% {
+    opacity: 0.1;
+  }
+  80% {
+    opacity: 0.7;
   }
 }
 
