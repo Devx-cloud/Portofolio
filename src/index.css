@@ -495,6 +495,30 @@
   background-size: 8px 8px;
 }
 
+/* Bara yang melayang di antara layer kota. Kotak keras, bukan titik kabur -
+   steps() membuatnya berpindah dalam lompatan diskret seperti sprite. */
+.ember {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  animation: ember-drift var(--ember-dur, 9s) steps(20, end) var(--ember-delay, 0s) infinite;
+}
+
+@keyframes ember-drift {
+  0% {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+  10%,
+  80% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--ember-x, 0), var(--ember-y, -120px));
+    opacity: 0;
+  }
+}
+
 /* Garis pindai CRT - 2px penuh, 2px kosong. Tidak ada nilai pecahan. */
 @utility crt {
   position: relative;

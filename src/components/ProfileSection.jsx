@@ -5,6 +5,7 @@ import { MapPin, Download, Github, Instagram, Linkedin, Bot, Crosshair, Signal }
 import { FaLaravel, FaReact } from "react-icons/fa";
 import { SiFlutter } from "react-icons/si";
 import { StarBackground } from "./StarBackground";
+import { CityParticles } from "./CityParticles";
 import { cn } from "@/lib/utils";
 
 const socialLinks = [
@@ -90,9 +91,21 @@ const RANGES = {
    Layer tercepat yang menentukan batas: lebar x (1 - 0.5) >= 100vw, dan itu
    yang dijaga floor 200vw di --city-w. */
 const LAYERS = [
-  { src: "/layer-1-fix.png", travel: "-10%" },
-  { src: "/layer-2-fix.png", travel: "-20%" },
-  { src: "/layer-3-fix.png", travel: "-32%" },
+  { src: "/layer-1-fix.png", travel: "-10%", z: "z-[1]" },
+  { src: "/layer-2-fix.png", travel: "-20%", z: "z-[3]" },
+  { src: "/layer-3-fix.png", travel: "-32%", z: "z-[5]" },
+];
+
+/* Pita bara di antara layer. Kecepatannya berada DI ANTARA dua layer yang
+   mengapitnya - itu yang mengisi ruang di antara mereka, alih-alih membiarkan
+   dua bidang datar saling geser.
+
+   Makin ke depan makin besar dan makin cepat, mengikuti aturan kedalaman yang
+   sama: 2px di belakang, 4px di depan. */
+const PARTICLES = [
+  { z: "z-[2]", travel: "-15%", count: 28, size: 2, seed: 11, warmRatio: 0.55 },
+  { z: "z-[4]", travel: "-26%", count: 22, size: 4, seed: 29, warmRatio: 0.7 },
+  { z: "z-[6]", travel: "-40%", count: 15, size: 4, seed: 47, warmRatio: 0.85 },
 ];
 
 // Titik "plateau" tiap babak - dipakai untuk snap saat navigasi keyboard & klik HUD
@@ -236,6 +249,11 @@ export const ProfileSection = () => {
   const layerMid = useTransform(smoothProgress, [0, 1], ["0%", reducedMotion ? "0%" : LAYERS[1].travel]);
   const layerNear = useTransform(smoothProgress, [0, 1], ["0%", reducedMotion ? "0%" : LAYERS[2].travel]);
   const layerX = [layerFar, layerMid, layerNear];
+
+  const dustFar = useTransform(smoothProgress, [0, 1], ["0%", reducedMotion ? "0%" : PARTICLES[0].travel]);
+  const dustMid = useTransform(smoothProgress, [0, 1], ["0%", reducedMotion ? "0%" : PARTICLES[1].travel]);
+  const dustNear = useTransform(smoothProgress, [0, 1], ["0%", reducedMotion ? "0%" : PARTICLES[2].travel]);
+  const dustX = [dustFar, dustMid, dustNear];
   const progressWidth = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
 
   const heroOpacity = useTransform(scrollYProgress, RANGES.hero, [1, 1, 0]);
@@ -274,9 +292,37 @@ export const ProfileSection = () => {
             alt=""
             aria-hidden="true"
             style={{ x: layerX[i] }}
-            className="sprite absolute bottom-[calc(-1*var(--city-drop))] left-0 w-[var(--city-w)] max-w-none pointer-events-none select-none z-[1]"
+            className={cn(
+              "sprite absolute bottom-[calc(-1*var(--city-drop))] left-0 w-[var(--city-w)]",
+              "max-w-none pointer-events-none select-none",
+              layer.z
+            )}
           />
         ))}
+
+        {/* Bara disisipkan DI ANTARA layer lewat z-index, bukan ditumpuk di
+            atas semuanya - itu yang membuatnya terbaca sebagai udara di dalam
+            kota, bukan lapisan efek di depan kota. */}
+        {!reducedMotion &&
+          PARTICLES.map((band, i) => (
+            <motion.div
+              key={band.z}
+              aria-hidden="true"
+              style={{ x: dustX[i] }}
+              className={cn(
+                "absolute bottom-[calc(-1*var(--city-drop))] left-0 h-full w-[var(--city-w)]",
+                "pointer-events-none",
+                band.z
+              )}
+            >
+              <CityParticles
+                count={band.count}
+                size={band.size}
+                seed={band.seed}
+                warmRatio={band.warmRatio}
+              />
+            </motion.div>
+          ))}
 
         {/* Sprite: berdiri di aspal. idle.png menyisakan 6.6% ruang kosong di bawah
             kaki, jadi ditarik turun ~10% lebar tampilnya supaya telapaknya menyentuh
