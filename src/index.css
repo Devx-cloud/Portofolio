@@ -765,14 +765,28 @@
 }
 
 /* Wipe antar halaman: sapuan patah-patah, satu hue */
+/* Wipe antar halaman: kolom-kolom yang berangkat pada waktu berbeda, jadi
+   tepi depannya bergerigi seperti cairan yang merambat - bukan satu persegi
+   selebar layar yang meluncur rata.
+
+   Wadahnya sendiri tidak lagi punya isian; tiap kolom yang membawa warna dan
+   raster ditheringnya. */
 .page-wipe {
+  display: flex;
+}
+
+.page-wipe span {
+  flex: 1 1 0;
   background-color: hsl(var(--primary));
   background-image: repeating-conic-gradient(
     hsl(var(--primary-dim)) 0% 25%,
     transparent 0% 50%
   );
   background-size: 8px 8px;
-  animation: page-wipe 0.4s steps(8, end) both;
+  /* Jendela tahan penuh 30-70% sengaja dilebarkan: dengan kolom yang saling
+     telat sampai 0.12s, jendela sempit membuat kolom tercepat sudah surut
+     sementara yang terlambat belum menutup - layar bocor di tengah transisi. */
+  animation: page-wipe 0.5s steps(8, end) var(--wipe-delay, 0s) both;
 }
 
 @keyframes cloud-move {
@@ -841,14 +855,23 @@
 
 @keyframes page-wipe {
   0% {
-    clip-path: inset(0 0 100% 0);
+    transform: scaleY(0);
+    transform-origin: top;
   }
-  45%,
-  55% {
-    clip-path: inset(0 0 0 0);
+  30%,
+  70% {
+    transform: scaleY(1);
+    transform-origin: top;
+  }
+  /* Titik asal pindah ke bawah saat kolom masih penuh - pada scaleY(1)
+     perpindahan itu tidak terlihat, dan surutnya jadi ke ATAS. */
+  71% {
+    transform: scaleY(1);
+    transform-origin: bottom;
   }
   100% {
-    clip-path: inset(100% 0 0 0);
+    transform: scaleY(0);
+    transform-origin: bottom;
   }
 }
 
