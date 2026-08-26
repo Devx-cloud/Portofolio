@@ -88,9 +88,6 @@ export const SkillSection = () => {
           transition={{ duration: 0.5, ease: "easeOut" }}
           className="mb-7 flex flex-col items-center gap-3 text-center md:mb-9"
         >
-          <span className="pixel-font pix-chip stage-border-soft px-3 py-1 text-pix-xs uppercase stage-text md:text-pix-xs">
-            Status &middot; Kemampuan
-          </span>
           <h2 className="pixel-font text-pix-lg font-bold md:text-pix-xl">
             My <span className="text-primary">Skills</span>
           </h2>

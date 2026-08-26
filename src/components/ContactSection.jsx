@@ -76,9 +76,6 @@ export const ContactSection = () => {
           variants={itemVariants}
           className="mb-8 flex flex-col items-center gap-3 text-center md:mb-10"
         >
-          <span className="pixel-font pix-chip stage-border-soft px-3 py-1 text-pix-xs uppercase stage-text md:text-pix-xs">
-            Batas Akhir &middot; Kontak
-          </span>
           <h2 className="pixel-font text-pix-lg font-bold md:text-pix-xl">
             Get In <span className="text-primary">Touch</span>
           </h2>

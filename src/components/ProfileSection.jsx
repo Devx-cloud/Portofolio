@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { motion, useScroll, useTransform, useMotionValueEvent } from "framer-motion";
+import { motion, useScroll, useSpring, useTransform, useMotionValueEvent } from "framer-motion";
 import { MapPin, Download, Github, Instagram, Linkedin, Bot, Crosshair, Signal } from "lucide-react";
 import { FaLaravel, FaReact } from "react-icons/fa";
 import { SiFlutter } from "react-icons/si";
@@ -50,15 +50,29 @@ const STAGE_VARS = {
      kebutuhannya bergantung pada rasio viewport, bukan lebarnya.
 
      Dua batas bawah:
-       134vw  - parallax menggeser gambar -25% lebarnya sendiri, jadi butuh
-                lebar >= 100vw / 0.75 supaya tepi kanannya tidak pernah masuk layar.
+       200vw  - parallax menggeser gambar -32% lebarnya sendiri, jadi butuh
+                lebar >= 100vw / 0.68 = 147vw. Dinaikkan ke 200vw dan dibiarkan
+                MENANG atas cabang tinggi: itu yang menahan zoom tetap lebar,
+                jadi seluruh deret etalase layer-3 terlihat alih-alih satu
+                potong pagar yang diperbesar.
        1500px - menahan garis tanah tetap di atas HUD di layar sangat kecil. */
-  "--city-w": "max(calc((190vh - 5rem) * 3 * var(--city-zoom)), 134vw, 1500px)",
+  "--city-w": "max(calc((100vh - 5rem) * 3 * var(--city-zoom)), 200vw, 1500px)",
 
-  /* Garis trotoar di city-px.png ada di 15.47% tinggi gambar dari bawah
-     (diukur oleh scripts/pixelate.py). Gambarnya 3:1, jadi tingginya
-     --city-w / 3 dan garis tanahnya 15.47% dari itu. */
-  "--ground": "calc(var(--city-w) / 3 * 0.1547)",
+  /* Seberapa jauh pelat kota diturunkan dari dasar panggung. Gambarnya jauh
+     lebih tinggi dari panggung (tepi atasnya sudah terpotong), jadi
+     menurunkannya hanya menggeser aspal keluar lewat bawah - tidak akan
+     menyisakan celah di atas. */
+  "--city-drop": "90px",
+
+  /* Permukaan trotoar di layer-3-px.png ada di 18.5% tinggi gambar dari bawah -
+     diukur dari profil kecerahannya: aspal 0-14.4%, tepi trotoar gelap 15.2%,
+     permukaan trotoar terang 16.4-18.5%, gedung mulai 18.8%. Karakter berdiri
+     di garis yang sama dengan dasar gedung, seperti semestinya di tampak samping.
+
+     --city-drop ikut dikurangkan di sini: garis tanah diukur dari tepi bawah
+     GAMBAR, jadi begitu gambarnya turun, sprite harus turun sebanyak itu juga
+     atau telapaknya menggantung di udara. */
+  "--ground": "calc(var(--city-w) / 3 * 0.185 - var(--city-drop))",
 };
 
 const RANGES = {
@@ -68,6 +82,18 @@ const RANGES = {
   ai: [0.56, 0.62, 0.76, 0.82],
   contact: [0.76, 0.82, 1],
 };
+
+/* Tiga layer parallax, dari paling jauh ke paling dekat. Kecepatan yang
+   berbeda itulah yang menciptakan kedalaman. Yang terdekat memakai 50% -
+   jarak yang sudah dipakai sebelumnya - jadi langkah karakter tidak berubah.
+
+   Layer tercepat yang menentukan batas: lebar x (1 - 0.5) >= 100vw, dan itu
+   yang dijaga floor 200vw di --city-w. */
+const LAYERS = [
+  { src: "/layer-1-fix.png", travel: "-10%" },
+  { src: "/layer-2-fix.png", travel: "-20%" },
+  { src: "/layer-3-fix.png", travel: "-32%" },
+];
 
 // Titik "plateau" tiap babak - dipakai untuk snap saat navigasi keyboard & klik HUD
 const SNAP_POINTS = [0, 0.22, 0.42, 0.62, 0.82];
@@ -129,6 +155,21 @@ export const ProfileSection = () => {
     offset: ["start start", "end end"],
   });
 
+  /* Parallax dilewatkan spring supaya kota MELUNCUR, bukan tersentak. Roda
+     mouse mengirim scroll dalam ketukan diskret (~100px sekali putar), dan
+     memetakannya langsung ke translasi membuat kotanya ikut melompat tiap
+     ketukan. Sengaja overdamped (rasio ~1.4) - parallax yang memantul di
+     ujung terasa salah.
+
+     HANYA parallax yang dihaluskan. Opacity panel dan pergantian babak tetap
+     terikat ke scroll mentah, supaya babaknya berganti tepat di posisinya. */
+  const smoothProgress = useSpring(scrollYProgress, {
+    stiffness: 70,
+    damping: 20,
+    mass: 0.5,
+    restDelta: 0.0002,
+  });
+
   useMotionValueEvent(scrollYProgress, "change", (v) => {
     setIsMoving(v > 0.001 && v < 0.999);
     if (v < 0.19) setActiveIndex(0);
@@ -136,10 +177,15 @@ export const ProfileSection = () => {
     else if (v < 0.59) setActiveIndex(2);
     else if (v < 0.79) setActiveIndex(3);
     else setActiveIndex(4);
+  });
 
+  /* Arah hadap dibaca dari gerak yang sudah dihaluskan, bukan scroll mentah:
+     roda mouse mengirim lompatan kecil bolak-balik, dan karakternya berkedip
+     ganti arah kalau mengikuti itu langsung. */
+  useMotionValueEvent(smoothProgress, "change", (v) => {
     const delta = v - lastProgressRef.current;
-    if (delta > 0.0005) setFacingRight(true);
-    else if (delta < -0.0005) setFacingRight(false);
+    if (delta > 0.0004) setFacingRight(true);
+    else if (delta < -0.0004) setFacingRight(false);
     lastProgressRef.current = v;
   });
 
@@ -184,7 +230,12 @@ export const ProfileSection = () => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [scrollYProgress, scrollToProgress]);
 
-  const mountainX = useTransform(scrollYProgress, [0, 1], ["0%", reducedMotion ? "0%" : "-25%"]);
+  /* Satu useTransform per layer. Hook tidak boleh dipanggil di dalam loop,
+     jadi ketiganya ditulis lurus - jumlah layer memang tetap tiga. */
+  const layerFar = useTransform(smoothProgress, [0, 1], ["0%", reducedMotion ? "0%" : LAYERS[0].travel]);
+  const layerMid = useTransform(smoothProgress, [0, 1], ["0%", reducedMotion ? "0%" : LAYERS[1].travel]);
+  const layerNear = useTransform(smoothProgress, [0, 1], ["0%", reducedMotion ? "0%" : LAYERS[2].travel]);
+  const layerX = [layerFar, layerMid, layerNear];
   const progressWidth = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
 
   const heroOpacity = useTransform(scrollYProgress, RANGES.hero, [1, 1, 0]);
@@ -213,13 +264,19 @@ export const ProfileSection = () => {
         {/* Layer langit: bintang & meteor */}
         <StarBackground />
 
-        {/* Layer tengah: pelat jalan kota. Langitnya transparan supaya bintang tembus. */}
-        <motion.img
-          src="/city-v2.png"
-          alt=""
-          style={{ x: mountainX }}
-          className="sprite absolute bottom-0 left-0 w-[var(--city-w)] max-w-none pointer-events-none select-none z-[1]"
-        />
+        {/* Kota: tiga layer bertumpuk, masing-masing bergeser dengan kecepatan
+            sendiri. Semuanya seukuran dan ditambat ke titik yang sama supaya
+            registrasinya terjaga; langitnya transparan supaya bintang tembus. */}
+        {LAYERS.map((layer, i) => (
+          <motion.img
+            key={layer.src}
+            src={layer.src}
+            alt=""
+            aria-hidden="true"
+            style={{ x: layerX[i] }}
+            className="sprite absolute bottom-[calc(-1*var(--city-drop))] left-0 w-[var(--city-w)] max-w-none pointer-events-none select-none z-[1]"
+          />
+        ))}
 
         {/* Sprite: berdiri di aspal. idle.png menyisakan 6.6% ruang kosong di bawah
             kaki, jadi ditarik turun ~10% lebar tampilnya supaya telapaknya menyentuh

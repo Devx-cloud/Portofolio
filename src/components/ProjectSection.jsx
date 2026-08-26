@@ -101,10 +101,6 @@ export const ProjectSection = () => {
         <div className="container mx-auto grid max-w-5xl grid-cols-1 items-center gap-6 md:grid-cols-[1fr_auto_1fr] md:gap-10">
           {/* Kolom kiri: headline statis */}
           <div className="text-center md:text-left">
-            <span className="pixel-font inline-block pix-chip stage-border-soft px-3 py-1 text-pix-xs uppercase stage-text md:text-pix-xs">
-              Showcase &middot; Karya
-            </span>
-
             <h2 className="pixel-font mt-3 mb-3 text-pix-lg font-bold md:text-pix-xl">
               Featured <span className="text-primary">Projects</span>
             </h2>

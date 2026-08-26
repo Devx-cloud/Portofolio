@@ -6,6 +6,9 @@ import { ContactSection } from "../components/ContactSection";
 
 /*
  * desc   -> teks dialog di Title Screen (jaga panjangnya tetap mirip)
+ * badge  -> label kotak di pojok kanan atas tiap stage. Dulu ditulis terpisah
+ *           di dalam masing-masing section; dipindah ke sini supaya satu stage
+ *           punya satu nama, bukan dua yang bisa lepas sinkron.
  * accent -> hue identitas tiap stage, dipasang sebagai --stage-accent.
  *           Ini yang bikin palet tidak berat sebelah ke satu warna saja.
  */
@@ -13,6 +16,7 @@ export const stages = [
   {
     id: "profile",
     path: "/profile",
+    badge: "Titik Awal · Data Diri",
     label: "Profile",
     desc: "Data diri, fokus teknologi, dan cerita singkat di balik layar.",
     accent: "var(--primary)",
@@ -21,6 +25,7 @@ export const stages = [
   {
     id: "skills",
     path: "/skills",
+    badge: "Status · Kemampuan",
     label: "Skills",
     desc: "Peta kemampuan: Laravel, Flutter, React, sampai tools harian.",
     accent: "var(--primary)",
@@ -29,6 +34,7 @@ export const stages = [
   {
     id: "projects",
     path: "/projects",
+    badge: "Showcase · Karya",
     label: "Projects",
     desc: "Proyek pilihan, dari computer vision di browser sampai pipeline AI.",
     accent: "var(--primary)",
@@ -37,6 +43,7 @@ export const stages = [
   {
     id: "assistant",
     path: "/assistant",
+    badge: "Terminal · Ask AI",
     label: "Ask AI",
     desc: "Tanya apa saja soal profil ini. Dijawab asisten bertenaga Gemini.",
     accent: "var(--primary)",
@@ -45,6 +52,7 @@ export const stages = [
   {
     id: "contact",
     path: "/contact",
+    badge: "Batas Akhir · Kontak",
     label: "Contact",
     desc: "Jalur langsung untuk kolaborasi, tawaran kerja, atau diskusi santai.",
     accent: "var(--primary)",
