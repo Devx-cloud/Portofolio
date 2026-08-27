@@ -48,7 +48,147 @@ const hasLink = (url) => Boolean(url) && url !== "#";
 const linkClass =
   "pixel-font inline-flex items-center gap-2 border-2 px-3 py-2 text-pix-xs uppercase transition-all duration-100 ease-pix md:text-pix-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
 
-export const ProjectSection = () => {
+/* Isi satu kartu project, lepas dari cara ia ditampilkan (cross-fade sticky
+   di desktop, atau daftar mengalir biasa di mobile - lihat catatan di
+   ProjectSection soal kenapa keduanya perlu berbeda). */
+const ProjectCard = ({ project }) => (
+  <div className="flex flex-1 flex-col">
+    <div className="project-image-reveal project-gloss relative h-48 shrink-0 overflow-hidden border-2 stage-border-soft md:h-56">
+      <img src={project.image} alt={project.title} className="h-full w-full object-cover" />
+      <span className="pixel-font absolute right-2 top-2 pix-chip px-2 py-1 text-pix-xs tabular-nums text-foreground/80 md:text-pix-xs">
+        {project.year}
+      </span>
+    </div>
+
+    <div className="flex flex-1 flex-col pt-4">
+      <div className="mb-3 flex flex-wrap gap-2">
+        {project.tags.map((tag, idx) => {
+          const meta = tagIcons[tag];
+          return (
+            <div
+              key={tag}
+              className="tag-reveal"
+              style={{ animationDelay: `${0.35 + idx * 0.07}s` }}
+            >
+              <div
+                title={tag}
+                aria-label={tag}
+                style={{ animationDelay: `${idx * 0.15}s` }}
+                className="tag-float flex h-9 w-9 items-center justify-center pix-chip"
+              >
+                {meta ? (
+                  <meta.icon className={`h-4 w-4 ${meta.color}`} />
+                ) : (
+                  <span className="text-pix-xs uppercase text-muted-foreground">{tag}</span>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <h3
+        className="project-reveal pixel-font-null mb-2 text-lg uppercase tracking-[1px]"
+        style={{ animationDelay: "0.2s" }}
+      >
+        {project.title}
+      </h3>
+
+      <p
+        className="project-reveal mb-4 flex-1 text-sm leading-relaxed text-muted-foreground"
+        style={{ animationDelay: "0.3s" }}
+      >
+        {project.desc}
+      </p>
+
+      {/* Aksi per project - menggantikan tombol melayang di pojok layar */}
+      <div className="project-reveal flex flex-wrap gap-2" style={{ animationDelay: "0.4s" }}>
+        <a
+          href={project.githubUrl}
+          target="_blank"
+          rel="noreferrer"
+          className={cn(linkClass, "pix-chip text-foreground/80 hover:stage-border hover:stage-text")}
+        >
+          <Github size={14} /> Lihat Kode
+        </a>
+
+        {hasLink(project.demoUrl) && (
+          <a
+            href={project.demoUrl}
+            target="_blank"
+            rel="noreferrer"
+            className={cn(linkClass, "stage-border stage-bg-soft stage-text stage-shadow hover:stage-glow")}
+          >
+            <ExternalLink size={14} /> Live Demo
+          </a>
+        )}
+      </div>
+    </div>
+  </div>
+);
+
+const SectionIntro = () => (
+  <div className="text-center md:text-left">
+    <h2 className="pixel-font mt-3 mb-3 text-pix-lg font-bold md:text-pix-xl">
+      Featured <span className="text-primary">Projects</span>
+    </h2>
+    <p className="mx-auto max-w-md text-sm leading-relaxed text-muted-foreground md:mx-0">
+      Eksperimen yang berakhir jadi produk nyata — dari computer vision di browser sampai pipeline
+      AI untuk foto, video, dan model 3D.
+    </p>
+  </div>
+);
+
+/* Mobile: daftar mengalir biasa, TANPA sticky/scroll-jack.
+   Panel sticky+tinggi-tetap yang dipakai desktop cocok kalau kontennya pasti
+   muat satu layar (grid 3 kolom di md+) - begitu layar sempit dan grid jatuh
+   jadi 1 kolom, tumpukan konten (headline + nav + kartu) jadi lebih tinggi
+   dari satu layar. Sticky+overflow-hidden lalu memotong sisanya tanpa ada
+   cara untuk scroll ke situ. Solusinya bukan bikin panelnya scroll sendiri
+   (dua scrollbar bersarang itu sendiri sumber masalah baru di HP), tapi
+   lepas sama sekali mekanisme scroll-jack-nya di mobile: biarkan halaman
+   scroll natural, semua project tampil sekaligus. */
+const MobileProjectList = () => (
+  <div className="container mx-auto max-w-xl px-4 py-10 md:hidden">
+    <SectionIntro />
+
+    {/* Pembatas antar project. Cuma perlu di mobile: di desktop hanya satu
+        project yang tampil sekaligus (cross-fade), jadi tidak ada yang perlu
+        dipisah. Nomornya sekaligus menggantikan navigasi angka desktop yang
+        tidak ikut dirender di sini - tetap ada penanda "ini project ke berapa". */}
+    <div className="mt-8 flex flex-col gap-8">
+      {Projects.map((project, i) => (
+        <div key={project.id} className={cn("flex flex-col", i > 0 && "pt-4")}>
+          <div className="mb-4 flex items-center gap-3">
+            <span className="pixel-font shrink-0 text-pix-xs tabular-nums text-muted-foreground">
+              {String(i + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
+            </span>
+            <span aria-hidden="true" className="h-0.5 flex-1 bg-border" />
+          </div>
+
+          <ProjectCard project={project} />
+        </div>
+      ))}
+    </div>
+
+    <a
+      href="https://github.com/Devx-cloud"
+      target="_blank"
+      rel="noreferrer"
+      className={cn(
+        linkClass,
+        "mt-8 justify-center stage-border stage-bg-soft stage-text stage-shadow hover:stage-glow active:translate-y-1"
+      )}
+    >
+      View My Github <ArrowRight size={14} />
+    </a>
+  </div>
+);
+
+/* Desktop: satu project per layar, cross-fade mengikuti scroll (scroll-jack).
+   Aman dipakai di sini karena grid 3 kolom (md:grid-cols-[1fr_auto_1fr])
+   menjaga semuanya tetap muat dalam calc(100vh-5rem). */
+const DesktopScrollShowcase = () => {
   const containerRef = useRef(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [reducedMotion, setReducedMotion] = useState(false);
@@ -89,26 +229,18 @@ export const ProjectSection = () => {
 
   return (
     <motion.section
-      id="projects"
       ref={containerRef}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="relative"
+      className="relative hidden md:block"
       style={{ height: `${total * 100}vh` }}
     >
       <div className="sticky top-20 flex h-[calc(100vh-5rem)] flex-col justify-center px-4">
         <div className="container mx-auto grid max-w-5xl grid-cols-1 items-center gap-6 md:grid-cols-[1fr_auto_1fr] md:gap-10">
           {/* Kolom kiri: headline statis */}
-          <div className="text-center md:text-left">
-            <h2 className="pixel-font mt-3 mb-3 text-pix-lg font-bold md:text-pix-xl">
-              Featured <span className="text-primary">Projects</span>
-            </h2>
-
-            <p className="mx-auto max-w-md text-sm leading-relaxed text-muted-foreground md:mx-0">
-              Eksperimen yang berakhir jadi produk nyata — dari computer vision di browser sampai
-              pipeline AI untuk foto, video, dan model 3D.
-            </p>
+          <div>
+            <SectionIntro />
 
             {/* Indikator posisi */}
             <div className="mx-auto mt-5 flex max-w-md items-center gap-3 md:mx-0">
@@ -160,100 +292,13 @@ export const ProjectSection = () => {
             <AnimatePresence initial={false}>
               <motion.div
                 key={active.id}
-                initial={{
-                  opacity: 0,
-                  y: reducedMotion ? 0 : 18,
-                  scale: 1,
-                }}
+                initial={{ opacity: 0, y: reducedMotion ? 0 : 18, scale: 1 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{
-                  opacity: 0,
-                  y: reducedMotion ? 0 : -18,
-                  scale: 1,
-                }}
+                exit={{ opacity: 0, y: reducedMotion ? 0 : -18, scale: 1 }}
                 transition={{ duration: reducedMotion ? 0 : 0.25, ease: "linear" }}
                 className="absolute inset-0 flex flex-col"
               >
-                <div className="project-image-reveal project-gloss relative h-48 shrink-0 overflow-hidden border-2 stage-border-soft md:h-56">
-                  <img src={active.image} alt={active.title} className="h-full w-full object-cover" />
-                  <span className="pixel-font absolute right-2 top-2 pix-chip px-2 py-1 text-pix-xs tabular-nums text-foreground/80 md:text-pix-xs">
-                    {active.year}
-                  </span>
-                </div>
-
-                <div className="flex flex-1 flex-col pt-4">
-                  <div className="mb-3 flex flex-wrap gap-2">
-                    {active.tags.map((tag, idx) => {
-                      const meta = tagIcons[tag];
-                      return (
-                        <div
-                          key={tag}
-                          className="tag-reveal"
-                          style={{ animationDelay: `${0.35 + idx * 0.07}s` }}
-                        >
-                          <div
-                            title={tag}
-                            aria-label={tag}
-                            style={{ animationDelay: `${idx * 0.15}s` }}
-                            className="tag-float flex h-9 w-9 items-center justify-center pix-chip"
-                          >
-                            {meta ? (
-                              <meta.icon className={`h-4 w-4 ${meta.color}`} />
-                            ) : (
-                              <span className="text-pix-xs uppercase text-muted-foreground">{tag}</span>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-
-                  <h3
-                    className="project-reveal pixel-font-null mb-2 text-lg uppercase tracking-[1px]"
-                    style={{ animationDelay: "0.2s" }}
-                  >
-                    {active.title}
-                  </h3>
-
-                  <p
-                    className="project-reveal mb-4 flex-1 text-sm leading-relaxed text-muted-foreground"
-                    style={{ animationDelay: "0.3s" }}
-                  >
-                    {active.desc}
-                  </p>
-
-                  {/* Aksi per project - menggantikan tombol melayang di pojok layar */}
-                  <div
-                    className="project-reveal flex flex-wrap gap-2"
-                    style={{ animationDelay: "0.4s" }}
-                  >
-                    <a
-                      href={active.githubUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className={cn(
-                        linkClass,
-                        "pix-chip text-foreground/80 hover:stage-border hover:stage-text"
-                      )}
-                    >
-                      <Github size={14} /> Lihat Kode
-                    </a>
-
-                    {hasLink(active.demoUrl) && (
-                      <a
-                        href={active.demoUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className={cn(
-                          linkClass,
-                          "stage-border stage-bg-soft stage-text stage-shadow hover:stage-glow"
-                        )}
-                      >
-                        <ExternalLink size={14} /> Live Demo
-                      </a>
-                    )}
-                  </div>
-                </div>
+                <ProjectCard project={active} />
               </motion.div>
             </AnimatePresence>
           </div>
@@ -262,3 +307,10 @@ export const ProjectSection = () => {
     </motion.section>
   );
 };
+
+export const ProjectSection = () => (
+  <section id="projects" className="relative">
+    <MobileProjectList />
+    <DesktopScrollShowcase />
+  </section>
+);

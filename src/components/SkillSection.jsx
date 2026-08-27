@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { FaReact, FaHtml5, FaCss3Alt, FaJava, FaGitAlt, FaPython, FaLaravel } from "react-icons/fa";
 import { SiJavascript, SiTailwindcss, SiMysql, SiPhp, SiFlutter, SiAndroidstudio } from "react-icons/si";
@@ -12,28 +12,46 @@ const TIERS = {
 };
 
 /* Logo memakai warna mereknya sendiri - lihat catatan --brand-* di index.css.
-   Warnanya dari token, bukan hex mentah, supaya ikut menyesuaikan tema. */
-const iconClass = "h-10 w-10 md:h-12 md:w-12 transition-transform duration-100 ease-pix";
+   Warnanya dari token, bukan hex mentah, supaya ikut menyesuaikan tema.
+
+   13 warna brand sekaligus di satu grid bikin halaman ini berisik dibanding
+   bagian lain yang disiplin navy+merah. Jadi diam-diam ikonnya abu-abu, dan
+   warna aslinya baru muncul saat kartunya disentuh - warna jadi hadiah
+   interaksi, bukan kebisingan di pandangan pertama.
+
+   Pemicunya HARUS dua jalur, bukan hover saja. Tailwind membungkus semua
+   varian hover: di dalam @media (hover: hover), jadi di HP aturan itu tidak
+   pernah aktif dan ikonnya bakal abu-abu selamanya. Karena itu di layar
+   sentuh dipakai state React (tap untuk membuka), bukan CSS hover.
+
+   Ikon disimpan sebagai KOMPONEN, bukan elemen jadi, supaya class-nya bisa
+   berubah mengikuti state - elemen yang sudah dirender class-nya terkunci.
+
+   Durasi 300ms (bukan 150ms) supaya patahan ease-pix benar-benar KELIHATAN:
+   steps(4) di 150ms cuma ~37ms per langkah - terbaca mulus, bukan pixel.
+   Di 300ms tiap langkah dapat 75ms, jadi warnanya luntur dalam 4 lompatan
+   diskret seperti sprite yang berganti frame. */
+const iconClass = "h-10 w-10 md:h-12 md:w-12 transition-all duration-300 ease-pix";
 
 const skills = [
   // Web
-  { name: "Laravel", icon: <FaLaravel className={`${iconClass} text-brand-laravel`} />, category: "web", tier: "core" },
-  { name: "PHP", icon: <SiPhp className={`${iconClass} text-brand-php`} />, category: "web", tier: "core" },
-  { name: "JavaScript", icon: <SiJavascript className={`${iconClass} text-brand-js`} />, category: "web", tier: "core" },
-  { name: "HTML", icon: <FaHtml5 className={`${iconClass} text-brand-html`} />, category: "web", tier: "core" },
-  { name: "CSS", icon: <FaCss3Alt className={`${iconClass} text-brand-css`} />, category: "web", tier: "core" },
-  { name: "Tailwind CSS", icon: <SiTailwindcss className={`${iconClass} text-brand-tailwind`} />, category: "web", tier: "core" },
-  { name: "MySQL", icon: <SiMysql className={`${iconClass} text-brand-mysql`} />, category: "web", tier: "support" },
-  { name: "ReactJs", icon: <FaReact className={`${iconClass} text-brand-react`} />, category: "web", tier: "support" },
+  { name: "Laravel", Icon: FaLaravel, color: "text-brand-laravel", category: "web", tier: "core" },
+  { name: "PHP", Icon: SiPhp, color: "text-brand-php", category: "web", tier: "core" },
+  { name: "JavaScript", Icon: SiJavascript, color: "text-brand-js", category: "web", tier: "core" },
+  { name: "HTML", Icon: FaHtml5, color: "text-brand-html", category: "web", tier: "core" },
+  { name: "CSS", Icon: FaCss3Alt, color: "text-brand-css", category: "web", tier: "core" },
+  { name: "Tailwind CSS", Icon: SiTailwindcss, color: "text-brand-tailwind", category: "web", tier: "core" },
+  { name: "MySQL", Icon: SiMysql, color: "text-brand-mysql", category: "web", tier: "support" },
+  { name: "ReactJs", Icon: FaReact, color: "text-brand-react", category: "web", tier: "support" },
 
   // Mobile
-  { name: "Flutter", icon: <SiFlutter className={`${iconClass} text-brand-flutter`} />, category: "app", tier: "core" },
-  { name: "Android Studio", icon: <SiAndroidstudio className={`${iconClass} text-brand-android`} />, category: "app", tier: "support" },
-  { name: "Git", icon: <FaGitAlt className={`${iconClass} text-brand-git`} />, category: "app", tier: "support" },
-  { name: "Java", icon: <FaJava className={`${iconClass} text-brand-java`} />, category: "app", tier: "explore" },
+  { name: "Flutter", Icon: SiFlutter, color: "text-brand-flutter", category: "app", tier: "core" },
+  { name: "Android Studio", Icon: SiAndroidstudio, color: "text-brand-android", category: "app", tier: "support" },
+  { name: "Git", Icon: FaGitAlt, color: "text-brand-git", category: "app", tier: "support" },
+  { name: "Java", Icon: FaJava, color: "text-brand-java", category: "app", tier: "explore" },
 
   // AI / Data
-  { name: "Python", icon: <FaPython className={`${iconClass} text-brand-python`} />, category: "ai", tier: "explore" },
+  { name: "Python", Icon: FaPython, color: "text-brand-python", category: "ai", tier: "explore" },
 ];
 
 const categories = [
@@ -63,7 +81,7 @@ const StatBar = ({ blocks }) => (
       <span
         key={i}
         className={cn(
-          "h-2 flex-1 border-2 transition-colors duration-100 ease-pix",
+          "h-1.5 flex-1 border transition-colors duration-100 ease-pix",
           i < blocks ? "stage-border stage-bg" : "border-border bg-transparent"
         )}
       />
@@ -73,6 +91,23 @@ const StatBar = ({ blocks }) => (
 
 export const SkillSection = () => {
   const [activeCategory, setActiveCategory] = useState("all");
+
+  /* Kartu mana yang warnanya sedang dibuka lewat tap. Satu saja pada satu
+     waktu - membiarkan banyak kartu menyala sekaligus mengembalikan
+     keramaian yang justru mau dihilangkan. Karena state-nya cuma menampung
+     SATU nama, membuka kartu lain otomatis menutup yang sebelumnya. Di
+     desktop ini nyaris tidak terpakai karena hover sudah menanganinya. */
+  const [revealed, setRevealed] = useState(null);
+
+  /* Warna padam sendiri setelah 2 detik, jadi grid tidak ditinggal menyala
+     saat pengunjung sudah beralih. Timer-nya dipasang ulang tiap `revealed`
+     berubah, dan cleanup membatalkan timer lama - tanpa itu, kartu yang baru
+     dibuka akan ikut dipadamkan oleh timer sisa kartu sebelumnya. */
+  useEffect(() => {
+    if (!revealed) return;
+    const timeout = setTimeout(() => setRevealed(null), 2000);
+    return () => clearTimeout(timeout);
+  }, [revealed]);
 
   const filteredSkill = skills.filter(
     (skill) => activeCategory === "all" || skill.category === activeCategory
@@ -154,15 +189,31 @@ export const SkillSection = () => {
           >
             {filteredSkill.map((skill) => {
               const tier = TIERS[skill.tier];
+              const isRevealed = revealed === skill.name;
               return (
                 <motion.li key={skill.name} variants={cardVariants} className="list-none">
-                  <div className="group relative flex h-full flex-col items-center gap-3 pix-panel crt p-4 text-center transition-all duration-100 ease-pix hover:-translate-y-1 hover:stage-border hover:stage-glow">
-                    <span className="pixel-font absolute right-2 top-2 text-pix-xs uppercase text-muted-foreground/70">
-                      {skill.category === "ai" ? "AI" : skill.category}
-                    </span>
-
+                  <button
+                    type="button"
+                    onClick={() => setRevealed(isRevealed ? null : skill.name)}
+                    aria-pressed={isRevealed}
+                    aria-label={`${skill.name} - ${tier.label}`}
+                    className={cn(
+                      "group relative flex h-full w-full flex-col items-center gap-3 pix-panel p-4 text-center transition-all duration-100 ease-pix",
+                      "hover:-translate-y-1 hover:stage-border hover:stage-glow",
+                      "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+                      isRevealed && "stage-border stage-glow"
+                    )}
+                  >
                     <div className="mt-1 transition-transform duration-100 ease-pix group-hover:scale-110">
-                      {skill.icon}
+                      <skill.Icon
+                        className={cn(
+                          iconClass,
+                          skill.color,
+                          /* Abu-abu itu default di SEMUA perangkat. Yang berbeda
+                             hanya pemicunya: hover di desktop, tap di HP. */
+                          isRevealed ? "grayscale-0" : "grayscale group-hover:grayscale-0"
+                        )}
+                      />
                     </div>
 
                     <h3 className="pixel-font-null text-sm uppercase leading-tight tracking-[1px] md:text-base">
@@ -171,11 +222,8 @@ export const SkillSection = () => {
 
                     <div className="mt-auto w-full pt-1">
                       <StatBar blocks={tier.blocks} />
-                      <p className="pixel-font mt-2 text-pix-xs uppercase text-muted-foreground md:text-pix-xs">
-                        {tier.label}
-                      </p>
                     </div>
-                  </div>
+                  </button>
                 </motion.li>
               );
             })}

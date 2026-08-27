@@ -59,11 +59,11 @@ const STAGE_VARS = {
        1500px - menahan garis tanah tetap di atas HUD di layar sangat kecil. */
   "--city-w": "max(calc((100vh - 5rem) * 3 * var(--city-zoom)), 200vw, 1500px)",
 
-  /* Seberapa jauh pelat kota diturunkan dari dasar panggung. Gambarnya jauh
-     lebih tinggi dari panggung (tepi atasnya sudah terpotong), jadi
-     menurunkannya hanya menggeser aspal keluar lewat bawah - tidak akan
-     menyisakan celah di atas. */
-  "--city-drop": "90px",
+  /* --city-drop TIDAK ditulis di sini: nilainya harus berbeda antara HP dan
+     desktop, sementara inline style tidak bisa dikondisikan media query -
+     dan inline SELALU menang atas class. Jadi ia dipasang lewat class di
+     elemen panggung; lihat catatannya di sana. var(--city-drop) di --ground
+     tetap resolve karena keduanya hidup di elemen yang sama. */
 
   /* Permukaan trotoar di layer-3-px.png ada di 18.5% tinggi gambar dari bawah -
      diukur dari profil kecerahannya: aspal 0-14.4%, tepi trotoar gelap 15.2%,
@@ -91,9 +91,9 @@ const RANGES = {
    Layer tercepat yang menentukan batas: lebar x (1 - 0.5) >= 100vw, dan itu
    yang dijaga floor 200vw di --city-w. */
 const LAYERS = [
-  { src: "/layer-1-fix.png", travel: "-10%", z: "z-[1]" },
-  { src: "/layer-2-fix.png", travel: "-20%", z: "z-[3]" },
-  { src: "/layer-3-fix.png", travel: "-32%", z: "z-[5]" },
+  { src: "/layer-1-v2.png", travel: "-10%", z: "z-[1]" },
+  { src: "/layer-2-v2.png", travel: "-20%", z: "z-[3]" },
+  { src: "/layer-3-v2.png", travel: "-32%", z: "z-[5]" },
 ];
 
 /* Pita kunang-kunang di antara layer. Kecepatannya berada DI ANTARA dua layer
@@ -111,13 +111,32 @@ const PARTICLES = [
 // Titik "plateau" tiap babak - dipakai untuk snap saat navigasi keyboard & klik HUD
 const SNAP_POINTS = [0, 0.22, 0.42, 0.62, 0.82];
 
-// Tinggi HUD dikunci supaya sprite bisa berdiri tepat di atas garisnya
-const HUD_OFFSET = "pb-[68px] md:pb-[76px]";
+/* Ruang bawah yang dipesan untuk HUD. Dipasangkan dengan items-center, jadi
+   angka ini bukan cuma jarak aman - ia menggeser titik tengah panel ke ATAS
+   sebanyak setengahnya.
 
-// Padding kiri hanya menyisakan ruang untuk sprite, sisanya jadi lebar panel
+   Di HP sengaja jauh lebih besar dari tinggi HUD-nya: sepertiga bawah layar
+   sudah terisi kota dan karakter, jadi "tengah layar" yang terasa benar buat
+   panel adalah tengah ruang langit di atasnya, bukan tengah panggung.
+
+   150px mengangkatnya 41px dari titik tengah geometris. Batas atasnya
+   ditentukan panel babak 1 (~380px, yang paling tinggi): panggung di HP
+   pendek (430x673) cuma 593px, jadi sisa ruang setelah dipotong 150px tinggal
+   443px - masih memuat panel itu. Menaikkan angka ini lagi akan mulai
+   memotongnya, karena panggung overflow-hidden. */
+const HUD_OFFSET = "pb-[150px] md:pb-[76px]";
+
+/* Dari sm ke atas: padding kiri menyisakan ruang untuk sprite, panel didorong
+   ke kanan, sisanya jadi lebar panel.
+
+   Di bawah sm ruang itu justru merugikan - layarnya cuma ~430px, jadi 72px
+   yang dipesan bikin panel terbaca miring ke kanan sekaligus menyempit
+   (teksnya jadi membungkus lebih banyak dan panelnya memanjang ke bawah).
+   Di HP panel dibiarkan penuh dan center: sprite-nya duduk jauh di bawah
+   panel, jadi tidak ada yang perlu dihindari secara horizontal. */
 const panelWrap = cn(
-  "absolute inset-0 z-20 flex items-center justify-end",
-  "pl-[72px] sm:pl-28 md:pl-44 lg:pl-56 pr-4 md:pr-8 lg:pr-12",
+  "absolute inset-0 z-20 flex items-center justify-center sm:justify-end",
+  "px-4 sm:pl-28 md:pl-44 lg:pl-56 md:pr-8 lg:pr-12",
   HUD_OFFSET
 );
 
@@ -278,7 +297,19 @@ export const ProfileSection = () => {
       className="relative h-[500vh]"
     >
       {/* night-scene: adegan ini selalu malam, lepas dari toggle tema terang/gelap */}
-      <div className="night-scene sticky top-20 h-[calc(100vh-5rem)] overflow-hidden bg-background" style={STAGE_VARS}>
+      {/* --city-drop: seberapa jauh pelat kota diturunkan dari dasar panggung.
+          Nilainya menggeser kota DAN sprite berbarengan (--ground ikut
+          menguranginya), jadi keduanya tetap teregistrasi.
+
+          90px itu ukuran desktop, di mana panggung ~820px. Di HP panggungnya
+          cuma ~593px, jadi 90px memakan 15% tinggi panggung: garis trotoar
+          terdorong keluar layar dan karakternya berdiri tertimbun HUD. 28px
+          mengangkat keduanya ~62px, cukup untuk memunculkan tanah kembali dan
+          menaikkan sprite ke atas garis HUD. */}
+      <div
+        className="night-scene sticky top-20 h-[calc(100vh-5rem)] overflow-hidden bg-background [--city-drop:28px] md:[--city-drop:90px]"
+        style={STAGE_VARS}
+      >
         {/* Layer langit: bintang & meteor */}
         <StarBackground />
 

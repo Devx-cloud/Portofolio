@@ -90,7 +90,12 @@ className="sprite pointer-events-none absolute inset-x-0 bottom-0 z-[2] h-[170vh
         </div>
       )}
 
-      <div className="relative z-10 flex min-h-screen items-center justify-center overflow-y-auto px-5 py-12 md:px-8">
+      {/* h-dvh (bukan min-h-screen) supaya tinggi elemen ini PASTI, bukan sekadar
+          minimum - overflow-y-auto baru bisa jadi scroll beneran kalau ada batas
+          tinggi yang jelas untuk dibandingkan dengan konten. Tanpa ini, div hanya
+          tumbuh mengikuti konten dan kelebihannya kepotong diam-diam oleh
+          overflow-hidden milik parent (.night-scene), tanpa cara untuk di-scroll. */}
+      <div className="relative z-10 flex h-dvh items-center justify-center overflow-y-auto px-5 py-12 md:px-8">
         <div
           className={cn(
             "flex w-full max-w-5xl flex-col items-center gap-10 transition-all duration-100 ease-pix",
@@ -156,12 +161,15 @@ className="sprite pointer-events-none absolute inset-x-0 bottom-0 z-[2] h-[170vh
             </p>
           </div>
 
-          {/* Kanan: karakter + kotak dialog yang ikut babak terpilih */}
+          {/* Kanan: karakter + kotak dialog yang ikut babak terpilih.
+              Karakter disembunyikan di HP - dialog boxnya sendiri sudah cukup
+              tinggi, dan di layar sempit menu+dialog+karakter yang ditumpuk
+              satu kolom gampang lebih tinggi dari layar. */}
           <div className="flex w-full max-w-sm shrink-0 flex-col items-center md:w-96">
             <img
               src="/dev_left.png"
               alt="Deva Surya"
-              className="sprite z-10 -mb-4 h-44 w-44 object-cover drop-shadow-[4px_4px_0_hsl(var(--pit))] md:h-64 md:w-64"
+              className="sprite z-10 -mb-4 hidden h-44 w-44 object-cover drop-shadow-[4px_4px_0_hsl(var(--pit))] md:block md:h-64 md:w-64"
             />
 
             <div className="pix-dialog crt pix-corners stage-border relative w-full px-5 pt-7 pb-6">
