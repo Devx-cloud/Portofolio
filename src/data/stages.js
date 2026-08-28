@@ -1,16 +1,17 @@
-import { ProfileSection } from "../components/ProfileSection";
-import { SkillSection } from "../components/SkillSection";
-import { ProjectSection } from "../components/ProjectSection";
-import { AssistantSection } from "../components/AssistantSection";
-import { ContactSection } from "../components/ContactSection";
+import { ProfileSection } from "@/sections/profile/ProfileSection";
+import { SkillSection } from "@/sections/skills/SkillSection";
+import { ProjectSection } from "@/sections/projects/ProjectSection";
+import { AssistantSection } from "@/sections/assistant/AssistantSection";
+import { ContactSection } from "@/sections/contact/ContactSection";
 
 /*
- * desc   -> teks dialog di Title Screen (jaga panjangnya tetap mirip)
- * badge  -> label kotak di pojok kanan atas tiap stage. Dulu ditulis terpisah
- *           di dalam masing-masing section; dipindah ke sini supaya satu stage
- *           punya satu nama, bukan dua yang bisa lepas sinkron.
- * accent -> hue identitas tiap stage, dipasang sebagai --stage-accent.
- *           Ini yang bikin palet tidak berat sebelah ke satu warna saja.
+ * Daftar stage - satu-satunya sumber untuk route, menu Title Screen, dan
+ * pemilih stage di bar atas.
+ *
+ *   desc   -> teks dialog di Title Screen (jaga panjangnya tetap mirip)
+ *   badge  -> label di pojok kanan atas tiap stage. Ditaruh di sini, bukan di
+ *             dalam section, supaya satu stage punya satu nama saja.
+ *   accent -> hue identitas stage, dipasang sebagai --stage-accent.
  */
 export const stages = [
   {

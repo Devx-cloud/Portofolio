@@ -1,5 +1,5 @@
-import { stages } from "../data/stages";
-import { LevelLayout } from "../components/LevelLayout";
+import { stages } from "@/data/stages";
+import { LevelLayout } from "@/layouts/LevelLayout";
 
 export const StagePage = ({ stageId }) => {
   const stage = stages.find((s) => s.id === stageId);

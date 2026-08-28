@@ -192,62 +192,11 @@
      Ramp gelap -> terang: pit, ground, panel, raised, edge,
      faint, muted, ink. Ditambah tiga langkah aksen merah.
 
-     Nilainya sengaja ditulis literal di tiap tema, bukan lewat
-     alias var(). Custom property menyubstitusi var() di elemen
-     tempat ia ditulis, jadi alias yang dideklarasikan di :root
-     tidak akan ikut berubah saat .night-scene menimpa ramp-nya.
+     Situs ini cuma punya satu tema: malam. Dulu ada ramp siang
+     di :root dengan .dark dan .night-scene yang menimpanya;
+     ketiganya dilebur ke sini setelah tema terang dibuang.
      ======================================================= */
-
-  /* ---------- SIANG ---------- */
   :root {
-    --pit: 220 28% 62%;
-    --background: 220 32% 90%;
-    --surface: 220 44% 98%;
-    --raised: 220 30% 93%;
-    --border: 224 20% 64%;
-    --faint: 226 14% 55%;
-    --muted-foreground: 228 18% 34%;
-    --foreground: 230 34% 10%;
-
-    --primary-dim: 356 68% 36%;
-    --primary: 356 74% 46%;
-    --primary-bright: 356 62% 58%;
-    --primary-foreground: 0 0% 100%;
-
-    /* ---- Warna merek logo: SATU-SATUNYA pengecualian palet terkunci ----
-       Logo membawa identitas, dan mengabu-abukannya menghilangkan pengenalan
-       instan - itu sebabnya aturan "jangan karang warna baru" tidak berlaku
-       di sini. Yang berwarna hanya logonya; bingkai, stat bar, dan seluruh
-       chrome tetap satu aksen merah.
-
-       Tiap merek punya dua nilai karena warna resminya tidak bisa dipakai
-       apa adanya di kedua tema: kuning JavaScript #F7DF1E hanya 1.3:1 di
-       atas panel terang, dan biru Flutter #02569B hanya 1.9:1 di atas panel
-       gelap. Hue-nya dipertahankan supaya tetap dikenali, lightness-nya
-       yang digeser.
-
-       Catatan: .night-scene tidak menimpa token ini. Kalau suatu saat logo
-       dipakai di dalamnya, nilai tema siang akan ikut terbawa ke panel
-       gelap - tambahkan blok ini di sana juga. */
-    --brand-laravel: 4 85% 45%;
-    --brand-php: 237 35% 45%;
-    --brand-js: 45 95% 28%;
-    --brand-html: 14 80% 44%;
-    --brand-css: 205 79% 36%;
-    --brand-tailwind: 189 94% 29%;
-    --brand-mysql: 202 50% 34%;
-    --brand-react: 193 90% 32%;
-    --brand-flutter: 199 92% 34%;
-    --brand-android: 150 78% 27%;
-    --brand-git: 11 85% 44%;
-    --brand-java: 33 95% 31%;
-    --brand-python: 207 55% 36%;
-    --brand-alpine: 192 55% 35%;
-    --brand-three: 0 0% 12%;
-  }
-
-  /* ---------- MALAM ---------- */
-  .dark {
     --pit: 232 45% 3%;
     --background: 232 36% 7%;
     --surface: 231 30% 11%;
@@ -262,6 +211,14 @@
     --primary-bright: 6 88% 72%;
     --primary-foreground: 0 0% 100%;
 
+    /* ---- Warna merek logo: SATU-SATUNYA pengecualian palet terkunci ----
+       Logo membawa identitas, dan mengabu-abukannya menghilangkan pengenalan
+       instan - itu sebabnya aturan "jangan karang warna baru" tidak berlaku
+       di sini. Yang berwarna hanya logonya; bingkai, stat bar, dan seluruh
+       chrome tetap satu aksen merah.
+
+       Lightness-nya disetel untuk panel gelap: biru Flutter #02569B yang asli
+       cuma 1.9:1 di atasnya. Hue aslinya dipertahankan supaya tetap dikenali. */
     --brand-laravel: 4 100% 62%;
     --brand-php: 237 45% 68%;
     --brand-js: 53 93% 58%;
@@ -277,24 +234,6 @@
     --brand-python: 207 60% 60%;
     --brand-alpine: 192 55% 65%;
     --brand-three: 0 0% 92%;
-  }
-
-  /* Adegan yang selalu malam (Title Screen, Profile): paletnya dikunci ke
-     versi gelap apa pun tema yang aktif, ditulis penuh karena alasan di atas. */
-  .night-scene {
-    --pit: 232 45% 3%;
-    --background: 232 36% 7%;
-    --surface: 231 30% 11%;
-    --raised: 230 26% 17%;
-    --border: 228 20% 30%;
-    --faint: 226 14% 44%;
-    --muted-foreground: 222 16% 70%;
-    --foreground: 214 28% 95%;
-
-    --primary-dim: 356 60% 32%;
-    --primary: 356 80% 56%;
-    --primary-bright: 6 88% 72%;
-    --primary-foreground: 0 0% 100%;
   }
 
   * {
@@ -373,35 +312,9 @@
     );
   }
 
-  /* Langit: bintang & meteor hanya di tema gelap, kecuali adegan night-scene */
-  .star,
-  .meteor {
-    display: none;
-  }
-
-  html.dark .star,
-  html.dark .meteor,
-  .night-scene .star,
-  .night-scene .meteor {
-    display: block;
-  }
-
-  .cloud {
-    position: absolute;
-    background-color: hsl(var(--surface));
-    z-index: -1;
-    display: none;
-    /* Awan pixel: balok bertumpuk, bukan elips ber-blur */
-    box-shadow:
-      0 -8px 0 0 hsl(var(--surface)),
-      -12px 4px 0 0 hsl(var(--surface)),
-      12px 4px 0 0 hsl(var(--surface)),
-      0 0 0 4px hsl(var(--border) / 0.5);
-  }
-
-  html:not(.dark) .cloud {
-    display: block;
-  }
+  /* Bintang & meteor dulu disembunyikan di sini lalu dimunculkan lagi oleh
+     html.dark / .night-scene. Langitnya sekarang selalu malam, jadi gerbang itu
+     dibuang - keduanya cukup dibentuk oleh @utility star / meteor di bawah. */
 
   /* Font pixel: anti-alias dimatikan supaya tepinya tetap keras.
      letter-spacing dinolkan - jarak pecahan menggeser glyph ke antar-piksel. */
@@ -883,15 +796,6 @@
      telat sampai 0.12s, jendela sempit membuat kolom tercepat sudah surut
      sementara yang terlambat belum menutup - layar bocor di tengah transisi. */
   animation: page-wipe 0.5s steps(8, end) var(--wipe-delay, 0s) both;
-}
-
-@keyframes cloud-move {
-  0% {
-    transform: translateX(-120%);
-  }
-  100% {
-    transform: translateX(calc(100vw + 20%));
-  }
 }
 
 @keyframes tag-float {

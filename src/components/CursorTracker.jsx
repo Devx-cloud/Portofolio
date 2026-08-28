@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
+import { useMediaQuery, useReducedMotion } from "@/hooks/useMediaQuery";
 
 /*
  * Kursor petak.
@@ -21,26 +22,15 @@ const MOTE_INSET = (TILE - MOTE) / 2;
 const INTERACTIVE = "a, button, input, textarea, select, label, [role='button']";
 
 export const CursorTracker = () => {
-  const [enabled, setEnabled] = useState(false);
   const reticleRef = useRef(null);
   const moteRefs = useRef([]);
 
   /* Hanya untuk penunjuk presisi. Di layar sentuh tidak ada kursor untuk
      diikuti, dan reduced-motion berarti pengunjung tidak ingin ada yang
      bergerak mengikutinya. */
-  useEffect(() => {
-    const fine = window.matchMedia("(pointer: fine)");
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const sync = () => setEnabled(fine.matches && !reduce.matches);
-
-    sync();
-    fine.addEventListener("change", sync);
-    reduce.addEventListener("change", sync);
-    return () => {
-      fine.removeEventListener("change", sync);
-      reduce.removeEventListener("change", sync);
-    };
-  }, []);
+  const hasCursor = useMediaQuery("(pointer: fine)");
+  const reducedMotion = useReducedMotion();
+  const enabled = hasCursor && !reducedMotion;
 
   useEffect(() => {
     const reticle = reticleRef.current;
