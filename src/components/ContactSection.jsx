@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 /* Ganti dengan alamat email yang ingin ditampilkan publik */
-const CONTACT_EMAIL = "email-kamu@contoh.com";
+const CONTACT_EMAIL = "kadekdevasuryapratama@gmail.com";
 
 const socialLinks = [
   { name: "Github", href: "https://github.com/Devx-cloud", icon: Github },
