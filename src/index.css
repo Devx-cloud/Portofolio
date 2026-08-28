@@ -83,9 +83,48 @@
   --animate-fade-in-delay-3: fade-in 0.4s steps(6, end) 0.45s forwards;
   --animate-fade-in-delay-4: fade-in 0.4s steps(6, end) 0.6s forwards;
 
+  /* Sprite karakter Profile. Keduanya memakai keyframe yang sama; yang membedakan
+     cuma jumlah langkah, dan itu HARUS cocok dengan lebar strip-nya:
+     steps(n) + translateX 0 -> -100% berarti satu langkah = 100%/n lebar strip,
+     jadi strip 4 frame wajib w-[400%] dan strip 8 frame wajib w-[800%].
+
+     Memakai background-position dengan persen tidak bisa menggantikan ini:
+     persen di sana memetakan 0-100% ke SELURUH rentang geser, jadi langkahnya
+     jatuh di kelipatan 1/n alih-alih 1/(n-1) dan frame-nya meleset separuh badan.
+
+     Tempo: 8 frame / 1s = tepat 8 fps. Angka bulat itu disengaja - ia dipakai
+     ulang sebagai WALK_FPS di CharacterSprite untuk membatasi langkah hero, yang
+     siklusnya diturunkan dari jarak dan bukan dari waktu.
+
+     Ini juga sudah di batas bawah: frame sumbernya cuma ~4 pose unik yang
+     diulang dua kali, jadi menurunkan fps lagi memperlihatkan pengulangan itu,
+     bukan memperhalusnya. Kalau masih terasa tersendat, yang perlu ditambah
+     jumlah pose-nya, bukan durasinya.
+
+     Mengubah durasi ini WAJIB diikuti STRIDE_RATE di CharacterSprite: kecepatan
+     jalan pejalan latar diturunkan dari panjang langkah per siklus, jadi kalau
+     siklusnya melambat sementara langkahnya tidak, telapak mereka menyeret.
+
+     Napas idle sengaja jauh lebih lambat: geraknya cuma 1-2 piksel, dan pada
+     tempo jalan ia terbaca menggigil. */
+  --animate-walk-cycle: sprite-cycle 1s steps(8, end) infinite;
+  --animate-idle-cycle: sprite-cycle 2s steps(4, end) infinite;
+
   @keyframes blink {
     50% {
       opacity: 0;
+    }
+  }
+
+  /* Geser strip sejauh persis lebarnya sendiri. Yang memotongnya jadi frame
+     adalah steps() di token --animate-*, bukan keyframe ini - karena itu satu
+     keyframe cukup untuk strip berapa pun jumlah framenya. */
+  @keyframes sprite-cycle {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-100%);
     }
   }
 
@@ -264,6 +303,35 @@
 
   html {
     @apply scroll-smooth;
+
+    /* Batang scroll bawaan Windows ~17px dan berwarna terang - di panggung malam
+       ini ia jadi pita putih paling mencolok di layar. Dirampingkan dan diwarnai
+       token border supaya ikut lebur.
+
+       Dua properti sekaligus dan itu disengaja: scrollbar-width adalah standarnya
+       (Firefox, dan Chrome 121+), sementara ::-webkit-scrollbar melayani WebKit
+       lama. Di Chrome baru yang standar menang dan aturan webkit diabaikan, jadi
+       keduanya tidak pernah bertabrakan. */
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--border)) transparent;
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  /* Tanpa lengkungan: seluruh antarmuka ini bersudut siku. */
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--border));
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--faint));
   }
   /* Catatan: font-size root sengaja TIDAK dikunci. Grid tetap eksak karena
      --spacing sudah absolut 4px dan label pixel memakai px, sementara teks

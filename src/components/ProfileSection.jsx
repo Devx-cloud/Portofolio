@@ -1,11 +1,21 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { motion, useScroll, useSpring, useTransform, useMotionValueEvent } from "framer-motion";
+import {
+  motion,
+  useAnimationFrame,
+  useMotionValue,
+  useMotionValueEvent,
+  useScroll,
+  useSpring,
+  useTransform,
+} from "framer-motion";
 import { MapPin, Download, Github, Instagram, Linkedin, Bot, Crosshair, Signal } from "lucide-react";
 import { FaLaravel, FaReact } from "react-icons/fa";
 import { SiFlutter } from "react-icons/si";
+import { CharacterSprite, WanderingSprite } from "./CharacterSprite";
 import { StarBackground } from "./StarBackground";
 import { Fireflies } from "./Fireflies";
+import { useElementWidth } from "@/hooks/useElementWidth";
 import { cn } from "@/lib/utils";
 
 const socialLinks = [
@@ -65,7 +75,7 @@ const STAGE_VARS = {
      elemen panggung; lihat catatannya di sana. var(--city-drop) di --ground
      tetap resolve karena keduanya hidup di elemen yang sama. */
 
-  /* Permukaan trotoar di layer-3-px.png ada di 18.5% tinggi gambar dari bawah -
+  /* Permukaan trotoar di layer-3 ada di 18.5% tinggi gambar dari bawah -
      diukur dari profil kecerahannya: aspal 0-14.4%, tepi trotoar gelap 15.2%,
      permukaan trotoar terang 16.4-18.5%, gedung mulai 18.8%. Karakter berdiri
      di garis yang sama dengan dasar gedung, seperti semestinya di tampak samping.
@@ -108,8 +118,152 @@ const PARTICLES = [
   { z: "z-[6]", travel: "-40%", count: 15, size: 4, seed: 47, warmRatio: 0.85 },
 ];
 
+/* Ukuran sprite, dipakai bersama hero dan pejalan latar.
+
+   Ketiganya berdiri di GARIS TANAH YANG SAMA - trotoar layer-3 - dan pada tampak
+   samping, orang yang berdiri di trotoar yang sama harus sebesar satu sama lain.
+   Ukuran yang berbeda tidak terbaca sebagai kedalaman di sini, melainkan sebagai
+   orang yang memang lebih kecil badannya.
+
+   Ditulis satu kali supaya ketiganya tidak bisa hanyut berbeda: kecepatan jalan
+   pejalan latar diturunkan dari lebar sprite (lihat STRIDE_RATE), jadi mengubah
+   angka ini di satu tempat saja akan membuat langkah mereka tidak lagi sepadan. */
+const SPRITE_SIZE = "w-14 sm:w-20 md:w-22";
+
+/* ---------- Rentang gerak: kamera, kota, dan hero dibatasi TERPISAH ----------
+
+   Scroll dibagi tiga fase:
+
+     fase LEAD     kamera diam, hero berjalan masuk dari tepi kiri
+     fase KAMERA   hero diam di jangkarnya, kota yang bergerak
+     fase TAIL     kota mentok, hero melanjutkan sendiri ke tepi kanan
+
+   Jatah scroll tiap fase TIDAK disetel tangan - ia dihitung dari jaraknya,
+   lihat cameraKeys di dalam komponen.
+
+   Sebabnya: kecepatan tampak = jarak / jatah scroll. Waktu jatahnya masih angka
+   tetap, jaraknya sangat timpang - fase TAIL menempuh ~1250px dalam 24% scroll
+   sementara fase KAMERA menempuh ~920px dalam 70%, jadi hero terlihat berlari
+   begitu kota mentok. Dibagi sebanding jaraknya, ketiga fase berjalan pada
+   kecepatan yang sama persis dan tidak ada lagi angka yang bisa salah setel. */
+
+/* Posisi hero di layar, sebagai fraksi lebar panggung.
+     START  - titik ia masuk di tepi kiri
+     ANCHOR - titik ia berdiri selama kamera yang bergerak
+     REACH  - titik tepi kanan sprite berhenti
+
+   REACH juga yang menentukan berapa lama latar membeku di akhir: makin jauh
+   hero berjalan, makin besar jatah scroll fase TAIL, dan jatah itu diambil dari
+   fase KAMERA. 0,98 = benar-benar sampai tepi, dengan konsekuensi kota diam
+   di paruh terakhir. Turunkan ke ~0,7 kalau lebih suka kotanya hidup lebih
+   lama; kecepatan hero tidak akan berubah, cuma jaraknya. */
+const HERO_START = 0.015;
+const HERO_ANCHOR = 0.06;
+const HERO_REACH = 0.98;
+
+/* Panjang satu siklus jalan, dalam lebar sprite.
+
+   Dipakai untuk mengikat kaki hero ke JARAK, bukan ke waktu. Siklus berbasis
+   waktu berputar 0,88 detik sekali lepas dari seberapa cepat halaman digulir -
+   jadi waktu pengunjung menggulir pelan, kakinya tetap mengayuh penuh di atas
+   tanah yang nyaris diam, dan itu yang terbaca seperti berlari di tempat.
+
+   1,4 angka yang sama dengan yang dipakai STRIDE_RATE untuk pejalan latar: pada
+   frame contact jarak kedua telapak ~0,7 lebar sel, dan satu siklus berisi dua
+   langkah. Memakai angka itu di sini membuat telapak hero tidak pernah menyeret,
+   berapa pun kecepatan gulirannya. */
+const CYCLE_DISTANCE = 1.4;
+
+/* Batas kecepatan panggung, dalam fraksi panjang halaman per detik.
+
+   scrollYProgress mengikuti roda dan jari TANPA batas: satu lemparan trackpad
+   atau seretan batang scroll bisa memindahkan seluruh halaman dalam sepersekian
+   detik. Pada kecepatan itu kotanya berkelebat, dan kaki hero - yang sekarang
+   terikat jarak - menyapu seratusan frame dalam sekejap.
+
+   0,35 berarti menyeberangi lima babak tidak akan pernah lebih cepat dari ~2,9
+   detik. Guliran roda biasa jauh di bawah itu (~0,09/detik untuk lima ketukan
+   per detik), jadi pemakaian normal tidak tersentuh sama sekali - yang dipotong
+   cuma lemparan.
+
+   Menurunkannya ke ~0,12 akan menjaga kaki hero tetap terbaca frame demi frame
+   bahkan saat digulir kencang, tapi mulai terasa tertinggal pada guliran biasa. */
+const MAX_SCROLL_RATE = 0.35;
+
+/* Batas atas delta antar frame. Tab yang baru diaktifkan kembali mengirim delta
+   raksasa dalam satu frame, dan tanpa penjaga ini pembatas kecepatan justru
+   melompat sejauh yang seharusnya ia cegah. */
+const MAX_FRAME_MS = 64;
+
+/* Tinggi kolom scroll yang menggerakkan seluruh panggung.
+
+   Ini SATU-SATUNYA tuas kecepatan global: seluruh jarak - geseran kota, langkah
+   hero, pergantian babak - dibagi rata ke dalamnya, jadi menaikkan angka ini
+   memperlambat semuanya sekaligus tanpa mengubah satu pun perbandingan.
+
+   Desktop dinaikkan dari 500vh: di situ satu piksel scroll memindahkan ~0,68px
+   tanah, dan pada tempo itu telapak hero terlihat menyeret. 750vh menurunkannya
+   ke ~0,42 - kira-kira sepadan dengan panjang langkah sprite-nya.
+
+   HP sengaja TIDAK ikut dinaikkan. Jaraknya diukur dalam lebar layar sementara
+   kolom scroll diukur dalam tingginya, jadi di layar sempit-dan-jangkung
+   angkanya sudah jauh lebih lambat sejak awal (~0,23). Dinaikkan ke 750vh, HP
+   jadi 0,14 - enam ribu piksel scroll untuk menggeser delapan ratus piksel
+   tanah, yang terasa seperti macet. */
+const SCROLL_SPAN = "h-[500vh] md:h-[750vh]";
+
+/* Pejalan kaki latar. from/to adalah wilayah jelajah mereka SENDIRI, diukur
+   sebagai fraksi lebar panggung - bukan tempat mereka akan terlihat. Wilayah itu
+   ikut hanyut bersama kota dan diputar di tepi layar, jadi keduanya akan muncul
+   di mana-mana sepanjang lima babak.
+
+   Wilayahnya sengaja tidak sama dan tumpang tindih di tengah supaya langkah
+   mereka sesekali berpapasan, alih-alih dua pola yang selalu terpisah.
+
+   Keduanya duduk DI DEPAN layer-3 (z-5), bukan di belakangnya, karena --ground
+   diturunkan dari trotoar layer-3 - berdiri di garis itu tapi di belakang
+   platnya akan membuat mereka tertutup pagar dan etalase.
+
+   Yang memisahkan mereka dari hero tinggal CAHAYA - bukan ukuran, dan bukan
+   opacity. Opacity membuat kota di belakangnya menembus badan mereka, jadi
+   terbaca sebagai hantu; brightness membiarkan mereka tetap pekat, cuma kurang
+   tersinari.
+
+   Pembeda yang sebenarnya menjawab "yang mana saya" bukan di sini, melainkan
+   segitiga penanda di atas kepala hero. */
+const WALKERS = [
+  {
+    seed: 17,
+    from: 0.16,
+    to: 0.6,
+    zIndex: 7,
+    className: cn(SPRITE_SIZE, "brightness-90"),
+  },
+  {
+    seed: 53,
+    from: 0.4,
+    to: 0.92,
+    zIndex: 6,
+    className: cn(SPRITE_SIZE, "brightness-75"),
+  },
+];
+
 // Titik "plateau" tiap babak - dipakai untuk snap saat navigasi keyboard & klik HUD
 const SNAP_POINTS = [0, 0.22, 0.42, 0.62, 0.82];
+
+/* Berapa lama tanpa event scroll sebelum karakter dianggap berhenti.
+
+   Dibutuhkan karena "bergerak" tidak punya sinyal akhir sendiri: scroll cuma
+   mengirim rentetan event lalu diam, tidak pernah mengabarkan bahwa yang tadi
+   adalah event terakhir. Jadi tiap event menyalakan flag dan menyetel ulang
+   hitungan mundur ini; kalau tidak ada event susulan, hitungannya habis dan
+   karakter kembali diam.
+
+   90ms: sekadar menutup jeda antar event dalam satu gerakan yang sama (browser
+   mengirimnya ~16ms sekali selama scroll berlangsung), bukan untuk memberi
+   karakter waktu tambahan berjalan. Menaikkannya berarti karakter masih
+   melangkah setelah tangan berhenti - persis yang tidak diinginkan di sini. */
+const IDLE_DELAY = 90;
 
 /* Ruang bawah yang dipesan untuk HUD. Dipasangkan dengan items-center, jadi
    angka ini bukan cuma jarak aman - ia menggeser titik tengah panel ke ATAS
@@ -168,7 +322,11 @@ const StatRow = ({ icon: Icon, label, children }) => (
 
 export const ProfileSection = () => {
   const containerRef = useRef(null);
+  const stageRef = useRef(null);
+  const cityRef = useRef(null);
+  const heroRef = useRef(null);
   const lastProgressRef = useRef(0);
+  const stopTimerRef = useRef(null);
   const [reducedMotion, setReducedMotion] = useState(false);
   const [isMoving, setIsMoving] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -181,6 +339,16 @@ export const ProfileSection = () => {
     mql.addEventListener("change", handleChange);
     return () => mql.removeEventListener("change", handleChange);
   }, []);
+
+  /* Pejalan latar digeser dalam piksel, bukan persen - transform berpersen
+     mengacu ke lebar elemen itu sendiri, bukan ke lebar panggung. Jadi kedua
+     lebar ini harus benar-benar diukur.
+
+     Lebar kota tidak bisa dihitung di JS: --city-w itu max() dari tiga suku
+     yang salah satunya bergantung tinggi viewport. Diukur dari elemennya saja. */
+  const stageWidth = useElementWidth(stageRef);
+  const cityWidth = useElementWidth(cityRef);
+  const heroWidth = useElementWidth(heroRef);
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -195,15 +363,71 @@ export const ProfileSection = () => {
 
      HANYA parallax yang dihaluskan. Opacity panel dan pergantian babak tetap
      terikat ke scroll mentah, supaya babaknya berganti tepat di posisinya. */
-  const smoothProgress = useSpring(scrollYProgress, {
+  /* Dipakai dua tempat: saat scroll berubah, dan selama panggung masih menyusul
+     di belakang pembatas kecepatan. */
+  const markMoving = useCallback(() => {
+    setIsMoving(true);
+    clearTimeout(stopTimerRef.current);
+    stopTimerRef.current = setTimeout(() => setIsMoving(false), IDLE_DELAY);
+  }, []);
+
+  /* Pembatas kecepatan, DI DEPAN spring. Nilai ini mengejar scrollYProgress
+     tetapi tidak pernah lebih cepat dari MAX_SCROLL_RATE per detik; spring di
+     bawahnya lalu menghaluskan hasilnya seperti biasa.
+
+     Urutannya penting. Dipasang SESUDAH spring, yang dibatasi cuma keluarannya
+     sementara targetnya sudah terlanjur melompat, jadi hasilnya bukan panggung
+     yang berjalan pelan melainkan panggung yang tertinggal lalu menyusul dalam
+     satu sentakan. */
+  const cappedProgress = useMotionValue(0);
+  const syncedRef = useRef(false);
+
+  useAnimationFrame((_, delta) => {
+    const target = scrollYProgress.get();
+
+    // Frame pertama disamakan begitu saja: halaman bisa dimuat ulang di tengah
+    // babak, dan tanpa ini panggung akan merangkak dari nol menuju posisi itu.
+    if (!syncedRef.current || reducedMotion) {
+      syncedRef.current = true;
+      cappedProgress.set(target);
+      return;
+    }
+
+    const current = cappedProgress.get();
+    const diff = target - current;
+    if (!diff) return;
+
+    const step = (MAX_SCROLL_RATE * Math.min(delta, MAX_FRAME_MS)) / 1000;
+    cappedProgress.set(
+      Math.abs(diff) <= step ? target : current + Math.sign(diff) * step
+    );
+
+    /* Selama panggung masih menyusul, hero MASIH berjalan - tanahnya memang
+       masih bergerak di bawah kakinya. Tanpa baris ini ia akan berdiri mematung
+       di atas kota yang meluncur, karena isMoving dibaca dari scroll mentah yang
+       sudah berhenti berubah. */
+    markMoving();
+  });
+
+  const smoothProgress = useSpring(cappedProgress, {
     stiffness: 70,
     damping: 20,
     mass: 0.5,
     restDelta: 0.0002,
   });
 
+  /* Karakter melangkah HANYA selama ada input, dan berhenti begitu input
+     berhenti. Sinyalnya sengaja diambil dari scrollYProgress mentah, bukan dari
+     smoothProgress: spring parallax masih meluncur beberapa ratus milidetik
+     setelah roda mouse berhenti, dan memakainya membuat karakter melanjutkan
+     langkah sesudah tangan berhenti.
+
+     Konsekuensinya kota masih menggeser sesaat setelah kakinya berhenti. Itu
+     pertukaran yang disengaja - berhenti tepat waktu lebih penting daripada
+     kaki yang teregistrasi sempurna dengan tanah selama sisa luncuran spring. */
   useMotionValueEvent(scrollYProgress, "change", (v) => {
-    setIsMoving(v > 0.001 && v < 0.999);
+    markMoving();
+
     if (v < 0.19) setActiveIndex(0);
     else if (v < 0.39) setActiveIndex(1);
     else if (v < 0.59) setActiveIndex(2);
@@ -211,15 +435,20 @@ export const ProfileSection = () => {
     else setActiveIndex(4);
   });
 
-  /* Arah hadap dibaca dari gerak yang sudah dihaluskan, bukan scroll mentah:
-     roda mouse mengirim lompatan kecil bolak-balik, dan karakternya berkedip
-     ganti arah kalau mengikuti itu langsung. */
+  /* Arah hadap - dan HANYA arah hadap - dibaca dari nilai yang sudah dihaluskan:
+     roda mouse mengirim lompatan kecil bolak-balik, dan karakternya berkedip ganti
+     arah kalau mengikuti scroll mentah. Berbeda dengan flag berjalan di atas, di
+     sini luncuran sisa spring tidak merugikan: ia cuma mempertahankan arah yang
+     sudah benar. */
   useMotionValueEvent(smoothProgress, "change", (v) => {
     const delta = v - lastProgressRef.current;
     if (delta > 0.0004) setFacingRight(true);
     else if (delta < -0.0004) setFacingRight(false);
     lastProgressRef.current = v;
   });
+
+  // Hitungan mundur di atas hidup di luar React - wajib dibersihkan saat unmount.
+  useEffect(() => () => clearTimeout(stopTimerRef.current), []);
 
   const scrollToProgress = useCallback(
     (target) => {
@@ -262,17 +491,85 @@ export const ProfileSection = () => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [scrollYProgress, scrollToProgress]);
 
+  /* Geseran layer-3 sebagai pecahan. Diturunkan dari LAYERS[2], bukan ditulis
+     ulang -32%: kalau kecepatan layer terdepan disetel ulang suatu saat, jatah
+     fase dan pejalan kakinya harus ikut, atau kaki mereka lepas dari tanah. */
+  const nearTravel = parseFloat(LAYERS[2].travel) / 100;
+
+  /* Tiga jarak yang harus ditempuh, dalam piksel layar.
+
+     Batas kanan diberi Math.max terhadap jangkarnya: di layar sangat sempit
+     lebar sprite bisa melampaui sisa ruang, dan tanpa penjaga ini hero akan
+     berjalan MUNDUR di fase terakhir. */
+  const anchorX = stageWidth * HERO_ANCHOR;
+  const reachX = Math.max(anchorX, stageWidth * HERO_REACH - heroWidth);
+  const leadDist = Math.max(0, anchorX - stageWidth * HERO_START);
+  const cameraDist = Math.abs(cityWidth * nearTravel);
+  const tailDist = reachX - anchorX;
+  const totalDist = leadDist + cameraDist + tailDist;
+
+  /* Jatah scroll tiap fase, SEBANDING JARAKNYA - itu yang membuat ketiganya
+     berjalan pada kecepatan yang sama.
+
+     Kunci-kuncinya dijaga tetap menaik: useTransform memerlukan rentang masukan
+     yang naik ketat, dan sebelum panggung terukur totalDist masih nol. */
+  const leadKey = totalDist ? Math.min(0.2, leadDist / totalDist) : 0.03;
+  const tailKey = totalDist ? Math.min(0.9, tailDist / totalDist) : 0.5;
+  const cameraKeys = [0, leadKey, Math.max(leadKey + 0.002, 1 - tailKey), 1];
+
+  /* Posisi KAMERA, 0..1 - bukan posisi scroll. Ia menempel di 0 selama fase
+     LEAD dan di 1 selama fase TAIL; hanya di antaranya ia bergerak.
+
+     Semua yang membentuk dunia diturunkan dari sini: tiga plat kota, tiga pita
+     kunang-kunang, dan pejalan kaki latar. Yang TIDAK diturunkan dari sini cuma
+     hero, opacity panel, dan bilah progres - mereka memang mengikuti scroll. */
+  const cameraProgress = useTransform(smoothProgress, cameraKeys, [0, 0, 1, 1]);
+
+  /* Hero punya rentangnya sendiri: berjalan masuk di fase LEAD, diam di jangkar
+     selama kamera bekerja, lalu melanjutkan ke tepi kanan setelah kota mentok. */
+  const heroX = useTransform(
+    smoothProgress,
+    cameraKeys,
+    reducedMotion
+      ? [anchorX, anchorX, anchorX, anchorX]
+      : [stageWidth * HERO_START, anchorX, anchorX, reachX]
+  );
+
+  /* Jarak yang sudah ditempuh hero di atas tanah, piksel. Dua sumbangan:
+     geseran kota selama fase KAMERA, dan langkahnya sendiri di fase LEAD/TAIL.
+     Keduanya dijumlahkan karena keduanya sama-sama memajukan dia terhadap
+     trotoar - yang berbeda cuma siapa yang bergerak, dia atau kotanya. */
+  const heroGround = useTransform(
+    [cameraProgress, heroX],
+    ([camera, screenX]) => camera * cameraDist + screenX
+  );
+
+  /* Fase siklus jalan: bertambah 1 tiap satu putaran langkah penuh. */
+  const heroCycle = useTransform(heroGround, (d) =>
+    heroWidth ? d / (heroWidth * CYCLE_DISTANCE) : 0
+  );
+
   /* Satu useTransform per layer. Hook tidak boleh dipanggil di dalam loop,
-     jadi ketiganya ditulis lurus - jumlah layer memang tetap tiga. */
-  const layerFar = useTransform(smoothProgress, [0, 1], ["0%", reducedMotion ? "0%" : LAYERS[0].travel]);
-  const layerMid = useTransform(smoothProgress, [0, 1], ["0%", reducedMotion ? "0%" : LAYERS[1].travel]);
-  const layerNear = useTransform(smoothProgress, [0, 1], ["0%", reducedMotion ? "0%" : LAYERS[2].travel]);
+     jadi ketiganya ditulis lurus - jumlah layer memang tetap tiga.
+
+     Tetap dalam PERSEN, bukan piksel: persen di sini berarti "dari lebar plat
+     kota", yang justru yang dimaui, dan itu membuat platnya tidak bergantung
+     pada hasil pengukuran apa pun. */
+  const layerFar = useTransform(cameraProgress, [0, 1], ["0%", reducedMotion ? "0%" : LAYERS[0].travel]);
+  const layerMid = useTransform(cameraProgress, [0, 1], ["0%", reducedMotion ? "0%" : LAYERS[1].travel]);
+  const layerNear = useTransform(cameraProgress, [0, 1], ["0%", reducedMotion ? "0%" : LAYERS[2].travel]);
   const layerX = [layerFar, layerMid, layerNear];
 
-  const dustFar = useTransform(smoothProgress, [0, 1], ["0%", reducedMotion ? "0%" : PARTICLES[0].travel]);
-  const dustMid = useTransform(smoothProgress, [0, 1], ["0%", reducedMotion ? "0%" : PARTICLES[1].travel]);
-  const dustNear = useTransform(smoothProgress, [0, 1], ["0%", reducedMotion ? "0%" : PARTICLES[2].travel]);
+  const dustFar = useTransform(cameraProgress, [0, 1], ["0%", reducedMotion ? "0%" : PARTICLES[0].travel]);
+  const dustMid = useTransform(cameraProgress, [0, 1], ["0%", reducedMotion ? "0%" : PARTICLES[1].travel]);
+  const dustNear = useTransform(cameraProgress, [0, 1], ["0%", reducedMotion ? "0%" : PARTICLES[2].travel]);
   const dustX = [dustFar, dustMid, dustNear];
+
+  const walkerX = useTransform(
+    cameraProgress,
+    [0, 1],
+    [0, reducedMotion ? 0 : cityWidth * nearTravel]
+  );
   const progressWidth = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
 
   const heroOpacity = useTransform(scrollYProgress, RANGES.hero, [1, 1, 0]);
@@ -280,6 +577,9 @@ export const ProfileSection = () => {
   const projectsOpacity = useTransform(scrollYProgress, RANGES.projects, [0, 1, 1, 0]);
   const aiOpacity = useTransform(scrollYProgress, RANGES.ai, [0, 1, 1, 0]);
   const contactOpacity = useTransform(scrollYProgress, RANGES.contact, [0, 1, 1]);
+
+  // Ada input -> strip jalan. Input berhenti -> strip idle. Lihat IDLE_DELAY.
+  const walking = !reducedMotion && isMoving;
 
   // Panel non-aktif dibuat inert: tidak bisa di-tab, tidak dibaca screen reader
   const actProps = (index) => ({
@@ -294,7 +594,7 @@ export const ProfileSection = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="relative h-[500vh]"
+      className={cn("relative", SCROLL_SPAN)}
     >
       {/* night-scene: adegan ini selalu malam, lepas dari toggle tema terang/gelap */}
       {/* --city-drop: seberapa jauh pelat kota diturunkan dari dasar panggung.
@@ -307,6 +607,7 @@ export const ProfileSection = () => {
           mengangkat keduanya ~62px, cukup untuk memunculkan tanah kembali dan
           menaikkan sprite ke atas garis HUD. */}
       <div
+        ref={stageRef}
         className="night-scene sticky top-20 h-[calc(100vh-5rem)] overflow-hidden bg-background [--city-drop:28px] md:[--city-drop:90px]"
         style={STAGE_VARS}
       >
@@ -319,6 +620,8 @@ export const ProfileSection = () => {
         {LAYERS.map((layer, i) => (
           <motion.img
             key={layer.src}
+            // Hanya plat terdepan yang diukur - itu yang dipijak pejalan kaki.
+            ref={i === LAYERS.length - 1 ? cityRef : undefined}
             src={layer.src}
             alt=""
             aria-hidden="true"
@@ -355,21 +658,73 @@ export const ProfileSection = () => {
             </motion.div>
           ))}
 
-        {/* Sprite: berdiri di aspal. idle.png menyisakan 6.6% ruang kosong di bawah
-            kaki, jadi ditarik turun ~10% lebar tampilnya supaya telapaknya menyentuh
-            tanah, bukan melayang. */}
-        <motion.img
-          src="/idle.png"
-          alt=""
-          style={{ scaleX: facingRight ? 1 : -1 }}
-          animate={!reducedMotion && isMoving ? { y: [0, -4, 0] } : { y: 0 }}
-          transition={
-            !reducedMotion && isMoving
-              ? { duration: 0.5, repeat: Infinity, ease: "linear" }
-              : { duration: 0.2 }
-          }
-          className="sprite absolute bottom-[calc(var(--ground)-6px)] sm:bottom-[calc(var(--ground)-8px)] md:bottom-[calc(var(--ground)-11px)] left-3 sm:left-6 md:left-12 z-10 w-14 sm:w-20 md:w-22 drop-shadow-[4px_4px_0_hsl(var(--pit))]"
-        />
+        {/* Pejalan kaki latar. Ditempatkan sebelum hero supaya urutan DOM-nya
+            mengikuti urutan kedalaman; yang menentukan tumpukan tetap zIndex. */}
+        {WALKERS.map((walker) => (
+          <WanderingSprite
+            key={walker.seed}
+            stageWidth={stageWidth}
+            parallaxX={walkerX}
+            reducedMotion={reducedMotion}
+            {...walker}
+          />
+        ))}
+
+        {/* Hero: berdiri di aspal, tapi TIDAK lagi di titik layar yang tetap.
+            Posisinya digeser lewat x mengikuti heroX, yang punya rentangnya
+            sendiri terpisah dari kamera - lihat cameraKeys.
+
+            left-0, bukan left-3/6/12 seperti dulu: jarak dari tepi sekarang
+            bagian dari heroX (HERO_START / HERO_ANCHOR), dan menumpuk keduanya
+            akan menggeser seluruh rentangnya ke kanan.
+
+            Sel strip-nya menempatkan telapak DI BARIS PALING BAWAH, jadi di sini
+            cukup bottom-[var(--ground)]; offset koreksi -6/-8/-11px yang dulu
+            menambal ruang kosong sprite lama tidak diperlukan lagi.
+
+            Penempatan dipisah dari sprite-nya: <CharacterSprite> hanya mengurus
+            jendela dan frame, karena pejalan latar memakainya juga sementara
+            posisi mereka digeser terus-menerus. */}
+        <motion.div
+          ref={heroRef}
+          style={{ x: heroX }}
+          className="absolute bottom-[var(--ground)] left-0 z-10"
+        >
+          {/* Penanda "ini kamu". Wajib ada begitu pejalan latar dibuat seukuran
+              hero: tanpa perbedaan ukuran, satu-satunya pembeda tinggal cahaya,
+              dan itu tidak cukup untuk menjawab pertanyaan yang mana dirinya.
+
+              Digambar sebagai empat rect bertingkat, bukan satu polygon atau
+              segitiga border-CSS: keduanya menghasilkan sisi miring yang mulus,
+              sementara seluruh panggung ini bertepi keras. Bertingkat begini
+              tepinya ikut membesar jadi blok saat SVG-nya diperbesar.
+
+              Bob dipasang di elemen DALAM: pemusatan memakai -translate-x-1/2,
+              dan keyframe bob menulis transform juga - kalau keduanya di elemen
+              yang sama, animasinya menimpa pemusatan dan segitiganya melompat
+              setengah lebar ke kanan. */}
+          <div className="absolute bottom-full left-1/2 -translate-x-1/2">
+            <svg
+              viewBox="0 0 8 5"
+              aria-hidden="true"
+              fill="hsl(var(--stage-accent))"
+              className={cn("w-3.5 sm:w-4 md:w-5", !reducedMotion && "animate-bob")}
+            >
+              <rect x="0" y="0" width="8" height="1" />
+              <rect x="1" y="1" width="6" height="1" />
+              <rect x="2" y="2" width="4" height="1" />
+              <rect x="3" y="3" width="2" height="1" />
+            </svg>
+          </div>
+
+          <CharacterSprite
+            walking={walking}
+            facingRight={facingRight}
+            cycle={heroCycle}
+            reducedMotion={reducedMotion}
+            className={SPRITE_SIZE}
+          />
+        </motion.div>
 
         {/* Babak 1: Data diri */}
         <motion.div style={{ opacity: heroOpacity }} {...actProps(0)}>

@@ -29,6 +29,10 @@ output yang salah waktu dikerjakan:
     itu paletnya DITETAPKAN, bukan dicari otomatis: diambil dari token warna
     proyek plus keluarga ungu kabut malam milik artwork.
 
+Bahan dan hasil antaranya hidup di art/, bukan public/: public/ hanya untuk
+berkas yang benar-benar diunduh browser, dan pelat mentah ini puluhan kali lebih
+besar daripada hasil akhirnya.
+
 Jalankan: python scripts/pixelate.py
 """
 
@@ -124,23 +128,24 @@ def extend_base(rgba, solid_floor):
 # layer-2.png datang 1px lebih sempit dari dua lainnya, dan resize di sini
 # yang menyamakannya.
 TARGETS = [
-    ("public/city.png", "public/city-px.png", 543, 181, CITY_PALETTE, True, None),
-    ("public/room.png", "public/room-px.png", 352, 198, ROOM_PALETTE, False, None),
-    ("public/layer-1.png", "public/layer-1-px.png", 543, 181, LAYER_PALETTE, False, "solid"),
-    ("public/layer-2.png", "public/layer-2-px.png", 543, 181, LAYER_PALETTE, False, "column"),
-    ("public/layer-3.png", "public/layer-3-px.png", 543, 181, LAYER_PALETTE, False, None),
+    ("art/city.png", "art/city-px.png", 543, 181, CITY_PALETTE, True, None),
+    ("art/room.png", "art/room-px.png", 352, 198, ROOM_PALETTE, False, None),
+    ("art/layer-1.png", "art/layer-1-px.png", 543, 181, LAYER_PALETTE, False, "solid"),
+    ("art/layer-2.png", "art/layer-2-px.png", 543, 181, LAYER_PALETTE, False, "column"),
+    ("art/layer-3.png", "art/layer-3-px.png", 543, 181, LAYER_PALETTE, False, None),
 
     # Versi resolusi penuh: palet TIDAK dikunci dan ukuran tidak diperkecil,
     # hanya dasarnya diperpanjang. Untuk memakai artwork apa adanya tanpa
     # celah tembus latar di antara layer.
-    ("public/layer-1.png", "public/layer-1-fix.png", 2172, 724, None, False, "solid"),
-    ("public/layer-2.png", "public/layer-2-fix.png", 2172, 724, None, False, "column"),
-    ("public/layer-3.png", "public/layer-3-fix.png", 2172, 724, None, False, None),
+    ("art/layer-1.png", "art/layer-1-fix.png", 2172, 724, None, False, "solid"),
+    ("art/layer-2.png", "art/layer-2-fix.png", 2172, 724, None, False, "column"),
+    ("art/layer-3.png", "art/layer-3-fix.png", 2172, 724, None, False, None),
 
     # Rooftop menu-bg: sumbernya terlalu jenuh dan lampunya condong pink/magenta
     # dibanding layer-1/2/3 (yang sudah pas dari sononya). Resolusi dipertahankan,
     # cuma tiap piksel di-snap ke LAYER_PALETTE yang sama supaya satu keluarga warna.
-    ("public/menu-bg.png", "public/menu-bg-fix.png", 2172, 724, LAYER_PALETTE, False, None),
+    # Sumbernya di public/ karena menu-bg.png sendiri dimuat browser.
+    ("public/menu-bg.png", "art/menu-bg-fix.png", 2172, 724, LAYER_PALETTE, False, None),
 ]
 
 
