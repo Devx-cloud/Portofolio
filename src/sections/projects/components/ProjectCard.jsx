@@ -7,7 +7,16 @@ import { hasLink, linkClass, tagIcons } from "../data";
 export const ProjectCard = ({ project }) => (
   <div className="flex flex-1 flex-col">
     <div className="project-image-reveal project-gloss relative h-48 shrink-0 overflow-hidden border-2 stage-border-soft md:h-56">
-      <img src={project.image} alt={project.title} className="h-full w-full object-cover" />
+      {/* lazy aman dipasang tanpa syarat: peramban hanya menunda gambar DI LUAR
+          viewport, jadi kartu aktif di showcase desktop tetap dimuat seketika,
+          sementara kartu di bawah lipatan pada daftar mobile ditunda. */}
+      <img
+        src={project.image}
+        alt={project.title}
+        loading="lazy"
+        decoding="async"
+        className="h-full w-full object-cover"
+      />
       <span className="pixel-font absolute right-2 top-2 pix-chip px-2 py-1 text-pix-xs tabular-nums text-foreground/80">
         {project.year}
       </span>

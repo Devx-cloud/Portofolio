@@ -151,7 +151,7 @@ export const TitleScreen = () => {
 
       {/* Siluet atap kota - langitnya transparan supaya bintang & meteor tembus */}
       <img
-        src="/menu-bg.png"
+        src="/menu-bg.webp"
         alt=""
         aria-hidden="true"
         className="sprite pointer-events-none absolute inset-x-0 bottom-0 z-[2] h-[170vh] w-full object-cover object-bottom select-none"

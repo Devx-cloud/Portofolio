@@ -32,7 +32,10 @@ export const useChatAgent = (initialMessage) => {
       });
 
       if (!response.ok) {
-        let errorMsg = "Gagal menghubungi server";
+        let errorMsg =
+          response.status === 503
+            ? "Server AI lagi sibuk. Coba tanya lagi beberapa saat lagi ya."
+            : "Gagal menghubungi server. Coba lagi ya.";
         try {
           const errData = await response.json();
           if (errData.message) errorMsg = errData.message;
@@ -44,7 +47,12 @@ export const useChatAgent = (initialMessage) => {
       setMessages([{ role: "user", content: userMessage }, { role: "assistant", content: data.reply }]);
     } catch (error) {
       console.error(error);
-      setMessages([{ role: "user", content: userMessage }, { role: "assistant", content: `Error: ${error.message}` }]);
+      // TypeError = fetch gagal total (offline / server mati), belum sempat dapat respons.
+      const friendly =
+        error.name === "TypeError"
+          ? "Nggak bisa terhubung ke server. Cek koneksi internetmu lalu coba lagi."
+          : error.message || "Terjadi kesalahan. Coba lagi ya.";
+      setMessages([{ role: "user", content: userMessage }, { role: "assistant", content: friendly }]);
     } finally {
       setIsLoading(false);
     }

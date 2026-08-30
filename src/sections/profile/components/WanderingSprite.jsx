@@ -133,6 +133,9 @@ export const WanderingSprite = ({
          terukur, sprite disembunyikan supaya tidak terlihat berdiri di x=0. */
       style={{ x, zIndex, opacity: stageWidth && selfWidth ? 1 : 0 }}
     >
+      {/* Empat NPC = empat lembar sprite yang bersaing pita dengan tiga layer
+          kota dan sprite hero. Mereka cuma hiasan latar, jadi mengalah - hero
+          dan kotanya yang harus tiba lebih dulu. */}
       <CharacterSprite
         walking={gait.walking}
         facingRight={gait.facingRight}
@@ -140,6 +143,7 @@ export const WanderingSprite = ({
         reducedMotion={reducedMotion}
         sprite={sprite}
         className={className}
+        fetchPriority="low"
       />
     </motion.div>
   );

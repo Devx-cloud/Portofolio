@@ -6,7 +6,7 @@
 export const DialogueBox = ({ text, index, total }) => (
   <div className="flex w-full max-w-sm shrink-0 flex-col items-center md:w-96">
     <img
-      src="/dev_left.png"
+      src="/dev_left.webp"
       alt="Deva Surya"
       className="sprite z-10 -mb-4 hidden h-44 w-44 object-cover drop-shadow-[4px_4px_0_hsl(var(--pit))] md:block md:h-64 md:w-64"
     />

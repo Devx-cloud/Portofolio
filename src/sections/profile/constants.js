@@ -27,9 +27,9 @@ export const STAGE_VARS = {
 /* Tiga layer parallax, jauh -> dekat. Beda kecepatan = kedalaman.
    Layer tercepat yang menentukan batas 200vw di --city-w. */
 export const LAYERS = [
-  { src: "/layer-1-v2.png", travel: "-10%", z: "z-[1]" },
-  { src: "/layer-2-v2.png", travel: "-20%", z: "z-[3]" },
-  { src: "/layer-3-v2.png", travel: "-32%", z: "z-[5]" },
+  { src: "/layer-1-v2.webp", travel: "-10%", z: "z-[1]" },
+  { src: "/layer-2-v2.webp", travel: "-20%", z: "z-[3]" },
+  { src: "/layer-3-v2.webp", travel: "-32%", z: "z-[5]" },
 ];
 
 /* Pita kunang-kunang DI ANTARA layer: kecepatannya di antara dua layer yang
@@ -57,7 +57,7 @@ export const SPRITE_SIZE = "w-14 sm:w-20 md:w-22";
 
    Semua lembar melewati scripts/build-sprite.py, jadi wajah dan tinggi badannya
    sudah sepadan - NPC tidak perlu disetel ukurannya di sini. */
-export const HERO_SPRITE = { walk: "/sprite-walk.png", idle: "/sprite-idle.png" };
+export const HERO_SPRITE = { walk: "/sprite-walk.webp", idle: "/sprite-idle.webp" };
 
 /* Pejalan kaki latar. from/to = wilayah jelajah mereka sendiri sebagai fraksi
    lebar panggung - bukan tempat mereka terlihat; wilayah itu ikut hanyut bersama
@@ -76,7 +76,7 @@ export const WALKERS = [
     from: 0.14,
     to: 0.55,
     zIndex: 7,
-    sprite: { walk: "/npc/npc-1.png" },
+    sprite: { walk: "/npc/npc-1.webp" },
     className: cn(SPRITE_SIZE, "brightness-95"),
   },
   {
@@ -84,7 +84,7 @@ export const WALKERS = [
     from: 0.38,
     to: 0.88,
     zIndex: 6,
-    sprite: { walk: "/npc/npc-2.png" },
+    sprite: { walk: "/npc/npc-2.webp" },
     className: cn(SPRITE_SIZE, "brightness-80"),
   },
   {
@@ -92,7 +92,7 @@ export const WALKERS = [
     from: 0.05,
     to: 0.44,
     zIndex: 6,
-    sprite: { walk: "/npc/npc-3.png" },
+    sprite: { walk: "/npc/npc-3.webp" },
     className: cn(SPRITE_SIZE, "brightness-85"),
   },
   {
@@ -100,7 +100,7 @@ export const WALKERS = [
     from: 0.52,
     to: 0.96,
     zIndex: 7,
-    sprite: { walk: "/npc/npc-4.png" },
+    sprite: { walk: "/npc/npc-4.webp" },
     className: cn(SPRITE_SIZE, "brightness-75"),
   },
 ];

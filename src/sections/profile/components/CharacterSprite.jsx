@@ -59,6 +59,9 @@ export const CharacterSprite = ({
   reducedMotion,
   className,
   sprite,
+  /* "low" untuk NPC latar supaya tidak berebut pita dengan hero dan layer
+     kota. Default kosong = prioritas normal untuk hero. */
+  fetchPriority,
 }) => {
   const hasIdleSheet = Boolean(sprite.idle);
   const fade = reducedMotion ? INSTANT : walking ? FADE_START : FADE_STOP;
@@ -122,6 +125,7 @@ export const CharacterSprite = ({
       <motion.img
         src={sprite.idle ?? sprite.walk}
         alt=""
+        fetchPriority={fetchPriority}
         animate={{ opacity: walking ? 0 : 1 }}
         transition={fade}
         style={offset}
@@ -134,6 +138,7 @@ export const CharacterSprite = ({
       <motion.img
         src={sprite.walk}
         alt=""
+        fetchPriority={fetchPriority}
         animate={{ opacity: walking ? 1 : 0 }}
         transition={fade}
         style={cycle ? { ...offset, x: walkX } : offset}

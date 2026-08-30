@@ -14,7 +14,7 @@ import { RoomLamp } from "./RoomLamp";
 export const RoomScene = () => (
   <>
     <img
-      src="/room-without-lamp.png"
+      src="/room-without-lamp.webp"
       alt=""
       aria-hidden="true"
       style={{ "--room-lift": "35px" }}
@@ -25,7 +25,7 @@ export const RoomScene = () => (
     <RoomLamp />
 
     <img
-      src="/ai-ask.png"
+      src="/ai-ask.webp"
       alt="Deva Surya"
       className="sprite absolute left-1/2 -translate-x-1/2 top-12 w-80 h-80 md:w-[28rem] md:h-[28rem] object-cover z-[1] pointer-events-none drop-shadow-[4px_4px_0_hsl(var(--pit))]"
     />

@@ -61,12 +61,12 @@ import os
 # skala gambar aslinya. Tanpa itu tiap NPC harus disetel tangan.
 # Unsur keempat: dasar penskalaan, "face" atau "height".
 SHEETS = [
-    ("art/idles.png", "public/sprite-idle.png", 4, "face"),
-    ("art/walk.png", "public/sprite-walk.png", 8, "face"),
-    ("art/npc-1.png", "public/npc/npc-1.png", 8, "height"),
-    ("art/npc-2.png", "public/npc/npc-2.png", 8, "height"),
-    ("art/npc-3.png", "public/npc/npc-3.png", 8, "height"),
-    ("art/npc-4.png", "public/npc/npc-4.png", 8, "height"),
+    ("art/idles.png", "public/sprite-idle.webp", 4, "face"),
+    ("art/walk.png", "public/sprite-walk.webp", 8, "face"),
+    ("art/npc-1.png", "public/npc/npc-1.webp", 8, "height"),
+    ("art/npc-2.png", "public/npc/npc-2.webp", 8, "height"),
+    ("art/npc-3.png", "public/npc/npc-3.webp", 8, "height"),
+    ("art/npc-4.png", "public/npc/npc-4.webp", 8, "height"),
 ]
 
 # Sel 2:3, jadi aspect-[2/3] di komponen berlaku untuk kedua strip.
@@ -246,7 +246,16 @@ def build(src_path, out_path, n_frames, basis="face"):
         worst["right"] = max(worst["right"], o["right"])
         worst["top"] = min(worst["top"], o["top"])
 
-    sheet.save(out_path)
+    # WebP LOSSLESS, bukan PNG dan bukan WebP berhasrat. Lossless memangkas
+    # ~28% tanpa mengubah satu piksel pun yang TERLIHAT - yang berbeda hanya RGB
+    # di bawah piksel ber-alpha nol, yang dinolkan libwebp agar mampat lebih
+    # baik dan tak pernah tampil.
+    #
+    # Berhasrat sudah diuji dan ditolak: pada q90 sprite jatuh ke PSNR 29-33 dB,
+    # jauh di bawah ambang 40 dB tempat mata berhenti bisa membedakan. Strip ini
+    # penuh tepi keras di batas anggota badan, dan justru di situ kompresi
+    # berhasrat menaruh artefaknya.
+    sheet.save(out_path, lossless=True, method=6)
 
     print(f"{out_path}  {CELL_W * n_frames}x{CELL_H}  {n_frames} frame  skala {scale:.4f}")
     print(

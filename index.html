@@ -4,6 +4,11 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Siluet kota Title Screen: cat pertama di route "/", yaitu pintu masuk
+         situs ini. Tanpa preload ia baru ditemukan setelah bundel JS diurai dan
+         React merender - satu perjalanan bolak-balik penuh setelah HTML tiba. -->
+    <link rel="preload" as="image" href="/menu-bg.webp" fetchpriority="high" />
     <title>Vite + React</title>
   </head>
   <body>
