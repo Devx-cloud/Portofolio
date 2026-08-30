@@ -1,39 +1,41 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { skills } from "./data";
-import { CategoryFilter } from "./components/CategoryFilter";
-import { SkillCard } from "./components/SkillCard";
+import { CategoryMenu } from "./components/CategoryMenu";
+import { SkillDetail } from "./components/SkillDetail";
+import { SkillSlot } from "./components/SkillSlot";
 import { TierLegend } from "./components/TierLegend";
 
-const gridVariants = { hidden: {}, visible: { transition: { staggerChildren: 0.05 } } };
+const gridVariants = { hidden: {}, visible: { transition: { staggerChildren: 0.04 } } };
 
-// Berapa lama warna kartu bertahan setelah di-tap sebelum padam sendiri.
-const REVEAL_MS = 2000;
-
+/*
+ * Stage Skills sebagai LAYAR STATUS, bukan galeri ikon.
+ *
+ * Kategori mendatar di atas, lalu dua kolom: grid slot dan panel detail.
+ * Panel itu yang membuat daftar ini terbaca sebagai layar status game alih-alih
+ * grid logo - sekaligus memecahkan masalah lama, yaitu tidak ada tempat untuk
+ * menjelaskan APA yang dikerjakan dengan tiap teknologi.
+ *
+ * Interaksinya meniru menu Title Screen: menyorot satu butir langsung mengganti
+ * isi panel di sebelahnya, tanpa perlu klik. Klik tetap disediakan untuk layar
+ * sentuh dan keyboard.
+ */
 export const SkillSection = () => {
   const [activeCategory, setActiveCategory] = useState("all");
+  const [activeName, setActiveName] = useState(skills[0].name);
 
-  /* Kartu mana yang warnanya sedang dibuka lewat tap. Satu saja pada satu waktu -
-     state-nya cuma menampung SATU nama, jadi membuka kartu lain otomatis menutup
-     yang sebelumnya. Di desktop ini nyaris tidak terpakai karena hover sudah
-     menanganinya. */
-  const [revealed, setRevealed] = useState(null);
-
-  /* Timer dipasang ulang tiap `revealed` berubah; cleanup membatalkan yang lama -
-     tanpa itu kartu baru ikut dipadamkan oleh timer sisa kartu sebelumnya. */
-  useEffect(() => {
-    if (!revealed) return;
-    const timeout = setTimeout(() => setRevealed(null), REVEAL_MS);
-    return () => clearTimeout(timeout);
-  }, [revealed]);
-
-  const visibleSkills = skills.filter(
+  const visible = skills.filter(
     (skill) => activeCategory === "all" || skill.category === activeCategory
   );
 
+  /* Skill aktif diturunkan, bukan disimpan terpisah. Kalau yang sedang disorot
+     tersaring keluar oleh pergantian kategori, panel jatuh ke butir pertama
+     daftar baru - tanpa perlu effect yang menyinkronkan dua state. */
+  const active = visible.find((s) => s.name === activeName) ?? visible[0];
+
   return (
     <section id="skills" className="relative px-4 pt-4 pb-16 md:pt-6 md:pb-20">
-      <div className="container mx-auto max-w-5xl">
+      <div className="container mx-auto max-w-6xl">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -45,31 +47,43 @@ export const SkillSection = () => {
           </h2>
           <p className="max-w-xl text-sm leading-relaxed text-muted-foreground">
             Laravel untuk web, Flutter untuk mobile, dan React saat antarmuka butuh sentuhan yang
-            lebih modern. Pilih kategori untuk menyaring daftar di bawah.
+            lebih modern. Sorot satu slot untuk melihat rinciannya.
           </p>
         </motion.div>
 
-        <CategoryFilter active={activeCategory} onChange={setActiveCategory} />
+        <CategoryMenu active={activeCategory} onChange={setActiveCategory} />
 
-        <AnimatePresence mode="wait">
-          <motion.ul
-            key={activeCategory}
-            variants={gridVariants}
-            initial="hidden"
-            animate="visible"
-            exit="hidden"
-            className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 lg:grid-cols-4"
-          >
-            {visibleSkills.map((skill) => (
-              <SkillCard
-                key={skill.name}
-                skill={skill}
-                isRevealed={revealed === skill.name}
-                onToggle={() => setRevealed(revealed === skill.name ? null : skill.name)}
-              />
-            ))}
-          </motion.ul>
-        </AnimatePresence>
+        {/* Dua kolom di lg. Di bawah itu panel detail memakan lebar yang
+            dibutuhkan grid, jadi keduanya ditumpuk - dengan panel DI ATAS grid,
+            lihat catatan urutan di SkillDetail. */}
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,17rem)] lg:gap-5">
+          <AnimatePresence mode="wait">
+            <motion.ul
+              key={activeCategory}
+              variants={gridVariants}
+              initial="hidden"
+              animate="visible"
+              exit="hidden"
+              /* self-start WAJIB. Grid ini dan panel detail berbagi satu baris
+                 di grid induk, dan tinggi baris ditentukan yang tertinggi -
+                 begitu daftarnya tersaring jadi sedikit, grid ini diregangkan
+                 setinggi panel dan kartunya ikut memanjang. Terukur: kategori
+                 dengan 4 skill membuat kartu 146px jadi 343px. */
+              className="order-2 grid grid-cols-2 gap-3 self-start sm:grid-cols-3 md:gap-4 lg:order-none lg:grid-cols-4"
+            >
+              {visible.map((skill) => (
+                <SkillSlot
+                  key={skill.name}
+                  skill={skill}
+                  isActive={active?.name === skill.name}
+                  onFocus={() => setActiveName(skill.name)}
+                />
+              ))}
+            </motion.ul>
+          </AnimatePresence>
+
+          <SkillDetail skill={active} />
+        </div>
 
         <TierLegend />
       </div>

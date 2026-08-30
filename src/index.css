@@ -368,6 +368,15 @@
   inherits: false;
 }
 
+/* Bayangan jatuh, alasan yang persis sama dengan --pix-edge di atas. Ditulis
+   sebagai box-shadow biasa di utility terpisah, ia kalah oleh box-shadow milik
+   pix-panel yang dipancarkan belakangan - kartu terangkat tapi bayangannya tidak
+   ikut berubah. Lewat variabel, urutan tidak lagi jadi soal. */
+@property --pix-drop {
+  syntax: "*";
+  inherits: false;
+}
+
 /* ---------- Bingkai: kotak dialog RPG ---------- */
 
 /* Panel utama. Garis luar tebal, bevel dalam satu tingkat lebih terang,
@@ -377,7 +386,7 @@
   border: 4px solid var(--pix-edge, hsl(var(--border)));
   box-shadow:
     inset 0 0 0 2px hsl(var(--raised)),
-    6px 6px 0 0 hsl(var(--pit));
+    var(--pix-drop, 6px 6px 0 0 hsl(var(--pit)));
 }
 
 /* Varian kotak dialog: sama, tapi bayangannya lebih dalam supaya panel
@@ -552,6 +561,38 @@
   background-color: hsl(var(--background) / 0.82);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
+}
+
+/* ---------- Slot yang bisa diangkat ---------- */
+
+/* Kedalaman lewat PERGESERAN BAYANGAN KERAS, bukan rotasi 3D.
+
+   Sempat dicoba memiringkan kartu mengikuti kursor (perspective + rotateX/Y).
+   Hasilnya merusak justru yang jadi ciri seluruh situs ini: begitu diputar,
+   bingkai 4px-nya tidak lagi jatuh di grid piksel, jadi tiap tepi di-anti-alias
+   dan garisnya bergerigi. Bayangan keras 6px ikut berputar lalu terlepas
+   menggantung miring di belakang, dan siku hiasan pojoknya jadi tidak sejajar.
+   Itu melanggar aturan TEPI di kepala berkas ini.
+
+   Cara 2D-nya justru lebih kuat: kartu naik beberapa piksel sementara
+   bayangannya melebar ke arah berlawanan. Semua tepinya tetap tegak lurus dan
+   tetap tajam. Angkanya kelipatan 4 supaya tidak keluar dari grid. */
+@utility pix-lift {
+  transition:
+    transform 0.1s var(--ease-pix),
+    box-shadow 0.1s var(--ease-pix);
+}
+
+@utility pix-lift-hover {
+  transform: translate(-4px, -4px);
+  --pix-drop: 10px 10px 0 0 hsl(var(--pit));
+}
+
+/* Slot terpilih: terangkat sama tinggi, tapi bayangannya memakai warna aksen
+   supaya terbaca "ini yang sedang dibuka", bukan sekadar disentuh. */
+@utility pix-lift-active {
+  transform: translate(-4px, -4px);
+  --pix-drop: 10px 10px 0 0 hsl(var(--stage-accent, var(--primary)) / 0.45);
 }
 
 /* ---------- Kursor petak ---------- */
