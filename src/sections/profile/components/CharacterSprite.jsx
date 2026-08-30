@@ -43,8 +43,23 @@ const FRAME_MS = 1000 / WALK_FPS;
  *                putaran tiap nilainya bertambah 1. Dipakai hero, yang majunya
  *                ditentukan scroll. Pejalan latar tidak memakainya - mereka
  *                bergerak dalam waktu nyata (lihat STRIDE_RATE).
+ * sprite       - { walk, idle? }. idle boleh kosong: NPC tidak punya lembar
+ *                idle, jadi lapisan diamnya memakai strip JALAN yang dibekukan
+ *                di frame pertama. Lebar lapisan itu karenanya harus ikut
+ *                berubah - 400% untuk strip idle 4 frame, 800% untuk strip
+ *                jalan 8 frame. Salah lebar, yang tampil bukan satu frame
+ *                melainkan dua frame terjepit dalam satu jendela.
  */
-export const CharacterSprite = ({ walking, facingRight, phase = 0, cycle, reducedMotion, className }) => {
+export const CharacterSprite = ({
+  walking,
+  facingRight,
+  phase = 0,
+  cycle,
+  reducedMotion,
+  className,
+  sprite,
+}) => {
+  const hasIdleSheet = Boolean(sprite.idle);
   const fade = reducedMotion ? INSTANT : walking ? FADE_START : FADE_STOP;
   // Negatif: siklusnya dimajukan, bukan ditunda.
   const offset = phase ? { animationDelay: `-${phase}s` } : undefined;
@@ -101,18 +116,19 @@ export const CharacterSprite = ({ walking, facingRight, phase = 0, cycle, reduce
       className={cn("relative aspect-[2/3] overflow-hidden", className)}
     >
       <motion.img
-        src="/sprite-idle.png"
+        src={sprite.idle ?? sprite.walk}
         alt=""
         animate={{ opacity: walking ? 0 : 1 }}
         transition={fade}
         style={offset}
         className={cn(
-          "absolute top-0 left-0 h-full w-[400%] max-w-none select-none",
-          !reducedMotion && "animate-idle-cycle"
+          "absolute top-0 left-0 h-full max-w-none select-none",
+          hasIdleSheet ? "w-[400%]" : "w-[800%]",
+          !reducedMotion && hasIdleSheet && "animate-idle-cycle"
         )}
       />
       <motion.img
-        src="/sprite-walk.png"
+        src={sprite.walk}
         alt=""
         animate={{ opacity: walking ? 1 : 0 }}
         transition={fade}

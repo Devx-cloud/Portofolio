@@ -12,7 +12,7 @@ export const DialogueBox = ({ text, index, total }) => (
     />
 
     <div className="pix-dialog crt pix-corners stage-border relative w-full px-5 pt-7 pb-6">
-      <span className="pix-chip stage-border stage-bg-soft stage-text pixel-font absolute -top-4 left-3 px-3 py-1 text-pix-xs md:text-xs">
+      <span className="pix-chip stage-border stage-bg-soft stage-text-bright pixel-font absolute -top-4 left-3 px-3 py-1 text-pix-xs md:text-xs">
         DEV_X
       </span>
       <span className="pix-chip pixel-font absolute -top-4 right-3 px-2 py-1 text-pix-xs tabular-nums text-muted-foreground">

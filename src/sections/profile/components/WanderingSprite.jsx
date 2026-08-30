@@ -53,6 +53,7 @@ export const WanderingSprite = ({
   from,
   to,
   zIndex,
+  sprite,
   className,
 }) => {
   const boxRef = useRef(null);
@@ -137,6 +138,7 @@ export const WanderingSprite = ({
         facingRight={gait.facingRight}
         phase={phase}
         reducedMotion={reducedMotion}
+        sprite={sprite}
         className={className}
       />
     </motion.div>

@@ -47,15 +47,62 @@ export const PARTICLES = [
    Kecepatan pejalan latar diturunkan dari angka ini (lihat STRIDE_RATE). */
 export const SPRITE_SIZE = "w-14 sm:w-20 md:w-22";
 
+/* Sumber sprite.
+
+   Hero punya lembar idle sendiri; NPC tidak. Waktu berhenti mereka membeku di
+   frame pertama strip jalannya - kebetulan pose kedua kaki rapat, jadi terbaca
+   sebagai berdiri. Membuatkan lembar idle untuk tiap NPC berarti empat berkas
+   lagi (~250 KB masing-masing) demi gerakan napas 1-2 piksel yang pada ukuran
+   tampil 56-88px praktis tidak terlihat.
+
+   Semua lembar melewati scripts/build-sprite.py, jadi wajah dan tinggi badannya
+   sudah sepadan - NPC tidak perlu disetel ukurannya di sini. */
+export const HERO_SPRITE = { walk: "/sprite-walk.png", idle: "/sprite-idle.png" };
+
 /* Pejalan kaki latar. from/to = wilayah jelajah mereka sendiri sebagai fraksi
-   lebar panggung - bukan tempat mereka terlihat; wilayah itu ikut hanyut
-   bersama kota dan diputar di tepi layar. Sengaja tumpang tindih di tengah
-   supaya sesekali berpapasan.
-   Duduk DI DEPAN layer-3 (z-5) karena --ground diturunkan dari trotoarnya.
-   Pembedanya cuma CAHAYA - opacity bikin kota menembus badan mereka. */
+   lebar panggung - bukan tempat mereka terlihat; wilayah itu ikut hanyut bersama
+   kota dan diputar di tepi layar. Sengaja tumpang tindih supaya sesekali
+   berpapasan.
+
+   Duduk DI DEPAN layer-3 (z-5) karena --ground diturunkan dari trotoarnya, tapi
+   HARUS di bawah peneduh (z-8): mereka memang perlu ikut teredam di sisi panel.
+
+   Pembedanya cuma CAHAYA, bukan ukuran - opacity akan membuat kota menembus
+   badan mereka. Empat tingkat brightness memberi kedalaman tanpa menyentuh
+   palet. */
 export const WALKERS = [
-  { seed: 17, from: 0.16, to: 0.6, zIndex: 7, className: cn(SPRITE_SIZE, "brightness-90") },
-  { seed: 53, from: 0.4, to: 0.92, zIndex: 6, className: cn(SPRITE_SIZE, "brightness-75") },
+  {
+    seed: 17,
+    from: 0.14,
+    to: 0.55,
+    zIndex: 7,
+    sprite: { walk: "/npc/npc-1.png" },
+    className: cn(SPRITE_SIZE, "brightness-95"),
+  },
+  {
+    seed: 53,
+    from: 0.38,
+    to: 0.88,
+    zIndex: 6,
+    sprite: { walk: "/npc/npc-2.png" },
+    className: cn(SPRITE_SIZE, "brightness-80"),
+  },
+  {
+    seed: 89,
+    from: 0.05,
+    to: 0.44,
+    zIndex: 6,
+    sprite: { walk: "/npc/npc-3.png" },
+    className: cn(SPRITE_SIZE, "brightness-85"),
+  },
+  {
+    seed: 31,
+    from: 0.52,
+    to: 0.96,
+    zIndex: 7,
+    sprite: { walk: "/npc/npc-4.png" },
+    className: cn(SPRITE_SIZE, "brightness-75"),
+  },
 ];
 
 /* ---------------------------------------------------------------------------
@@ -71,12 +118,26 @@ export const WALKERS = [
    sangat timpang antar fase.
    -------------------------------------------------------------------------*/
 
-/* Posisi hero di layar sebagai fraksi lebar panggung. REACH juga menentukan
-   berapa lama latar membeku di akhir - jatah fase TAIL diambil dari fase
-   KAMERA. Turunkan ke ~0.7 kalau kotanya mau hidup lebih lama. */
+/* Posisi hero di layar sebagai fraksi lebar panggung.
+
+   REACH punya DUA nilai, karena panel babak berpindah tempat mengikuti lebar
+   layar (lihat panelWrap di bawah):
+
+     di bawah sm - panel memenuhi lebar dan duduk DI ATAS hero, jadi trotoar di
+                   bawahnya kosong dan hero bebas menyusurinya sampai tepi.
+     dari sm     - panel berdiri di KANAN. Hero yang berjalan sampai tepi kanan
+                   berakhir persis di bawahnya, dan dua hal yang sama-sama minta
+                   diperhatikan bertumpuk di satu titik. Dibatasi, ia tinggal di
+                   sisi kiri yang memang kosong - panggung terbagi jelas:
+                   karakter di kiri, keterangan di kanan.
+
+   Membatasinya juga menguntungkan geraknya sendiri: jatah scroll fase TAIL
+   mengecil dan yang diambil dikembalikan ke fase KAMERA, jadi kotanya bergeser
+   jauh lebih lama alih-alih membeku di paruh akhir. */
 export const HERO_START = 0.015;
 export const HERO_ANCHOR = 0.06;
 export const HERO_REACH = 0.98;
+export const HERO_REACH_WIDE = 0.42;
 
 /* Panjang satu siklus jalan dalam lebar sprite - mengikat kaki hero ke JARAK,
    bukan waktu. Siklus berbasis waktu bikin kakinya mengayuh penuh di atas tanah

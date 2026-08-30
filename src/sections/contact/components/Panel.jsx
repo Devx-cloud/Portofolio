@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 /* Panel bertab, mengikuti bahasa visual stage Profile & Skills. */
 export const Panel = ({ label, className, children }) => (
   <div className={cn("relative pix-panel crt px-5 pt-7 pb-5", className)}>
-    <span className="pixel-font absolute -top-3 left-4 pix-chip stage-border stage-bg-soft stage-text px-3 py-1 text-pix-xs uppercase whitespace-nowrap">
+    <span className="pixel-font absolute -top-3 left-4 pix-chip stage-border stage-bg-soft stage-text-bright px-3 py-1 text-pix-xs uppercase whitespace-nowrap">
       {label}
     </span>
     {children}

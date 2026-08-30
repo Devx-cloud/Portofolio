@@ -35,7 +35,11 @@ export const SkillSection = () => {
 
   return (
     <section id="skills" className="relative px-4 pt-4 pb-16 md:pt-6 md:pb-20">
-      <div className="container mx-auto max-w-6xl">
+      {/* Dipersempit di lg. Kolom grid dan panel detail berbagi lebar container,
+          jadi turun dari 4 ke 3 kolom membuat kartunya melar dari 195px ke 265px
+          - grid-nya tetap mengisi ruang yang sama. 61rem mengembalikan kartu ke
+          ~197px, seukuran versi 4 kolom. */}
+      <div className="container mx-auto max-w-6xl lg:max-w-[61rem]">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -69,7 +73,7 @@ export const SkillSection = () => {
                  begitu daftarnya tersaring jadi sedikit, grid ini diregangkan
                  setinggi panel dan kartunya ikut memanjang. Terukur: kategori
                  dengan 4 skill membuat kartu 146px jadi 343px. */
-              className="order-2 grid grid-cols-2 gap-3 self-start sm:grid-cols-3 md:gap-4 lg:order-none lg:grid-cols-4"
+              className="order-2 grid grid-cols-2 gap-3 self-start sm:grid-cols-3 md:gap-4 lg:order-none"
             >
               {visible.map((skill) => (
                 <SkillSlot

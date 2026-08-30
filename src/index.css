@@ -397,6 +397,11 @@
   box-shadow:
     inset 0 0 0 2px hsl(var(--raised)),
     inset 0 0 0 4px hsl(var(--surface)),
+    /* Cincin gelap di LUAR bingkai. Bingkai kotak dialog berwarna aksen, dan di
+       panggung Profile ia berdiri di depan pelat kota yang penuh jendela merah
+       pada kecerahan mirip - tanpa cincin ini tepinya lebur ke latar. Cincinnya
+       memberi tepi itu sesuatu untuk dipisahkan, apa pun yang ada di belakang. */
+      0 0 0 4px hsl(var(--pit)),
     8px 8px 0 0 hsl(var(--pit));
 }
 
@@ -563,6 +568,100 @@
   -webkit-backdrop-filter: blur(6px);
 }
 
+/* ---------- Peneduh panel babak ---------- */
+
+/* Panel babak berdiri di depan pelat kota yang penuh jendela merah terang, dan
+   bingkainya juga merah pada kecerahan yang mirip. Akibatnya tepi panel lebur ke
+   dalam latar dan mata tidak punya pegangan untuk mulai membaca - pengunjung
+   yang baru pertama masuk tidak tahu harus melihat ke mana.
+
+   Ini kegagalan figure/ground, dan yang perlu diperbaiki LATARNYA. Menggelapkan
+   sisi tempat panel berdiri mengembalikan pemisahan itu tanpa menyentuh panel
+   maupun paletnya - kotanya tetap terlihat, yang hilang cuma kilau jendela yang
+   bersaing dengan teks.
+
+   Gradien, bukan blok rata: tepi keras di tengah panggung akan terbaca sebagai
+   panel kedua yang tidak ada isinya. */
+@utility act-scrim {
+  /* Di layar sempit panel memenuhi lebar, jadi yang perlu diteduhkan cuma pita
+     tempat panel berdiri.
+
+     Batas 70% bukan angka kira-kira. Garis tanah di HP jatuh di 85% tinggi
+     panggung (--ground diturunkan dari --city-w, lihat STAGE_VARS), dan sprite
+     setinggi 84px menaruh kepala karakter di 74,5%. Peneduh harus sudah habis
+     sebelum itu - versi pertama pekat sampai 86% dan menelan karakter beserta
+     seluruh jalan, menyisakan rongga hitam yang justru membuat karakternya
+     terlihat menempel di atas kekosongan.
+
+     Pekatnya juga diturunkan dari 0,78: di layar sempit panel hampir memenuhi
+     lebar, jadi latar yang bersaing dengannya jauh lebih sedikit daripada di
+     desktop dan tidak perlu ditekan sekeras itu. */
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    hsl(var(--pit) / 0.58) 10%,
+    hsl(var(--pit) / 0.58) 58%,
+    transparent 70%
+  );
+
+  /* Dari sm ke atas panel berdiri di kanan - lihat panelWrap di constants.js. */
+  @media (width >= 40rem) {
+    background: linear-gradient(
+      to right,
+      transparent 12%,
+      hsl(var(--pit) / 0.5) 40%,
+      hsl(var(--pit) / 0.86) 66%
+    );
+  }
+}
+
+/* ---------- Peneduh panel babak ---------- */
+
+/* Panel babak berdiri di depan pelat kota yang penuh jendela merah terang, dan
+   bingkainya juga merah pada kecerahan yang mirip. Akibatnya tepi panel lebur ke
+   dalam latar dan mata tidak punya pegangan untuk mulai membaca - pengunjung
+   yang baru pertama masuk tidak tahu harus melihat ke mana.
+
+   Ini kegagalan figure/ground, dan yang perlu diperbaiki LATARNYA. Menggelapkan
+   sisi tempat panel berdiri mengembalikan pemisahan itu tanpa menyentuh panel
+   maupun paletnya - kotanya tetap terlihat, yang hilang cuma kilau jendela yang
+   bersaing dengan teks.
+
+   Gradien, bukan blok rata: tepi keras di tengah panggung akan terbaca sebagai
+   panel kedua yang tidak ada isinya. */
+@utility act-scrim {
+  /* Di layar sempit panel memenuhi lebar, jadi yang perlu diteduhkan cuma pita
+     tempat panel berdiri.
+
+     Batas 70% bukan angka kira-kira. Garis tanah di HP jatuh di 85% tinggi
+     panggung (--ground diturunkan dari --city-w, lihat STAGE_VARS), dan sprite
+     setinggi 84px menaruh kepala karakter di 74,5%. Peneduh harus sudah habis
+     sebelum itu - versi pertama pekat sampai 86% dan menelan karakter beserta
+     seluruh jalan, menyisakan rongga hitam yang justru membuat karakternya
+     terlihat menempel di atas kekosongan.
+
+     Pekatnya juga diturunkan dari 0,78: di layar sempit panel hampir memenuhi
+     lebar, jadi latar yang bersaing dengannya jauh lebih sedikit daripada di
+     desktop dan tidak perlu ditekan sekeras itu. */
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    hsl(var(--pit) / 0.58) 10%,
+    hsl(var(--pit) / 0.58) 58%,
+    transparent 70%
+  );
+
+  /* Dari sm ke atas panel berdiri di kanan - lihat panelWrap di constants.js. */
+  @media (width >= 40rem) {
+    background: linear-gradient(
+      to right,
+      transparent 12%,
+      hsl(var(--pit) / 0.5) 40%,
+      hsl(var(--pit) / 0.86) 66%
+    );
+  }
+}
+
 /* ---------- Slot yang bisa diangkat ---------- */
 
 /* Kedalaman lewat PERGESERAN BAYANGAN KERAS, bukan rotasi 3D.
@@ -653,6 +752,20 @@
 
 @utility stage-text {
   color: hsl(var(--stage-accent, var(--primary)));
+}
+
+/* Aksen untuk teks KECIL.
+
+   --primary hanya 4,30:1 di atas panel dan 3,69:1 di atas chip. Itu lulus untuk
+   judul besar tapi GAGAL AA untuk label 8-16px - dan justru label kecil itu yang
+   berisi keterangan yang harus dibaca pengunjung baru.
+
+   --primary-bright sudah ada di ramp terkunci (7,33:1 dan 6,28:1), jadi tidak
+   ada warna baru yang dikarang di sini. Yang berubah cuma langkah mana yang
+   dipakai untuk ukuran mana - judul besar tetap memakai merah yang lebih dalam
+   supaya hierarkinya tidak hilang. */
+@utility stage-text-bright {
+  color: hsl(var(--primary-bright));
 }
 
 @utility stage-ink {

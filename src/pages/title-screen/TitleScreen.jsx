@@ -108,7 +108,7 @@ export const TitleScreen = () => {
               Portofolio &middot; Deva Surya
             </p>
 
-            <p className="pixel-font stage-text mt-7 mb-4 animate-blink text-pix-xs md:text-xs">
+            <p className="pixel-font stage-text-bright mt-7 mb-4 animate-blink text-pix-xs md:text-xs">
               PRESS ENTER TO SELECT
             </p>
 

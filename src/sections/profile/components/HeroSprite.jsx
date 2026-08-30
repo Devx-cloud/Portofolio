@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { SPRITE_SIZE } from "../constants";
+import { HERO_SPRITE, SPRITE_SIZE } from "../constants";
 import { CharacterSprite } from "./CharacterSprite";
 
 /* Penanda "ini kamu". Wajib ada begitu pejalan latar dibuat seukuran hero:
@@ -43,6 +43,7 @@ export const HeroSprite = ({ heroRef, x, cycle, walking, facingRight, reducedMot
       facingRight={facingRight}
       cycle={cycle}
       reducedMotion={reducedMotion}
+      sprite={HERO_SPRITE}
       className={SPRITE_SIZE}
     />
   </motion.div>

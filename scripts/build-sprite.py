@@ -51,9 +51,22 @@ import numpy as np
 import os
 
 # (sumber, keluaran, jumlah frame)
+#
+# Lembar NPC ikut lewat sini, bukan dipakai mentah, karena punya masalah yang
+# persis sama dengan walk.png: 2172/8 = 271,5 px, jadi tidak ada grid dan
+# karakternya meleset kiri-kanan tiap frame berganti kalau dianimasi apa adanya.
+#
+# Yang membuatnya sepadan dengan hero bukan kebetulan: TARGET_FACE di bawah satu
+# angka untuk SEMUA lembar, jadi wajah NPC keluar seukuran wajah hero berapa pun
+# skala gambar aslinya. Tanpa itu tiap NPC harus disetel tangan.
+# Unsur keempat: dasar penskalaan, "face" atau "height".
 SHEETS = [
-    ("art/idles.png", "public/sprite-idle.png", 4),
-    ("art/walk.png", "public/sprite-walk.png", 8),
+    ("art/idles.png", "public/sprite-idle.png", 4, "face"),
+    ("art/walk.png", "public/sprite-walk.png", 8, "face"),
+    ("art/npc-1.png", "public/npc/npc-1.png", 8, "height"),
+    ("art/npc-2.png", "public/npc/npc-2.png", 8, "height"),
+    ("art/npc-3.png", "public/npc/npc-3.png", 8, "height"),
+    ("art/npc-4.png", "public/npc/npc-4.png", 8, "height"),
 ]
 
 # Sel 2:3, jadi aspect-[2/3] di komponen berlaku untuk kedua strip.
@@ -69,6 +82,21 @@ CELL_W, CELL_H = 256, 384
 # wajah 57,3 x skala 0,5342), jadi strip jalan TIDAK berubah ukuran sama sekali
 # dan yang menyesuaikan diri hanya idle - naik ~17%.
 TARGET_FACE = 30.6
+
+# Tinggi badan sasaran, dipakai lembar NPC.
+#
+# Penskalaan lewat wajah dipilih untuk idle vs walk karena PROPORSI kedua lembar
+# itu berbeda (7 kepala vs 5,5), dan di situ tinggi badan memang tidak bisa
+# dipakai. Lembar NPC tidak punya masalah itu - semuanya siklus jalan dengan
+# proporsi sejenis - sementara deteksi wajahnya justru rapuh: hero mendapat
+# 36.947 piksel kulit, npc-4 hanya 157, dan skalanya meledak jadi 7x. Topi,
+# rambut menutupi dahi, dan warna kulit yang lebih dingin semuanya menggagalkan
+# ambang kulit yang disetel untuk satu karakter.
+#
+# Tinggi badan jauh lebih kokoh di sini: kelima lembar jatuh di 546-654px.
+# 333 = tinggi badan hero (623px) x skalanya yang sudah terpasang (0,5344), jadi
+# NPC keluar sepadan dengan hero tanpa satu pun angka disetel tangan.
+TARGET_BODY = 333.0
 
 # Bagian atas badan yang dipakai waktu mengukur wajah. Di bawah 45% mulai kena
 # tangan, yang juga berkulit dan akan menggelembungkan angkanya; di kedua lembar
@@ -189,7 +217,7 @@ def overflow(info, scale, dx, dy):
     }
 
 
-def build(src_path, out_path, n_frames):
+def build(src_path, out_path, n_frames, basis="face"):
     src = Image.open(src_path).convert("RGBA")
     arr = np.array(src)
 
@@ -201,8 +229,12 @@ def build(src_path, out_path, n_frames):
     # SATU skala untuk seluruh lembar, diambil dari rata-rata mata-ke-lantai.
     # Skala per frame akan meratakan bob kepala sampai hilang - justru gerakan
     # yang bikin animasinya hidup.
-    mean_face = sum(f[1]["face"] for f in frames) / len(frames)
-    scale = TARGET_FACE / mean_face
+    if basis == "height":
+        mean_h = sum(f[1]["bottom"] - f[1]["top"] + 1 for f in frames) / len(frames)
+        scale = TARGET_BODY / mean_h
+    else:
+        mean_face = sum(f[1]["face"] for f in frames) / len(frames)
+        scale = TARGET_FACE / mean_face
 
     sheet = Image.new("RGBA", (CELL_W * n_frames, CELL_H), (0, 0, 0, 0))
     worst = {"left": CELL_W, "right": -CELL_W, "top": CELL_H}
@@ -227,9 +259,10 @@ def build(src_path, out_path, n_frames):
 
 
 def main():
+    os.makedirs("public/npc", exist_ok=True)
     os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    for src, out, n in SHEETS:
-        build(src, out, n)
+    for src, out, n, basis in SHEETS:
+        build(src, out, n, basis)
 
 
 if __name__ == "__main__":

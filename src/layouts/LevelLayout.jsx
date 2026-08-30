@@ -27,7 +27,7 @@ export const LevelLayout = ({ stage, children }) => (
           Teksnya dari stages.js: satu stage satu nama, tidak bisa lepas sinkron. */}
       <div className="flex items-center gap-2">
         <StageMenu currentId={stage.id} />
-        <span className="pixel-font pix-chip stage-border-soft stage-text hidden px-3 py-2 text-pix-xs uppercase sm:inline-block">
+        <span className="pixel-font pix-chip stage-border-soft stage-text-bright hidden px-3 py-2 text-pix-xs uppercase sm:inline-block">
           {stage.badge}
         </span>
       </div>

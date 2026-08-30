@@ -9,7 +9,7 @@ export const ActPanel = ({ index, label, hint, children }) => (
       BABAK {String(index + 1).padStart(2, "0")} · {label.toUpperCase()}
     </span>
     <div className="flex flex-col items-start gap-3">{children}</div>
-    <span className="absolute bottom-2 right-3 pixel-font text-pix-xs md:text-pix-sm stage-text">
+    <span className="absolute bottom-2 right-3 pixel-font text-pix-xs md:text-pix-sm stage-text-bright">
       {hint === "end" ? "◆ BATAS AKHIR" : <span className="animate-blink">▼</span>}
     </span>
   </div>

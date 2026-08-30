@@ -8,7 +8,7 @@ export const HeroAct = ({ index }) => (
       <ActTitle as="h1" size="xl">
         Deva <span className="stage-text">Surya</span>
       </ActTitle>
-      <p className="pixel-font-null mt-2 text-pix-sm md:text-pix-md uppercase tracking-[2px] stage-text">
+      <p className="pixel-font-null mt-2 text-pix-sm md:text-pix-md uppercase tracking-[2px] stage-text-bright">
         Web &amp; Mobile Developer
       </p>
     </div>

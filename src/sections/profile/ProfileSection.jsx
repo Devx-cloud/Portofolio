@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import { motion, useTransform } from "framer-motion";
 import { StarBackground } from "@/components/backgrounds/StarBackground";
-import { useReducedMotion } from "@/hooks/useMediaQuery";
+import { useMediaQuery, useReducedMotion } from "@/hooks/useMediaQuery";
 import { cn } from "@/lib/utils";
 import { ACTS } from "./acts";
 import { SCROLL_SPAN, STAGE_VARS, WALKERS, panelWrap } from "./constants";
@@ -27,6 +27,10 @@ export const ProfileSection = () => {
   const refs = { stage: useRef(null), city: useRef(null), hero: useRef(null) };
 
   const reducedMotion = useReducedMotion();
+  /* 40rem = breakpoint sm, ambang yang sama dengan panelWrap memindahkan panel
+     ke kanan. Keduanya WAJIB satu angka: kalau berbeda, akan ada rentang lebar
+     di mana panel sudah pindah ke kanan tapi hero masih berjalan ke sana. */
+  const isWide = useMediaQuery("(min-width: 40rem)");
   const { scrollYProgress, smoothProgress, isMoving, activeIndex, facingRight, goToAct } =
     useStageProgress(containerRef, reducedMotion);
   const { stageWidth, heroX, heroCycle, layerX, dustX, walkerX, progressWidth } = useStageCamera({
@@ -34,6 +38,7 @@ export const ProfileSection = () => {
     smoothProgress,
     scrollYProgress,
     reducedMotion,
+    isWide,
   });
 
   // Satu useTransform per babak - hook tidak boleh dipanggil di dalam loop.
@@ -77,6 +82,11 @@ export const ProfileSection = () => {
           cityRef={refs.city}
           reducedMotion={reducedMotion}
         />
+
+        {/* Peneduh di z-8: DI ATAS pelat kota (z-1..7) tapi DI BAWAH hero (z-10).
+            Urutannya penting - dinaikkan ke atas hero, penanda "ini kamu" ikut
+            teredam, dan justru itu satu-satunya hal yang harus tetap terang. */}
+        <div aria-hidden="true" className="act-scrim pointer-events-none absolute inset-0 z-[8]" />
 
         {/* Pejalan latar sebelum hero supaya urutan DOM mengikuti kedalaman;
             yang menentukan tumpukan tetap zIndex. */}

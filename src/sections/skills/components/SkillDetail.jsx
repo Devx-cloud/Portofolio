@@ -26,7 +26,7 @@ export const SkillDetail = ({ skill }) => {
        induknya, dan sisa ruang di bawah isinya jadi kotak kosong sepanjang
        beberapa ratus piksel. */
     <div className="pix-panel crt relative order-1 self-start px-5 pt-7 pb-5 lg:order-none lg:sticky lg:top-24">
-      <span className="pixel-font absolute -top-3 left-4 pix-chip stage-border stage-bg-soft stage-text px-3 py-1 text-pix-xs uppercase whitespace-nowrap">
+      <span className="pixel-font absolute -top-3 left-4 pix-chip stage-border stage-bg-soft stage-text-bright px-3 py-1 text-pix-xs uppercase whitespace-nowrap">
         Detail
       </span>
 
@@ -58,7 +58,7 @@ export const SkillDetail = ({ skill }) => {
             <div className="w-full border-y-2 stage-border-soft py-2 lg:py-3">
               <div className="flex items-center justify-between gap-3">
                 <span className="pixel-font text-pix-xs uppercase text-foreground/70">Tingkat</span>
-                <span className="pixel-font stage-text text-pix-xs uppercase">{tier.label}</span>
+                <span className="pixel-font stage-text-bright text-pix-xs uppercase">{tier.label}</span>
               </div>
               <StatBar blocks={tier.blocks} blockClass="h-2" className="mt-2" />
             </div>

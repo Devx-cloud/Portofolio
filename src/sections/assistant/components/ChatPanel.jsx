@@ -15,7 +15,7 @@ export const ChatPanel = ({
   onSubmit,
 }) => (
   <div className="relative z-10 w-full max-w-3xl mt-68 md:mt-84 pix-panel crt flex flex-col">
-    <span className="absolute -top-4 left-3 pix-chip stage-border stage-bg-soft stage-text px-3 py-1 pixel-font text-pix-xs md:text-xs z-10">
+    <span className="absolute -top-4 left-3 pix-chip stage-border stage-bg-soft stage-text-bright px-3 py-1 pixel-font text-pix-xs md:text-xs z-10">
       DEV_X AI
     </span>
 

@@ -49,7 +49,7 @@ export const MessageForm = () => (
 
       <button
         type="submit"
-        className="pixel-font flex w-full items-center justify-center gap-2 pix-chip stage-border stage-bg-soft stage-text stage-shadow px-4 py-3 text-pix-xs uppercase transition-all duration-100 ease-pix hover:stage-glow active:translate-y-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+        className="pixel-font flex w-full items-center justify-center gap-2 pix-chip stage-border stage-bg-soft stage-text-bright stage-shadow px-4 py-3 text-pix-xs uppercase transition-all duration-100 ease-pix hover:stage-glow active:translate-y-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
       >
         Kirim Pesan
         <Send size={14} />

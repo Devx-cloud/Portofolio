@@ -4,6 +4,7 @@ import {
   CYCLE_DISTANCE,
   HERO_ANCHOR,
   HERO_REACH,
+  HERO_REACH_WIDE,
   HERO_START,
   LAYERS,
   PARTICLES,
@@ -17,7 +18,7 @@ import {
  * suku yang salah satunya bergantung tinggi viewport. Piksel, bukan persen -
  * translateX berpersen mengacu ke lebar elemen itu sendiri.
  */
-export const useStageCamera = ({ refs, smoothProgress, scrollYProgress, reducedMotion }) => {
+export const useStageCamera = ({ refs, smoothProgress, scrollYProgress, reducedMotion, isWide }) => {
   const stageWidth = useElementWidth(refs.stage);
   const cityWidth = useElementWidth(refs.city);
   const heroWidth = useElementWidth(refs.hero);
@@ -30,7 +31,9 @@ export const useStageCamera = ({ refs, smoothProgress, scrollYProgress, reducedM
      Math.max terhadap jangkarnya: di layar sangat sempit lebar sprite bisa
      melampaui sisa ruang, dan tanpa itu hero berjalan MUNDUR di fase terakhir. */
   const anchorX = stageWidth * HERO_ANCHOR;
-  const reachX = Math.max(anchorX, stageWidth * HERO_REACH - heroWidth);
+  // Layar lebar menahan hero di sisi kiri - panel babak menempati sisi kanan.
+  const reach = isWide ? HERO_REACH_WIDE : HERO_REACH;
+  const reachX = Math.max(anchorX, stageWidth * reach - heroWidth);
   const leadDist = Math.max(0, anchorX - stageWidth * HERO_START);
   const cameraDist = Math.abs(cityWidth * nearTravel);
   const tailDist = reachX - anchorX;
