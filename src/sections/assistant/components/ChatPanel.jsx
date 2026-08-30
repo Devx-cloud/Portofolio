@@ -21,7 +21,7 @@ export const ChatPanel = ({
 
     <div ref={containerRef} className="flex-1 h-[55vh] overflow-y-auto p-4 pt-8 space-y-4">
       {!isLoading && reply && (
-        <div className="text-left text-sm leading-relaxed text-foreground/90">{reply}</div>
+        <div className="text-left text-sm leading-relaxed text-foreground/90 whitespace-pre-line">{reply}</div>
       )}
       {isLoading && (
         <div className="text-left text-sm text-foreground/90 flex items-center gap-2">

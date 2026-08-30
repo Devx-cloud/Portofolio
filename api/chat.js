@@ -4,11 +4,11 @@ import { profileData } from './profile.js';
 // Vercel: kasih ruang buat retry + fallback model tanpa kena timeout 10s default.
 export const maxDuration = 30;
 
-/* Model utama + cadangan. Kalau yang pertama kena overload (503) atau limit
-   sesaat (429), otomatis lanjut ke model berikutnya. Dua terakhir sengaja versi
-   GA yang di-pin (bukan alias "-latest") karena lebih stabil & jarang penuh.
+/* Model utama + cadangan. Kalau satu model kena overload (503), limit sesaat
+   (429), atau ternyata nggak tersedia buat API key ini (404), otomatis lanjut
+   ke model berikutnya. Urutan: alias terbaru -> versi GA yang di-pin.
    Sesuaikan kalau daftar model Gemini berubah: https://ai.google.dev/gemini-api/docs/models */
-const MODELS = ['gemini-flash-latest', 'gemini-2.0-flash', 'gemini-2.0-flash-lite'];
+const MODELS = ['gemini-flash-latest', 'gemini-2.0-flash', 'gemini-2.5-flash', 'gemini-1.5-flash'];
 
 const MAX_ATTEMPTS_PER_MODEL = 2; // 1 percobaan awal + 1 retry
 const RETRYABLE_STATUS = new Set([429, 500, 502, 503, 504]);
@@ -44,6 +44,12 @@ async function generateWithFallback(genAI, prompt) {
         return result.response.text();
       } catch (error) {
         lastError = error;
+
+        // 404 = model ini nggak ada buat API key ini -> langsung coba model berikutnya.
+        if (getStatus(error) === 404) {
+          console.warn(`[chat] ${modelName} tidak tersedia (404), lanjut ke model berikutnya`);
+          break;
+        }
         if (!isRetryable(error)) throw error;
 
         // Percobaan terakhir buat model ini -> pindah ke model berikutnya.
@@ -99,19 +105,32 @@ export default async function handler(req, res) {
   } catch (error) {
     console.error('Error calling Gemini API:', error);
     const status = getStatus(error);
+    // Sementara: kirim penyebab asli ke klien buat diagnosa. Hapus `detail`
+    // setelah ketahuan akar masalahnya.
+    const detail = `${error?.name || 'Error'}${status ? ` ${status}` : ''}: ${error?.message || ''}`.slice(0, 300);
 
     if (RETRYABLE_STATUS.has(status)) {
       return res.status(503).json({
         message: 'Server AI lagi sibuk banget sekarang. Coba tanya lagi beberapa saat lagi ya.',
+        detail,
       });
     }
     if (status === 400 || status === 401 || status === 403) {
       return res.status(500).json({
-        message: 'Ada masalah konfigurasi di sisi AI. Coba lagi nanti.',
+        message: 'Ada masalah konfigurasi di sisi AI (API key / request).',
+        detail,
+      });
+    }
+    // Jawaban diblokir filter keamanan Gemini (finishReason SAFETY/RECITATION/dll).
+    if (/blocked|not available|safety|recitation/i.test(error?.message || '')) {
+      return res.status(500).json({
+        message: 'Pertanyaan ini kena filter keamanan AI. Coba tanya dengan cara lain.',
+        detail,
       });
     }
     return res.status(500).json({
       message: 'Maaf, ada kesalahan saat memproses pertanyaanmu. Coba lagi ya.',
+      detail,
     });
   }
 }

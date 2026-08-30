@@ -39,6 +39,8 @@ export const useChatAgent = (initialMessage) => {
         try {
           const errData = await response.json();
           if (errData.message) errorMsg = errData.message;
+          // Sementara: tampilkan penyebab teknis buat diagnosa.
+          if (errData.detail) errorMsg += `\n\n[${errData.detail}]`;
         } catch (e) {}
         throw new Error(errorMsg);
       }
