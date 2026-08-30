@@ -14,8 +14,13 @@ export const LevelLayout = ({ stage, children }) => (
     style={{ "--stage-accent": stage.accent }}
   >
     <header className="pix-veil fixed inset-x-0 top-0 z-30 flex h-20 items-center justify-between border-b-4 stage-border px-4">
+      {/* state membawa stage asal, dipakai Title Screen sebagai pilihan awal -
+          kembali dari Skills menyorot 02, bukan mengulang dari 01. Lewat state
+          navigasi, bukan penyimpanan: ini cuma soal satu perjalanan bolak-balik,
+          tidak perlu bertahan lintas sesi. */}
       <Link
         to="/"
+        state={{ fromStage: stage.id }}
         className="pix-chip pixel-font stage-border-soft px-3 py-2 text-xs text-foreground/80 transition-all duration-100 ease-pix hover:stage-text hover:stage-border md:text-sm"
       >
         &laquo;&laquo; MENU

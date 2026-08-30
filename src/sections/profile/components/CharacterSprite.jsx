@@ -1,6 +1,7 @@
 import { useMotionValue, useAnimationFrame, useTransform, motion } from "framer-motion";
 import { useRef } from "react";
 import { cn } from "@/lib/utils";
+import { GroundShadow } from "./GroundShadow";
 
 /*
  * Jendela selebar satu sel untuk dua strip dari scripts/build-sprite.py: idle
@@ -115,6 +116,9 @@ export const CharacterSprite = ({
          sehingga sprite bergetar selama animasi. */
       className={cn("relative aspect-[2/3] overflow-hidden", className)}
     >
+      {/* Dirender paling awal supaya jatuh di belakang kedua strip. */}
+      <GroundShadow />
+
       <motion.img
         src={sprite.idle ?? sprite.walk}
         alt=""

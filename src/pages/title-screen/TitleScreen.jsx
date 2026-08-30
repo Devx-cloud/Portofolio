@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { stages } from "@/data/stages";
 import { Fireflies } from "@/components/backgrounds/Fireflies";
 import { StarBackground } from "@/components/backgrounds/StarBackground";
-import { useReducedMotion } from "@/hooks/useMediaQuery";
+import { useMediaQuery, useReducedMotion } from "@/hooks/useMediaQuery";
 import { useTypewriter } from "@/hooks/useTypewriter";
 import { cn } from "@/lib/utils";
 import { DialogueBox } from "./components/DialogueBox";
@@ -12,24 +12,100 @@ import { StageList } from "./components/StageList";
 // Jeda animasi "masuk stage" sebelum route benar-benar berpindah.
 const ENTER_DELAY = 260;
 
+/* Selang perputaran dialog di layar sentuh.
+
+   Bukan angka bulat sembarangan. Mesin tik menulis ~60 karakter pada 18ms per
+   karakter, jadi ~1,1 detik pertama masih dipakai menulis; sisanya yang tersedia
+   untuk membaca. 5 detik menyisakan ~3,9 detik - cukup untuk satu kalimat
+   pendek, dan itu sebabnya desc di stages.js dijaga tetap sepanjang itu. */
+const CYCLE_MS = 5000;
+
+/* sessionStorage, BUKAN localStorage. Umurnya satu tab: pengunjung yang baru
+   datang tetap mendarat di 01/05 dan membaca perkenalannya, sementara yang
+   sedang menjelajah tidak kehilangan tempatnya. localStorage akan melompati
+   perkenalan itu berbulan-bulan kemudian, saat konteksnya sudah hilang. */
+const LAST_STAGE_KEY = "devx:last-stage";
+
+// Bisa melempar di mode privat / saat kuki situs diblokir - jangan sampai
+// menjatuhkan render hanya demi kenyamanan kecil.
+const readLastStage = () => {
+  try {
+    return sessionStorage.getItem(LAST_STAGE_KEY);
+  } catch {
+    return null;
+  }
+};
+
+const writeLastStage = (id) => {
+  try {
+    sessionStorage.setItem(LAST_STAGE_KEY, id);
+  } catch {
+    /* diabaikan dengan sengaja */
+  }
+};
+
 export const TitleScreen = () => {
-  const [selected, setSelected] = useState(0);
-  const [entering, setEntering] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const reducedMotion = useReducedMotion();
+
+  /* Pilihan awal = stage yang barusan ditinggalkan.
+
+     Dua sumber, karena ada dua cara pulang. Tombol MENU mengirim asalnya lewat
+     state navigasi; gestur back sistem tidak - ia memulihkan entri riwayat "/"
+     yang state-nya memang kosong sejak awal. Di HP justru gestur itu yang
+     paling sering dipakai, jadi sandaran sessionStorage-nya bukan pelengkap:
+     dialah yang menangani kasus yang dikeluhkan.
+
+     Tidak ketemu -> 0, yang juga berlaku untuk kunjungan pertama. */
+  const [selected, setSelected] = useState(() => {
+    const id = location.state?.fromStage ?? readLastStage();
+    const at = stages.findIndex((s) => s.id === id);
+    return at < 0 ? 0 : at;
+  });
+  const [entering, setEntering] = useState(false);
+
+  /* Berhenti berputar begitu pengunjung memilih sendiri - lewat ketukan, hover,
+     fokus, atau papan ketik. Setelah ada niat yang jelas, teks yang berganti
+     sendiri berubah dari "hidup" jadi "mengganggu". */
+  const [locked, setLocked] = useState(false);
+
+  /* Perputaran otomatis HANYA kalau tidak ada penunjuk presisi. Di sana hover
+     tidak pernah terjadi, jadi kotak dialog tidak punya cara lain untuk
+     berganti - ketukan langsung masuk ke stage, bukan memilih.
+
+     Dimatikan saat prefers-reduced-motion: teks yang berganti sendiri termasuk
+     yang dihindari pengaturan itu. */
+  const autoCycle = useMediaQuery("(pointer: coarse)") && !reducedMotion;
 
   const activeStage = stages[selected];
   const typed = useTypewriter(activeStage.desc, 18);
   const dialogue = reducedMotion ? activeStage.desc : typed;
 
+  // Dipakai semua jalur pemilihan manual, jadi penguncian tidak bisa terlewat.
+  const chooseStage = useCallback((index) => {
+    setSelected(index);
+    setLocked(true);
+  }, []);
+
   const enterStage = useCallback(
     (index) => {
       if (entering) return;
-      setSelected(index);
+      chooseStage(index);
+      writeLastStage(stages[index].id);
       setEntering(true);
     },
-    [entering]
+    [entering, chooseStage]
   );
+
+  useEffect(() => {
+    if (!autoCycle || locked || entering) return;
+    const timer = setInterval(
+      () => setSelected((prev) => (prev + 1) % stages.length),
+      CYCLE_MS
+    );
+    return () => clearInterval(timer);
+  }, [autoCycle, locked, entering]);
 
   useEffect(() => {
     if (!entering) return;
@@ -43,10 +119,10 @@ export const TitleScreen = () => {
 
       if (e.key === "ArrowDown") {
         e.preventDefault();
-        setSelected((prev) => (prev + 1) % stages.length);
+        chooseStage((selected + 1) % stages.length);
       } else if (e.key === "ArrowUp") {
         e.preventDefault();
-        setSelected((prev) => (prev - 1 + stages.length) % stages.length);
+        chooseStage((selected - 1 + stages.length) % stages.length);
       } else if (e.key === "Enter") {
         e.preventDefault();
         enterStage(selected);
@@ -54,14 +130,14 @@ export const TitleScreen = () => {
         const index = Number(e.key) - 1;
         if (index < stages.length) {
           e.preventDefault();
-          setSelected(index);
+          chooseStage(index);
         }
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selected, entering, enterStage]);
+  }, [selected, entering, enterStage, chooseStage]);
 
   return (
     <div
@@ -115,7 +191,7 @@ export const TitleScreen = () => {
             <StageList
               selected={selected}
               entering={entering}
-              onSelect={(i) => !entering && setSelected(i)}
+              onSelect={(i) => !entering && chooseStage(i)}
               onEnter={enterStage}
             />
 

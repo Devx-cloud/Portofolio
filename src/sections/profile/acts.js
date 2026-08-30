@@ -1,6 +1,3 @@
-import { FaLaravel, FaReact } from "react-icons/fa";
-import { SiFlutter } from "react-icons/si";
-
 /* Lima babak: Data Diri -> Skills -> Projects -> Ask AI -> Contact.
    `range` = rentang opacity panelnya terhadap scrollYProgress, `snap` = titik
    plateau untuk navigasi keyboard & klik HUD. */
@@ -17,16 +14,3 @@ export const SNAP_POINTS = ACTS.map((act) => act.snap);
 /* Ambang pergantian babak aktif - sedikit lebih awal dari plateau-nya supaya
    HUD berganti tepat saat panelnya mulai terbaca. */
 export const ACT_THRESHOLDS = [0.19, 0.39, 0.59, 0.79];
-
-/* Ikon disimpan sebagai KOMPONEN, bukan elemen jadi, supaya class-nya bisa
-   ditentukan di tempat ia dirender. */
-export const focusStack = [
-  { name: "Laravel", Icon: FaLaravel },
-  { name: "Flutter", Icon: SiFlutter },
-  { name: "React", Icon: FaReact },
-];
-
-export const projectTeasers = [
-  { name: "Loka Pura", desc: "platform AI yang menghidupkan arsitektur pura Bali" },
-  { name: "Hand Gesture", desc: "deteksi gestur tangan real-time berbasis computer vision" },
-];

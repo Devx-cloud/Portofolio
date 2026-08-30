@@ -30,16 +30,6 @@ export const ActText = ({ children }) => (
   <p className="text-[13px] md:text-sm leading-relaxed text-foreground/80">{children}</p>
 );
 
-export const StatRow = ({ icon: Icon, label, children }) => (
-  <div className="flex items-start gap-3">
-    <Icon className="mt-1 h-4 w-4 shrink-0 stage-text" />
-    <span className="pixel-font w-14 shrink-0 text-pix-xs uppercase text-foreground/70">
-      {label}
-    </span>
-    <span className="min-w-0 text-xs md:text-sm text-foreground/90">{children}</span>
-  </div>
-);
-
 /* Tombol "buka stage" - dipakai empat dari lima babak. */
 export const ActLink = ({ to, children }) => (
   <Link to={to} className={actionClass}>
