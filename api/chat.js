@@ -92,16 +92,24 @@ export default async function handler(req, res) {
     return res.status(500).json({ message: 'Konfigurasi server belum lengkap (API key hilang).' });
   }
 
-  const systemInstruction = `
-    ${profileData.pesan_sistem}
+  /* Seluruh data profil dikirim sebagai JSON, bukan dirangkai jadi beberapa
+     baris pilihan.
 
-    Informasi Profil:
-    Nama: ${profileData.nama}
-    Profesi: ${profileData.profesi}
-    Keahlian: ${profileData.keahlian_utama.join(', ')}
-    Tentang: ${profileData.tentang}
-    Kontak/Resume: ${profileData.kontak.resume}
-  `;
+     Versi sebelumnya hanya menyalin lima field (nama, profesi, keahlian,
+     tentang, resume), jadi proyek, alamat email, dan lokasi TIDAK pernah
+     sampai ke model - asisten dengan jujur menjawab "tidak punya informasi"
+     tentang hal-hal yang sebenarnya ada di api/profile.js. Menambah field baru
+     di sana sekarang otomatis ikut terkirim.
+
+     pesan_sistem dikeluarkan dari JSON-nya karena ia instruksi, bukan data;
+     membiarkannya di dalam membuat model memperlakukan aturannya sendiri
+     sebagai fakta yang boleh dibacakan kalau ditanya. */
+  const { pesan_sistem, ...facts } = profileData;
+
+  const systemInstruction = `${pesan_sistem}
+
+Data profil (JSON):
+${JSON.stringify(facts, null, 2)}`;
 
   try {
     const ai = new GoogleGenAI({ apiKey });

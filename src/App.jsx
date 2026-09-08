@@ -1,61 +1,70 @@
-import { useEffect, useRef, useState } from "react";
-import { Route, Routes, useLocation } from "react-router-dom";
-import { AnimatePresence, motion } from "framer-motion";
-import { TitleScreen } from "./pages/title-screen/TitleScreen";
-import { StagePage } from "./pages/StagePage";
-import { NotFound } from "./pages/NotFound";
-import { StarBackground } from "./components/backgrounds/StarBackground";
-import { CursorTracker } from "./components/CursorTracker";
-import { PageWipe } from "./components/PageWipe";
-import { stages } from "./data/stages";
+import { SmoothScroll } from "@/components/SmoothScroll";
+import { Intro } from "@/components/Intro";
+import { Masthead } from "@/components/Masthead";
+import { ScrollRail } from "@/components/ScrollRail";
+import { Cursor } from "@/components/Cursor";
+import { Grain } from "@/components/Grain";
+import { Footer } from "@/components/Footer";
+import { Hero } from "@/sections/Hero";
+import { About } from "@/sections/About";
+import { Skills } from "@/sections/Skills";
+import { Work } from "@/sections/Work";
+import { Ask } from "@/sections/Ask";
+import { Contact } from "@/sections/Contact";
 
-/* Halaman ini punya langitnya sendiri - jangan tumpuk background global. */
-const SELF_LIT_ROUTES = ["/", "/profile"];
-
+/*
+ * Seluruh situs: satu halaman, satu gulungan, tanpa router.
+ *
+ * Versi sebelumnya memecah isi ini jadi enam route dengan menu pemilih stage.
+ * Yang hilang saat menu dibuang cuma satu - kemampuan melompat - dan itu
+ * ditukar dengan sesuatu yang lebih berharga di portofolio: urutan yang
+ * dijamin. Semua orang membaca bagian yang sama dalam urutan yang sama, jadi
+ * setiap bagian boleh mengandalkan apa yang sudah dibaca sebelumnya.
+ *
+ * Yang TIDAK boleh ikut hilang bersama menunya adalah orientasi. Gulungan
+ * panjang tanpa penanda membuat pengunjung kehilangan rasa "ada di mana" dan
+ * "masih berapa lagi"; itu ditangani ScrollRail, yang sengaja tidak bisa
+ * diklik supaya tidak berubah jadi menu.
+ *
+ * Urutan komponen di bawah = urutan lapisan (tidak ada z-index yang saling
+ * berebut karena semuanya sudah dinyatakan eksplisit di komponennya):
+ *   Intro   z-100  tirai pembuka, sekali per sesi
+ *   Grain   z-9999 butiran di atas segalanya, tidak pernah menangkap klik
+ *   Cursor  z-9998 tepat di bawah butiran supaya ikut terkena teksturnya
+ *   Masthead/Rail z-50/40  di atas konten, di bawah tirai
+ */
 function App() {
-  const location = useLocation();
-  const hasOwnBackdrop = SELF_LIT_ROUTES.includes(location.pathname);
-
-  const isFirstRender = useRef(true);
-  const [wipeKey, setWipeKey] = useState(null);
-
-  /* Wipe hanya dipicu saat pindah halaman, bukan saat load pertama. */
-  useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
-    setWipeKey(`${location.pathname}-${Date.now()}`);
-    window.scrollTo(0, 0);
-  }, [location.pathname]);
-
   return (
     <>
-      {!hasOwnBackdrop && <StarBackground />}
+      {/* Lewati langsung ke konten. Tersembunyi sampai difokus lewat Tab -
+          pengguna keyboard kalau tidak harus melewati bar identitas di tiap
+          kali menekan Tab dari awal halaman. */}
+      <a
+        href="#konten"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:border focus:border-line focus:bg-page focus:px-4 focus:py-3 focus:eyebrow focus:text-ink"
+      >
+        Langsung ke konten
+      </a>
 
-      {/* Crossfade route: sengaja opacity saja. transform/filter di sini akan
-          membuat containing block baru dan merusak position:fixed & sticky. */}
-      <AnimatePresence mode="wait" initial={false}>
-        <motion.div
-          key={location.pathname}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.22, ease: "easeOut" }}
-        >
-          <Routes location={location}>
-            <Route index element={<TitleScreen />} />
-            {stages.map((stage) => (
-              <Route key={stage.id} path={stage.path} element={<StagePage stageId={stage.id} />} />
-            ))}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </motion.div>
-      </AnimatePresence>
+      <SmoothScroll />
+      <Intro />
 
-      <CursorTracker />
+      <Masthead />
+      <ScrollRail />
 
-      {wipeKey && <PageWipe key={wipeKey} />}
+      <main id="konten">
+        <Hero />
+        <About />
+        <Skills />
+        <Work />
+        <Ask />
+        <Contact />
+      </main>
+
+      <Footer />
+
+      <Cursor />
+      <Grain />
     </>
   );
 }

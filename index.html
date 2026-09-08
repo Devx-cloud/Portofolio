@@ -1,15 +1,62 @@
 <!doctype html>
-<html lang="en">
+<html lang="id">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- Siluet kota Title Screen: cat pertama di route "/", yaitu pintu masuk
-         situs ini. Tanpa preload ia baru ditemukan setelah bundel JS diurai dan
-         React merender - satu perjalanan bolak-balik penuh setelah HTML tiba. -->
-    <link rel="preload" as="image" href="/menu-bg.webp" fetchpriority="high" />
-    <title>Vite + React</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <title>Deva Surya — Web &amp; Mobile Developer</title>
+    <meta
+      name="description"
+      content="Portofolio Deva Surya, web & mobile developer dari Tabanan, Bali. Membangun aplikasi web dengan Laravel dan aplikasi mobile dengan Flutter."
+    />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Deva Surya — Web & Mobile Developer" />
+    <meta
+      property="og:description"
+      content="Membangun aplikasi web dengan Laravel dan aplikasi mobile dengan Flutter. Berbasis di Tabanan, Bali."
+    />
+
+    <!-- Warna bar browser di Android/iOS, satu per tema. Nilainya harus sama
+         persis dengan --c-page di src/index.css, kalau tidak akan terlihat
+         jahitan di tepi atas layar. -->
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0A0A0A" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#FAF7F1" />
+
+    <!--
+      Tema ditetapkan SEBELUM CSS dimuat dan sebelum React hidup.
+
+      Ini harus skrip inline yang memblokir di <head>: kalau temanya baru
+      dipasang setelah React ter-hidrasi, pengunjung yang memilih tema terang
+      akan melihat satu kedipan hitam penuh dulu di tiap kali membuka halaman.
+      Memindahkannya ke berkas eksternal atau memberinya defer/async
+      mengembalikan kedipan itu.
+
+      Sengaja tidak memakai variabel/impor apa pun supaya bisa berdiri sendiri
+      tanpa bundler. Pasangannya di sisi React ada di src/hooks/useTheme.js,
+      yang MEMBACA atribut ini dan tidak pernah menebak sendiri.
+    -->
+    <script>
+      (function () {
+        var el = document.documentElement;
+        try {
+          var saved = localStorage.getItem("tema");
+          if (saved === "light" || saved === "dark") {
+            el.dataset.theme = saved;
+            return;
+          }
+          el.dataset.theme = window.matchMedia("(prefers-color-scheme: light)").matches
+            ? "light"
+            : "dark";
+        } catch (e) {
+          /* localStorage diblokir (mode penyamaran / pengaturan privasi ketat).
+             Jatuh ke tema gelap - itu default desainnya. */
+          el.dataset.theme = "dark";
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
-import path from "path";
+import { fileURLToPath } from "node:url";
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -9,7 +9,11 @@ export default defineConfig({
   base: "/",
   resolve: {
     alias: {
-      "@" : path.resolve(__dirname, "./src"),
+      /* __dirname tidak ada di modul ESM, dan berkas ini ESM ("type":
+         "module" di package.json). fileURLToPath adalah penggantinya yang
+         benar - new URL(...).pathname saja menghasilkan "/C:/..." di Windows
+         dan alias-nya gagal diselesaikan. */
+      "@": fileURLToPath(new URL("./src", import.meta.url)),
     }
   }
 })
