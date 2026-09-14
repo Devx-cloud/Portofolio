@@ -615,51 +615,43 @@
   }
 }
 
-/* ---------- Peneduh panel babak ---------- */
+/* ---------- Peneduh sisi kanan Title Screen ---------- */
 
-/* Panel babak berdiri di depan pelat kota yang penuh jendela merah terang, dan
-   bingkainya juga merah pada kecerahan yang mirip. Akibatnya tepi panel lebur ke
-   dalam latar dan mata tidak punya pegangan untuk mulai membaca - pengunjung
-   yang baru pertama masuk tidak tahu harus melihat ke mana.
+/* Masalahnya sama dengan act-scrim - kolom kanan berisi potret dan kotak dialog
+   berbingkai merah, berdiri di depan kota yang penuh jendela merah pada
+   kecerahan mirip, jadi tepinya lebur - tapi ANGKANYA tidak bisa dipinjam.
+   act-scrim diturunkan dari geometri panggung Profile; di sini geometrinya
+   ditentukan oleh baris menu.
 
-   Ini kegagalan figure/ground, dan yang perlu diperbaiki LATARNYA. Menggelapkan
-   sisi tempat panel berdiri mengembalikan pemisahan itu tanpa menyentuh panel
-   maupun paletnya - kotanya tetap terlihat, yang hilang cuma kilau jendela yang
-   bersaing dengan teks.
+   Turunan angkanya, dari max-w-5xl (1024px) dengan menu w-80 di kiri dan kolom
+   potret w-96 di kanan:
 
-   Gradien, bukan blok rata: tepi keras di tengah panggung akan terbaca sebagai
-   panel kedua yang tidak ada isinya. */
-@utility act-scrim {
-  /* Di layar sempit panel memenuhi lebar, jadi yang perlu diteduhkan cuma pita
-     tempat panel berdiri.
+     lebar layar   menu berakhir   kolom kanan mulai
+        1280px         35,0%             60,0%
+        1440px         36,7%             58,9%
+        1920px         40,0%             56,7%
+        2560px         42,5%             55,0%
 
-     Batas 70% bukan angka kira-kira. Garis tanah di HP jatuh di 85% tinggi
-     panggung (--ground diturunkan dari --city-w, lihat STAGE_VARS), dan sprite
-     setinggi 84px menaruh kepala karakter di 74,5%. Peneduh harus sudah habis
-     sebelum itu - versi pertama pekat sampai 86% dan menelan karakter beserta
-     seluruh jalan, menyisakan rongga hitam yang justru membuat karakternya
-     terlihat menempel di atas kekosongan.
+   Karena itu bening SAMPAI 44%: di lebar berapa pun, peneduhnya belum mulai
+   ketika menu berakhir. Versi pertama memakai nilai act-scrim yang sudah
+   setengah pekat di 40% - ia menggelapkan latar di belakang menu, dan itulah
+   yang terbaca sebagai "gelapnya terlalu ke kiri".
 
-     Pekatnya juga diturunkan dari 0,78: di layar sempit panel hampir memenuhi
-     lebar, jadi latar yang bersaing dengannya jauh lebih sedikit daripada di
-     desktop dan tidak perlu ditekan sekeras itu. */
+   Pekat puncaknya 0,45, bukan 0,86 seperti act-scrim. Di panggung Profile yang
+   diteduhkan adalah latar di belakang panel teks yang harus dibaca lama; di
+   sini yang berdiri adalah potret yang justru ingin terlihat, dan kotanya
+   bagian dari komposisi. Cukup untuk memisahkan, tidak sampai menghapus.
+
+   md, bukan sm: tata letak dua kolomnya baru terbentuk di md (lihat md:flex-row
+   di TitleScreen). Di bawah itu isinya satu kolom di tengah, dan gradien
+   mendatar hanya akan menggelapkan separuh kanannya tanpa alasan. */
+@utility menu-scrim {
   background: linear-gradient(
-    to bottom,
-    transparent 0%,
-    hsl(var(--pit) / 0.58) 10%,
-    hsl(var(--pit) / 0.58) 58%,
-    transparent 70%
+    to right,
+    transparent 44%,
+    hsl(var(--pit) / 0.2) 60%,
+    hsl(var(--pit) / 0.45) 80%
   );
-
-  /* Dari sm ke atas panel berdiri di kanan - lihat panelWrap di constants.js. */
-  @media (width >= 40rem) {
-    background: linear-gradient(
-      to right,
-      transparent 12%,
-      hsl(var(--pit) / 0.5) 40%,
-      hsl(var(--pit) / 0.86) 66%
-    );
-  }
 }
 
 /* ---------- Slot yang bisa diangkat ---------- */
@@ -746,6 +738,75 @@
    pikselnya jadi tidak sama lebar. */
 @utility sprite {
   image-rendering: pixelated;
+}
+
+/* Jari-jari lensa pixel. Didaftarkan lewat @property karena custom property
+   biasa tidak punya tipe - browser memperlakukannya sebagai teks dan
+   melompat dari 0px ke nilai penuh tanpa bisa ditransisikan. Dengan syntax
+   <length> ia jadi nilai teranimasi sungguhan, jadi lensanya MEMBUKA, bukan
+   muncul mendadak. inherits:false supaya tiap layer memegang nilainya sendiri. */
+@property --lens {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+/* Lensa pixel: menyingkap layer pixel art HANYA di sekitar kursor.
+
+   Yang bergerak cuma titik pusat mask - dua custom property yang ditulis
+   langsung ke node lewat JS, jadi mengikuti kursor tidak pernah menyentuh
+   React sama sekali. Tanpa itu tiap gerak mouse akan me-render ulang pohon
+   komponen puluhan kali per detik.
+
+   --mx/--my SENGAJA tidak didaftarkan di @property: keduanya harus diwarisi
+   dari pembungkus tempat JS menulis, dan custom property biasa memang
+   diwarisi secara default. Yang didaftarkan hanya --lens, yang justru tidak
+   boleh diwarisi. */
+@utility pix-lens {
+  --lens: 0px;
+  --mask: radial-gradient(
+    circle var(--lens) at var(--mx, 50%) var(--my, 38%),
+    #000 62%,
+    transparent 100%
+  );
+  -webkit-mask-image: var(--mask);
+  mask-image: var(--mask);
+  transition: --lens 0.12s var(--ease-pix);
+}
+
+/* Cahaya untuk gambar BERALPHA - pendar, bukan garis.
+
+   Versi pertama menggambar cincin aksen 2px mengikuti siluet. Di ruang kosong
+   itu kelihatan rapi; di atas siluet kota ia terbaca sebagai STIKER yang
+   ditempel - garis keras memotong subjek dari sceneny dan meratakannya jadi
+   potongan datar. Yang menyatukan orang dengan sebuah tempat bukan garis,
+   melainkan cahaya yang sama-sama mengenai keduanya.
+
+   drop-shadow tetap dipakai karena ia satu-satunya cara menyinari SILUET, bukan
+   kotak - tapi kali ini dengan blur, dua lapis: satu rapat sebagai inti, satu
+   lebar sebagai ekor. Satu lapis saja jatuh jadi kabut rata tanpa arah.
+
+   Blur di sini melanggar aturan rumah dengan sengaja, dan batasnya jelas: yang
+   menerima cahaya lembut hanya FOTO-nya. Dia memang foto, bukan sprite, jadi ia
+   boleh disinari seperti foto. Semua chrome pixel di sekitarnya - bingkai, chip,
+   kota - tetap bertepi keras.
+
+   Pendarnya TETAP - tidak naik saat hover, dan tidak ada transisi di sini.
+   Hover pada potret ini cuma boleh mengubah satu hal, yaitu lensa pixel-nya;
+   pendar yang ikut menyala menarik mata ke tepi subjek justru pada detik ketika
+   yang menarik ada di tengah, di bawah kursor. Dua perubahan bersamaan bukan
+   dua kali lebih kuat, ia saling melemahkan.
+
+   Nilainya juga tidak nol. Tanpa pendar sedikit pun subjeknya melayang tanpa
+   ikatan ke latar; dengan pendar ini ia terbaca berdiri DI DALAM kota.
+
+   Tetap lewat custom property meski nilainya tidak berubah, supaya warnanya
+   ikut --stage-accent dan hanya ditulis sekali untuk kedua lapis drop-shadow. */
+@utility sprite-cast {
+  --bloom: hsl(var(--stage-accent, var(--primary)) / 0.4);
+  filter:
+    drop-shadow(0 0 14px var(--bloom))
+    drop-shadow(0 0 42px var(--bloom));
 }
 
 /* ---------- Aksen per stage ---------- */

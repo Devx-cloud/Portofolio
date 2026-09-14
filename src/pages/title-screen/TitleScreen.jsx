@@ -163,6 +163,19 @@ export const TitleScreen = () => {
         </div>
       )}
 
+      {/* Peneduh sisi kanan. Masalahnya sama dengan act-scrim di panggung
+          Profile - kolom kanan berisi potret dan kotak dialog berbingkai merah
+          yang berdiri di depan kota penuh jendela merah, jadi tepinya lebur -
+          tapi angkanya diturunkan dari baris menu di layar INI, bukan dari
+          geometri panggung sana. Catatan turunannya ada di menu-scrim.
+
+          z-[4] menaruhnya di atas kota dan kunang-kunang tapi di bawah konten:
+          yang diteduhkan LATARNYA, bukan menu atau kotak dialognya. */}
+      <div
+        aria-hidden="true"
+        className="menu-scrim pointer-events-none absolute inset-0 z-[4] hidden md:block"
+      />
+
       {/* h-dvh (bukan min-h-screen) supaya tingginya PASTI, bukan sekadar minimum -
           overflow-y-auto baru jadi scroll beneran kalau ada batas tinggi yang
           jelas. Tanpa ini kelebihannya kepotong diam-diam oleh overflow-hidden
