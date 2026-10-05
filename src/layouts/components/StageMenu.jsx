@@ -1,21 +1,21 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { stages } from "@/data/stages";
+import { preloadStage, stages } from "@/data/stages";
 import { cn } from "@/lib/utils";
 
 /*
  * Pemilih stage di bar atas.
  *
  * Menggantikan panah antar-stage yang dulu ada di sini: di Profile, panah
- * bertabrakan makna dengan HUD babak - bar menunjuk "Skills" sebagai STAGE
- * berikutnya sementara HUD menunjuk "02 SKILLS" sebagai BABAK berikutnya. Daftar
+ * bertabrakan makna dengan HUD babak - bar menunjuk "Experience" sebagai STAGE
+ * berikutnya sementara HUD menunjuk "02 EXPERIENCE" sebagai BABAK berikutnya. Daftar
  * yang dibuka atas permintaan tidak menjanjikan urutan apa pun.
  *
  * Isinya dibaca dari stages.js: menambah stage cukup di satu tempat.
  */
 
 const itemBase =
-  "flex w-full items-center gap-2 px-3 py-2 pixel-font text-pix-xs uppercase " +
+  "flex w-full items-center gap-2 px-3 py-2 pixel-font text-pix-sm uppercase " +
   "transition-colors duration-100 ease-pix focus-visible:outline-2 " +
   "focus-visible:-outline-offset-2 focus-visible:outline-[hsl(var(--stage-accent))]";
 
@@ -81,7 +81,7 @@ export const StageMenu = ({ currentId }) => {
         aria-label="Pindah stage"
         onClick={() => setOpen((v) => !v)}
         className={cn(
-          "pix-chip flex items-center gap-2 px-3 py-2 pixel-font text-pix-xs uppercase",
+          "pix-chip flex items-center gap-2 px-3 py-2 pixel-font text-pix-sm uppercase",
           "transition-all duration-100 ease-pix focus-visible:outline-2",
           "focus-visible:outline-offset-2 focus-visible:outline-[hsl(var(--stage-accent))]",
           open
@@ -114,6 +114,9 @@ export const StageMenu = ({ currentId }) => {
                 role="menuitem"
                 aria-current={isCurrent ? "page" : undefined}
                 ref={(el) => (itemsRef.current[i] = el)}
+                // Mulai mengunduh stage begitu disorot - waktu sampai klik cukup untuk chunk-nya.
+                onPointerEnter={() => preloadStage(stage.id)}
+                onFocus={() => preloadStage(stage.id)}
                 onClick={() => close(false)}
                 className={cn(
                   itemBase,

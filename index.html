@@ -1,24 +1,77 @@
 <!doctype html>
-<html lang="en">
+<html lang="id">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- Siluet kota Title Screen: cat pertama di route "/", yaitu pintu masuk
-         situs ini. Tanpa preload ia baru ditemukan setelah bundel JS diurai dan
-         React merender - satu perjalanan bolak-balik penuh setelah HTML tiba. -->
-    <link rel="preload" as="image" href="/menu-bg.webp" fetchpriority="high" />
+    <title>Deva Surya · Web &amp; Mobile Developer | Portofolio</title>
+    <meta
+      name="description"
+      content="Portofolio Deva Surya, web dan mobile developer (Laravel, Flutter, React) dari Bali. Jelajahi profil, skill, dan proyeknya lewat antarmuka bergaya game pixel, atau tanya langsung asisten AI-nya."
+    />
+    <meta name="author" content="Deva Surya" />
+    <meta name="theme-color" content="#0b0d18" />
+    <meta name="color-scheme" content="dark" />
 
-    <!-- Potret Title Screen: satu-satunya foto sungguhan di layar pertama, jadi
-         ia yang paling kelihatan kalau datang terlambat. media= dipasang karena
-         di bawah 768px potretnya memang tidak dirender sama sekali - tanpa itu
-         HP mengunduh aset yang tidak akan pernah dipakainya. -->
-    <link rel="preload" as="image" href="/me.webp" media="(min-width: 768px)" />
-    <title>Vite + React</title>
+    <!-- Kartu pratinjau saat tautan dibagikan (WhatsApp, LinkedIn, X, Slack).
+         og:url, og:image, twitter:image, dan canonical WAJIB beralamat absolut, jadi
+         disuntik saat build oleh plugin site-meta di vite.config.js - alamat
+         produksinya baru diketahui di sana (lihat siteUrl). -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Dev_X · Deva Surya" />
+    <meta property="og:locale" content="id_ID" />
+    <meta property="og:title" content="Deva Surya · Web &amp; Mobile Developer" />
+    <meta
+      property="og:description"
+      content="Portofolio bergaya game pixel: profil, skill, proyek, dan asisten AI. Laravel, Flutter, React."
+    />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Dev_X - portofolio Deva Surya: siluet kota malam bergaya pixel art dan potret Deva." />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Deva Surya · Web &amp; Mobile Developer" />
+    <meta
+      name="twitter:description"
+      content="Portofolio bergaya game pixel: profil, skill, proyek, dan asisten AI. Laravel, Flutter, React."
+    />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    <!-- Preload aset Title Screen, dipasang lewat skrip HANYA di route "/".
+         Sebelumnya berupa <link> statis, yang berarti SETIAP rute mengunduh
+         menu-bg.webp (746 KB) - terukur: /contact tidak memuat apa pun selain
+         gambar itu, dan tidak pernah memakainya. Alamat yang dibagikan (mis.
+         /experience) justru pintu masuk yang paling sering.
+
+         Untuk "/": siluet kota adalah cat pertama layar itu; tanpa preload ia baru
+         ditemukan setelah bundel JS diurai dan React merender - satu perjalanan
+         bolak-balik penuh setelah HTML tiba. Potretnya satu-satunya foto sungguhan
+         di layar pertama, jadi yang paling kelihatan kalau datang terlambat;
+         media= dipasang karena di bawah 768px potretnya memang tidak dirender
+         sama sekali, dan HP tidak perlu mengunduh aset yang tak akan dipakainya. -->
+    <script>
+      (function () {
+        if (location.pathname !== "/") return;
+        [
+          ["/menu-bg.webp", null],
+          ["/me.webp", "(min-width: 768px)"],
+        ].forEach(function (item) {
+          var link = document.createElement("link");
+          link.rel = "preload";
+          link.as = "image";
+          link.href = item[0];
+          link.setAttribute("fetchpriority", "high");
+          if (item[1]) link.media = item[1];
+          document.head.appendChild(link);
+        });
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
+    <noscript>Portofolio ini membutuhkan JavaScript untuk berjalan. Aktifkan JavaScript lalu muat ulang halaman.</noscript>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { stages } from "@/data/stages";
+import { preloadStage, stages } from "@/data/stages";
 import { Fireflies } from "@/components/backgrounds/Fireflies";
 import { StarBackground } from "@/components/backgrounds/StarBackground";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import { useMediaQuery, useReducedMotion } from "@/hooks/useMediaQuery";
 import { useTypewriter } from "@/hooks/useTypewriter";
 import { cn } from "@/lib/utils";
@@ -21,7 +22,7 @@ const ENTER_DELAY = 260;
 const CYCLE_MS = 5000;
 
 /* sessionStorage, BUKAN localStorage. Umurnya satu tab: pengunjung yang baru
-   datang tetap mendarat di 01/05 dan membaca perkenalannya, sementara yang
+   datang tetap mendarat di 01 dan membaca perkenalannya, sementara yang
    sedang menjelajah tidak kehilangan tempatnya. localStorage akan melompati
    perkenalan itu berbulan-bulan kemudian, saat konteksnya sudah hilang. */
 const LAST_STAGE_KEY = "devx:last-stage";
@@ -45,6 +46,7 @@ const writeLastStage = (id) => {
 };
 
 export const TitleScreen = () => {
+  useDocumentTitle("Deva Surya · Web & Mobile Developer | Portofolio");
   const navigate = useNavigate();
   const location = useLocation();
   const reducedMotion = useReducedMotion();
@@ -82,10 +84,14 @@ export const TitleScreen = () => {
   const typed = useTypewriter(activeStage.desc, 18);
   const dialogue = reducedMotion ? activeStage.desc : typed;
 
-  // Dipakai semua jalur pemilihan manual, jadi penguncian tidak bisa terlewat.
+  /* Dipakai semua jalur pemilihan manual, jadi penguncian tidak bisa terlewat.
+     Menyorot sebuah stage juga mulai mengunduh chunk-nya: stage dimuat saat
+     dibutuhkan, dan jeda antara menyorot dan menekan Enter sudah cukup panjang
+     untuk chunk sekecil itu - masuk stage terasa seketika. */
   const chooseStage = useCallback((index) => {
     setSelected(index);
     setLocked(true);
+    preloadStage(stages[index].id);
   }, []);
 
   const enterStage = useCallback(
@@ -97,6 +103,20 @@ export const TitleScreen = () => {
     },
     [entering, chooseStage]
   );
+
+  /* Pilihan awal (hampir selalu Profile) diunduh saat peramban menganggur, tanpa
+     menunggu pengunjung menyorot apa pun. Dilewati bila pengunjung menghemat
+     data - mengunduh sesuatu yang belum tentu dibuka bukan haknya kita. */
+  useEffect(() => {
+    if (navigator.connection?.saveData) return;
+    const id = stages[selected].id;
+    const idle = window.requestIdleCallback ?? ((cb) => setTimeout(cb, 400));
+    const cancel = window.cancelIdleCallback ?? clearTimeout;
+    const handle = idle(() => preloadStage(id));
+    return () => cancel(handle);
+    // Sekali saat dibuka: pindah pilihan sudah ditangani chooseStage.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (!autoCycle || locked || entering) return;
@@ -116,6 +136,8 @@ export const TitleScreen = () => {
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (entering) return;
+      // Ctrl/Alt/Meta + angka = ganti tab, Alt+panah = Back/Forward: milik peramban.
+      if (e.altKey || e.ctrlKey || e.metaKey) return;
 
       if (e.key === "ArrowDown") {
         e.preventDefault();
@@ -193,12 +215,16 @@ export const TitleScreen = () => {
               <span className="text-glow text-foreground">Dev</span>
               <span className="text-primary">_X</span>
             </h1>
-            <p className="pixel-font mt-2 text-pix-xs uppercase tracking-[4px] text-muted-foreground">
+            <p className="pixel-font mt-2 text-pix-sm uppercase tracking-[3px] text-muted-foreground">
               Portofolio &middot; Deva Surya
             </p>
 
-            <p className="pixel-font stage-text-bright mt-7 mb-4 animate-blink text-pix-xs md:text-xs">
-              PRESS ENTER TO SELECT
+            {/* Dua teks, dipilih CSS lewat jenis penunjuk utama - bukan JS, supaya tidak
+                ada kedipan teks yang salah di frame pertama. Layar sentuh tidak punya
+                tombol Enter. */}
+            <p className="pixel-font stage-text-bright mt-7 mb-4 animate-blink text-pix-sm">
+              <span className="pointer-coarse:hidden">PRESS ENTER TO SELECT</span>
+              <span className="hidden pointer-coarse:inline">TAP TO SELECT</span>
             </p>
 
             <StageList
@@ -208,8 +234,11 @@ export const TitleScreen = () => {
               onEnter={enterStage}
             />
 
-            <p className="pixel-font mt-7 text-pix-xs leading-relaxed text-faint">
-              ↑↓ Pilih &nbsp;·&nbsp; Enter Masuk &nbsp;·&nbsp; 1-5 Lompat
+            {/* max-w-80 = lebar menu: tanpanya baris ini melebar dan mendorong kolom
+                menu lebih lebar dari w-80. Disembunyikan di layar sentuh, yang tidak
+                punya panah maupun tombol angka. */}
+            <p className="pixel-font mt-7 max-w-80 text-pix-sm leading-relaxed text-faint pointer-coarse:hidden">
+              ↑↓ Pilih &nbsp;·&nbsp; Enter Masuk &nbsp;·&nbsp; 1-{stages.length} Lompat
             </p>
           </div>
 

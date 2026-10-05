@@ -32,11 +32,11 @@ export const ActHud = ({ activeIndex, onSelect, progressWidth }) => (
               aria-label={`Ke babak ${i + 1}: ${act.label}`}
               className={stepClass(isActive, activeIndex > i)}
             >
-              <span className={cn("pixel-font text-pix-xs md:text-pix-sm leading-tight", ink)}>
+              <span className={cn("pixel-font text-pix-sm leading-tight", ink)}>
                 {String(i + 1).padStart(2, "0")}
               </span>
               <span
-                className={cn("hidden truncate pixel-font text-pix-xs leading-tight sm:block", ink)}
+                className={cn("hidden truncate pixel-font text-pix-sm leading-tight sm:block", ink)}
               >
                 {act.label.toUpperCase()}
               </span>
@@ -49,8 +49,11 @@ export const ActHud = ({ activeIndex, onSelect, progressWidth }) => (
         <div className="h-3 flex-1 pix-inset">
           <motion.div style={{ width: progressWidth }} className="h-full stage-bg" />
         </div>
-        <p className="pixel-font shrink-0 text-pix-xs md:text-pix-sm text-foreground/70">
-          ← → PINDAH BABAK
+        {/* Panah keyboard tidak ada di layar sentuh - di sana yang berlaku adalah
+            menggulir, dan teksnya pun lebih pendek sehingga bilah progres lebih lega. */}
+        <p className="pixel-font shrink-0 text-pix-sm text-foreground/70">
+          <span className="pointer-coarse:hidden">← → PINDAH BABAK</span>
+          <span className="hidden pointer-coarse:inline">GULIR ▼</span>
         </p>
       </div>
     </div>

@@ -1,7 +1,12 @@
 import { ActLink, ActPanel, ActText, ActTitle } from "../ActPanel";
 
 export const ContactAct = ({ index }) => (
-  <ActPanel index={index} label="Contact" hint="end">
+  <ActPanel
+    index={index}
+    label="Contact"
+    hint="end"
+    action={<ActLink to="/contact">KIRIM PESAN</ActLink>}
+  >
     <ActTitle>
       Get In <span className="stage-text">Touch</span>
     </ActTitle>
@@ -9,7 +14,5 @@ export const ContactAct = ({ index }) => (
       Punya ide proyek, tawaran kerja, atau sekadar ingin berdiskusi soal teknologi? Saya selalu
       senang menerima pesan baru &mdash; jalur langsung dan form pesan ada di stage Contact.
     </ActText>
-
-    <ActLink to="/contact">KIRIM PESAN</ActLink>
   </ActPanel>
 );

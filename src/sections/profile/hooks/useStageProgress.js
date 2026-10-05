@@ -122,6 +122,21 @@ export const useStageProgress = (containerRef, reducedMotion) => {
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+
+      /* Panah polos saja. Alt+panah adalah Back/Forward peramban, dan Ctrl/Meta/
+         Shift+panah dipakai untuk lompat kata, memilih teks, dan pintasan sistem -
+         merebutnya membuat halaman ini tidak bisa ditinggalkan dengan tombol
+         Back dari keyboard (terukur: Alt+Kiri diblokir). Kolom isian juga
+         berhak atas panahnya sendiri. */
+      if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+      const focused = e.target;
+      if (
+        focused instanceof HTMLElement &&
+        (focused.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(focused.tagName))
+      ) {
+        return;
+      }
+
       e.preventDefault();
 
       const forward = e.key === "ArrowRight";

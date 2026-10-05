@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+/* Panggung scroll stage Experience. WAJIB sama dengan SCROLLY_QUERY di
+   src/sections/experience/constants.js - alasannya ditulis di sana. */
+@custom-variant scrolly (@media (min-width: 1024px) and (min-height: 680px));
+
 /* =========================================================
    PIXEL WORLD
    Chrome-nya dunia game, kontennya dokumen profesional.
@@ -202,7 +206,12 @@
     --surface: 231 30% 11%;
     --raised: 230 26% 17%;
     --border: 228 20% 30%;
-    --faint: 226 14% 44%;
+    /* Dinaikkan dari 44% ke 54%: pada 44% teks kecil (petunjuk tombol, footer,
+       label papan yang masih terkunci) cuma 3,5:1 di atas latar dan 3,2:1 di
+       atas panel - di bawah 4,5:1 yang dituntut WCAG AA. Pada 54% jadi 5,0:1 dan
+       4,6:1. Masih jelas lebih redup daripada --muted-foreground (70%), jadi
+       fungsinya sebagai "langkah paling pucat" di ramp tidak hilang. */
+    --faint: 226 14% 54%;
     --muted-foreground: 222 16% 70%;
     --foreground: 214 28% 95%;
 
@@ -334,22 +343,12 @@
     font-family: "PixelFontNull", monospace;
   }
 
+  /* Hanya yang memang hidup di layer ini. Kelas komponen (.stat-charge dan kawan-
+     kawan) tidak berlayer, dan CSS tanpa layer SELALU mengalahkan yang berlayer -
+     jadi pengecualian reduced-motion mereka ada di akhir berkas, bukan di sini. */
   @media (prefers-reduced-motion: reduce) {
     html {
       scroll-behavior: auto;
-    }
-
-    .tag-float,
-    .tag-reveal,
-    .project-reveal,
-    .project-image-reveal,
-    .project-gloss::after,
-    .page-wipe {
-      animation: none;
-    }
-
-    .page-wipe {
-      display: none;
     }
   }
 }
@@ -561,9 +560,13 @@
 }
 
 /* Satu-satunya blur yang diizinkan: lapisan latar yang menumpuk di atas
-   konten bergerak, tempat blur benar-benar menolong keterbacaan. */
+   konten bergerak, tempat blur benar-benar menolong keterbacaan.
+
+   Kepekatannya bisa disetel lewat --veil. 0,82 cukup untuk bar stage, yang
+   hampir selalu berdiri di depan panggung gelap. Satu-satunya pemakainya - tidak
+   ada lagi bilah menempel di tengah halaman yang perlu ditebalkan. */
 @utility pix-veil {
-  background-color: hsl(var(--background) / 0.82);
+  background-color: hsl(var(--background) / var(--veil, 0.82));
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
 }
@@ -829,8 +832,12 @@
   color: hsl(var(--primary-bright));
 }
 
+/* Tinta untuk teks DI ATAS isian aksen (chip babak, langkah HUD aktif, item menu
+   aktif). Putih di atas --primary hanya 4,17:1 - gagal AA untuk label 8-12px.
+   --pit (langkah tergelap ramp) memberi 4,88:1 tanpa mengubah satu pun warna
+   palet; yang berubah cuma pilihan langkahnya, sama seperti stage-text-bright. */
 @utility stage-ink {
-  color: hsl(var(--stage-ink, var(--primary-foreground)));
+  color: hsl(var(--stage-ink, var(--pit)));
 }
 
 @utility stage-bg {
@@ -957,35 +964,86 @@
    ANIMASI KOMPONEN
    ========================================================= */
 
-.tag-float {
-  animation: tag-float 2.4s steps(4, end) infinite;
+/* ---------- Stage Experience ---------- */
+
+/* Blok stat bar terisi dari kiri, satu per satu (jedanya dipasang inline per
+   blok). Tiga langkah, bukan geser mulus - bar di UI game terisi per segmen. */
+.stat-charge {
+  transform-origin: left;
+  animation: stat-charge 0.24s steps(3, end) both;
 }
 
-.tag-reveal {
-  animation: tag-reveal 0.24s steps(4, end) both;
+/* Ikon yang baru terbuka di papan skill: meletup dari setengah ukuran, sedikit
+   melewati ukurannya, lalu jatuh pas di petak. Lewatan kecil itu yang membuatnya
+   terbaca sebagai "didapat", bukan sekadar muncul. */
+.slot-pop {
+  animation: slot-pop 0.28s steps(4, end) both;
 }
 
-.project-reveal {
-  animation: project-reveal 0.32s steps(5, end) both;
+/* Kilat "equip" di bingkai ikon panel detail. outline, bukan box-shadow:
+   pix-inset sudah memegang box-shadow untuk bevel cekungnya, dan menganimasikan
+   properti yang sama akan menghapus bevel itu selama animasi berjalan. */
+.equip-flash {
+  animation: equip-flash 0.4s steps(4, end) both;
 }
 
-.project-image-reveal {
-  animation: project-image-reveal 0.4s steps(8, end) both;
+/* Kartu project berkedip tiga kali saat dibuka dari panel detail. Alasan outline
+   sama dengan equip-flash: pix-panel memakai box-shadow untuk bevel dan
+   bayangannya. step-end membuat tiap keyframe ditahan penuh - kedip, bukan
+   memudar. */
+.quest-flash {
+  animation: quest-flash 1.2s step-end both;
 }
 
-.project-gloss::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    100deg,
-    transparent 40%,
-    hsl(var(--foreground) / 0.35) 50%,
-    transparent 60%
-  );
-  transform: translateX(-120%);
-  animation: project-gloss-sweep 0.6s steps(8, end) 0.15s both;
-  pointer-events: none;
+@keyframes stat-charge {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes slot-pop {
+  0% {
+    opacity: 0;
+    transform: translateY(8px) scale(0.5);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(-4px) scale(1.2);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes equip-flash {
+  from {
+    outline: 4px solid hsl(var(--stage-accent, var(--primary)));
+    outline-offset: 0;
+  }
+  to {
+    outline: 4px solid hsl(var(--stage-accent, var(--primary)) / 0);
+    outline-offset: 12px;
+  }
+}
+
+@keyframes quest-flash {
+  0%,
+  34%,
+  68% {
+    outline: 4px solid hsl(var(--stage-accent, var(--primary)));
+    outline-offset: 4px;
+  }
+  17%,
+  51%,
+  85%,
+  100% {
+    outline: 4px solid transparent;
+    outline-offset: 4px;
+  }
 }
 
 /* Wipe antar halaman: sapuan patah-patah, satu hue */
@@ -1011,61 +1069,6 @@
      telat sampai 0.12s, jendela sempit membuat kolom tercepat sudah surut
      sementara yang terlambat belum menutup - layar bocor di tengah transisi. */
   animation: page-wipe 0.5s steps(8, end) var(--wipe-delay, 0s) both;
-}
-
-@keyframes tag-float {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-4px);
-  }
-}
-
-@keyframes tag-reveal {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes project-reveal {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes project-image-reveal {
-  from {
-    clip-path: inset(0 0 0 100%);
-  }
-  to {
-    clip-path: inset(0 0 0 0);
-  }
-}
-
-@keyframes project-gloss-sweep {
-  from {
-    transform: translateX(-120%);
-    opacity: 0;
-  }
-  20% {
-    opacity: 0.7;
-  }
-  to {
-    transform: translateX(120%);
-    opacity: 0;
-  }
 }
 
 @keyframes page-wipe {
@@ -1115,4 +1118,30 @@
   max-width: 100%;
   margin: 0 auto;
   padding: 0;
+}
+
+/* =========================================================
+   REDUCED MOTION
+   Wajib di AKHIR berkas dan TANPA layer. Semua kelas di bawah didefinisikan di
+   luar layer mana pun, dan aturan tanpa layer selalu mengalahkan aturan
+   berlayer berapa pun spesifisitasnya - versi pertama blok ini duduk di
+   @layer base dan tidak pernah berlaku (terukur: sapuan layar penuh tetap tampil
+   untuk pengunjung yang meminta gerak dikurangi).
+
+   .page-wipe menunjuk span-nya juga: animasinya ada di anak, bukan di wadah.
+   ========================================================= */
+@media (prefers-reduced-motion: reduce) {
+  .stat-charge,
+  .slot-pop,
+  .equip-flash,
+  .quest-flash,
+  .firefly,
+  .page-wipe span,
+  .animate-meteor {
+    animation: none;
+  }
+
+  .page-wipe {
+    display: none;
+  }
 }

@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from "react";
-import { Route, Routes, useLocation } from "react-router-dom";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { TitleScreen } from "./pages/title-screen/TitleScreen";
 import { StagePage } from "./pages/StagePage";
@@ -7,17 +7,28 @@ import { NotFound } from "./pages/NotFound";
 import { StarBackground } from "./components/backgrounds/StarBackground";
 import { CursorTracker } from "./components/CursorTracker";
 import { PageWipe } from "./components/PageWipe";
+import { useReducedMotion } from "./hooks/useMediaQuery";
 import { stages } from "./data/stages";
 
 /* Halaman ini punya langitnya sendiri - jangan tumpuk background global. */
 const SELF_LIT_ROUTES = ["/", "/profile"];
 
+/* Skills dan Projects dilebur ke stage Experience. Alamat lamanya mungkin masih
+   tersimpan di CV, bookmark, atau tautan yang sudah dibagikan - dialihkan ke
+   bagiannya masing-masing, bukan dibiarkan jatuh ke 404. */
+const LEGACY_REDIRECTS = [
+  { from: "/skills", to: "/experience#skills" },
+  { from: "/projects", to: "/experience#projects" },
+];
+
 function App() {
   const location = useLocation();
+  const reducedMotion = useReducedMotion();
   const hasOwnBackdrop = SELF_LIT_ROUTES.includes(location.pathname);
 
   const isFirstRender = useRef(true);
   const [wipeKey, setWipeKey] = useState(null);
+  const clearWipe = useCallback(() => setWipeKey(null), []);
 
   /* Wipe hanya dipicu saat pindah halaman, bukan saat load pertama. */
   useEffect(() => {
@@ -48,6 +59,9 @@ function App() {
             {stages.map((stage) => (
               <Route key={stage.id} path={stage.path} element={<StagePage stageId={stage.id} />} />
             ))}
+            {LEGACY_REDIRECTS.map(({ from, to }) => (
+              <Route key={from} path={from} element={<Navigate to={to} replace />} />
+            ))}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </motion.div>
@@ -55,7 +69,9 @@ function App() {
 
       <CursorTracker />
 
-      {wipeKey && <PageWipe key={wipeKey} />}
+      {/* Sapuan layar penuh: tidak dirender sama sekali untuk pengunjung yang
+          meminta gerak dikurangi, dan dilepas sendiri begitu animasinya tuntas. */}
+      {wipeKey && !reducedMotion && <PageWipe key={wipeKey} onDone={clearWipe} />}
     </>
   );
 }

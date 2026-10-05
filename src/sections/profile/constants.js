@@ -9,11 +9,14 @@ export const STAGE_VARS = {
   "--city-zoom": "1",
 
   /* Lebar kota diturunkan dari TINGGI panggung, bukan lebar viewport - yang
-     memotong gambar adalah batas vertikal. Dua batas bawah:
+     memotong gambar adalah batas vertikal. svh, sama seperti tinggi panggungnya
+     di ProfileSection: keduanya HARUS satu satuan, kalau tidak lebar kota dan
+     tinggi panggung berselisih persis sebesar bilah alamat HP.
+     Dua batas bawah:
        200vw  - parallax menggeser -32% lebar sendiri, jadi butuh >= 147vw.
                 Dilebihkan supaya seluruh deret etalase layer-3 terlihat.
        1500px - menahan garis tanah tetap di atas HUD di layar sangat kecil. */
-  "--city-w": "max(calc((100vh - 5rem) * 3 * var(--city-zoom)), 200vw, 1500px)",
+  "--city-w": "max(calc((100svh - 5rem) * 3 * var(--city-zoom)), 200vw, 1500px)",
 
   /* Permukaan trotoar layer-3 ada di 18.5% tinggi gambar dari bawah. Karakter
      berdiri di garis yang sama dengan dasar gedung.
@@ -147,7 +150,7 @@ export const CYCLE_DISTANCE = 1.4;
 /* Batas kecepatan panggung, fraksi halaman per detik. scrollYProgress mengikuti
    roda TANPA batas - satu lemparan trackpad bisa memindahkan seluruh halaman
    dalam sepersekian detik, dan pada tempo itu kaki hero menyapu ratusan frame.
-   0.35 = lima babak tidak pernah lebih cepat dari ~2.9 detik; guliran roda
+   0.35 = seluruh panggung tidak pernah lebih cepat dari ~2.9 detik; guliran roda
    biasa (~0.09/detik) tidak tersentuh sama sekali. */
 export const MAX_SCROLL_RATE = 0.35;
 

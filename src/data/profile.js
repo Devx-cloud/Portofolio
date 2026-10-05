@@ -1,14 +1,16 @@
 import { Github, Instagram, Linkedin } from "lucide-react";
+import { PROFILE } from "@shared/portfolio";
 
 /* Identitas dipakai di banyak tempat (Profile, Contact, Title Screen).
-   Ditulis sekali supaya tidak ada dua versi yang bisa lepas sinkron. */
-export const CONTACT_EMAIL = "devx.surya@gmail.com";
-export const LOCATION = "Tabanan, Bali — Indonesia";
-export const CV_URL = "/cv/cv-1.pdf";
-export const GITHUB_URL = "https://github.com/Devx-cloud";
+   Nilainya ditulis sekali di shared/portfolio.js - berkas yang sama dibaca
+   asisten AI - supaya tidak ada dua versi yang bisa lepas sinkron. */
+export const CONTACT_EMAIL = PROFILE.email;
+export const LOCATION = PROFILE.location;
+export const CV_URL = PROFILE.cvPath;
+export const GITHUB_URL = PROFILE.github;
 
 export const socialLinks = [
-  { name: "Github", href: GITHUB_URL, icon: Github },
-  { name: "Instagram", href: "https://www.instagram.com/devx.sun/", icon: Instagram },
-  { name: "Linkedin", href: "https://www.linkedin.com/in/deva-surya-5a6568380/", icon: Linkedin },
+  { name: "Github", href: PROFILE.github, icon: Github },
+  { name: "Instagram", href: PROFILE.instagram, icon: Instagram },
+  { name: "Linkedin", href: PROFILE.linkedin, icon: Linkedin },
 ];
