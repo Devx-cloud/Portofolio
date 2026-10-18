@@ -1,7 +1,7 @@
 import { useImperativeHandle, useRef, useState } from "react";
-import { motion, useMotionValueEvent, useScroll } from "framer-motion";
+import { motion, useMotionValueEvent, useScroll, useTransform } from "framer-motion";
 import { useReducedMotion } from "@/hooks/useMediaQuery";
-import { skillById, skills } from "./data";
+import { pad2, skillById, skills } from "./data";
 import { ChapterLabel } from "./components/ChapterLabel";
 import { SkillBoard } from "./components/SkillBoard";
 import { SkillsText } from "./components/SkillsText";
@@ -39,8 +39,8 @@ const revealedAt = (v) =>
  *
  * Satu layar sticky: teks di kiri, papan semua kategori di kanan. Petaknya
  * kosong, dan menggulir membuka ikonnya satu demi satu - label kategori menyala
- * saat ikon pertamanya terbuka, panel detail mengikuti ikon terbaru, penghitung
- * di kiri naik. Menggulir balik menguncinya lagi.
+ * saat ikon pertamanya terbuka, panel detail mengikuti ikon terbaru, rel di
+ * kepala bab terisi. Menggulir balik menguncinya lagi.
  *
  * Kenapa ikon dibuka per ambang gulir, bukan digeser mulus mengikuti gulir:
  * transform yang menempel ke posisi gulir bergerak sepersekian piksel tiap frame
@@ -57,6 +57,10 @@ export const SkillsStage = ({ ref, pickedId, onPick, onOpenProject }) => {
   const [revealed, setRevealed] = useState(1);
 
   const { scrollYProgress } = useScroll({ target: trackRef, offset: ["start start", "end end"] });
+
+  /* Rel kepala bab penuh tepat saat ikon terakhir terbuka - sisa trek sesudahnya
+     jeda, tidak ada lagi yang dibuka. */
+  const railProgress = useTransform(scrollYProgress, [0, REVEAL_END], [0, 1]);
 
   /* State hanya disentuh saat jumlahnya BERUBAH - scrollYProgress berganti tiap
      frame, jumlah ikon cuma 15 kali sepanjang trek. */
@@ -111,9 +115,17 @@ export const SkillsStage = ({ ref, pickedId, onPick, onOpenProject }) => {
             dan diturunkan agar muat, ia justru mendarat tepat di atas tulisan
             "SKILLS". Chip "01" di kepala bab sudah membawa nomornya. */}
         <div className="mx-auto flex h-full w-full max-w-6xl flex-col justify-center px-4 md:px-8">
-          {/* Tanpa meta "15 slot" - penghitung besar tepat di bawahnya sudah
-              menyebut angka yang sama. */}
-          <ChapterLabel index={1} title="Skills" kicker="Loadout" />
+          {/* Kemajuan buka ikon tinggal di kepala bab: penghitung "01 / 15" dan
+              rel yang terisi, sama persis dengan kepala bab Projects. Dulu ia
+              angka raksasa di kolom kiri - blok terberat di layar, padahal
+              cuma menjawab "sudah sampai mana". */}
+          <ChapterLabel
+            index={1}
+            title="Skills"
+            kicker="Loadout"
+            meta={`${pad2(revealed)} / ${pad2(skills.length)}`}
+            progress={railProgress}
+          />
 
           {/* Lebar kedua kolom DIPATOK, sisa ruangnya dibuang ke tengah lewat
               justify-between: teks bertambat di margin kiri halaman, papan di
@@ -125,7 +137,7 @@ export const SkillsStage = ({ ref, pickedId, onPick, onOpenProject }) => {
               items-start: kedua kolom berbagi satu tepi atas. Dulu items-center
               memusatkan tiap kolom sendiri-sendiri, dan karena kolom teks lebih
               tinggi daripada papan, tepi atasnya meleset ~70px. */}
-          <div className="mt-6 grid grid-cols-[28rem_26rem] items-start justify-between">
+          <div className="mt-8 grid grid-cols-[28rem_26rem] items-start justify-between">
             <motion.div variants={textVariants} initial="hidden" animate="visible">
               <SkillsText revealed={revealed} skill={skillById[activeId]} onOpenProject={onOpenProject} />
             </motion.div>

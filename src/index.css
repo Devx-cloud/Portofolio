@@ -58,6 +58,9 @@
   --color-brand-python: hsl(var(--brand-python));
   --color-brand-alpine: hsl(var(--brand-alpine));
   --color-brand-three: hsl(var(--brand-three));
+  --color-brand-nextjs: hsl(var(--brand-nextjs));
+  --color-brand-typescript: hsl(var(--brand-typescript));
+  --color-brand-symfony: hsl(var(--brand-symfony));
 
   /* Skala font pixel. big-shot.ttf: unitsPerEm 2048, capHeight 1536,
      jadi cap = 0.75em dan tiap kelipatan 8px mendarat pas di grid piksel
@@ -243,6 +246,9 @@
     --brand-python: 207 60% 60%;
     --brand-alpine: 192 55% 65%;
     --brand-three: 0 0% 92%;
+    --brand-nextjs: 0 0% 92%;
+    --brand-typescript: 211 70% 62%;
+    --brand-symfony: 0 0% 92%;
   }
 
   * {

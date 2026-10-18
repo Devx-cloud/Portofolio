@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, useInView } from "framer-motion";
+import { ArrowDown } from "lucide-react";
 import { useReducedMotion } from "@/hooks/useMediaQuery";
 import { categories, pad2, projects, skills } from "../data";
 
@@ -32,47 +33,125 @@ const Counter = ({ value }) => {
   return <span ref={ref}>{pad2(reducedMotion ? value : shown)}</span>;
 };
 
-const STATS = [
-  { label: "Skill", value: skills.length },
-  { label: "Project", value: projects.length },
-  { label: "Bidang", value: categories.length },
+/* Daftar isi halaman. Angka statistiknya dulu tiga kotak terpisah di samping
+   judul (Skill / Project / Bidang) - tiga bingkai lagi di layar yang sudah
+   penuh bingkai. Di sini angkanya menempel ke bab yang dihitungnya, jadi satu
+   baris menjawab dua pertanyaan: apa isi bab ini, dan seberapa banyak. */
+const CHAPTERS = [
+  {
+    id: "skills",
+    title: "Skills",
+    kicker: "Loadout",
+    stats: [
+      { label: "skill", value: skills.length },
+      { label: "bidang", value: categories.length },
+    ],
+  },
+  {
+    id: "projects",
+    title: "Projects",
+    kicker: "Quest Log",
+    stats: [{ label: "project", value: projects.length }],
+  },
 ];
 
-export const ExperienceHeader = () => (
-  <motion.header
-    initial={{ opacity: 0, y: 16 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.5, ease: "easeOut" }}
-    className="mb-8 flex flex-col gap-5 md:mb-10 md:flex-row md:items-end md:justify-between md:gap-10"
-  >
-    <div className="max-w-xl">
-      <h2 className="pixel-font text-pix-lg font-bold md:text-pix-xl">
+const container = { hidden: {}, show: { transition: { staggerChildren: 0.08 } } };
+const item = {
+  hidden: { opacity: 0, y: 16 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
+};
+
+/*
+ * Bagian pertama halaman: judul saja, setinggi satu layar.
+ *
+ * Dulu judul, statistik, dan separuh atas panggung Skills berbagi lipatan
+ * pertama - panggungnya bahkan ditarik naik ke bawah judul. Semuanya benar
+ * sendiri-sendiri, tapi bersama-sama tidak ada yang menang. Sekarang tiap bagian
+ * punya layarnya sendiri: judul, lalu Skills, lalu Projects.
+ */
+export const ExperienceHeader = () => {
+  const reducedMotion = useReducedMotion();
+
+  /* Gulir halus ke bab, bukan lompatan hash bawaan browser: dari layar judul,
+     melihat halaman bergerak turun memberi tahu bahwa bab itu ada DI BAWAH
+     sini, bukan halaman lain. */
+  const goTo = (event, id) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    event.preventDefault();
+    el.scrollIntoView({ block: "start", behavior: reducedMotion ? "auto" : "smooth" });
+  };
+
+  return (
+    <motion.header
+      variants={container}
+      initial="hidden"
+      animate="show"
+      className="relative flex min-h-[calc(100svh-5rem)] flex-col justify-center py-16"
+    >
+      <motion.h2 variants={item} className="pixel-font text-pix-xl font-bold leading-tight md:text-pix-3xl">
         My <span className="text-primary">Experience</span>
-      </h2>
-      <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+      </motion.h2>
+
+      <motion.p
+        variants={item}
+        className="mt-5 max-w-xl text-sm leading-relaxed text-muted-foreground md:text-base"
+      >
         Skill yang saya bawa, lalu project tempat semuanya diuji. Tiap skill menunjuk ke project yang
         memakainya, dan tiap project menunjuk balik ke skill di baliknya.
-      </p>
+      </motion.p>
 
-      {/* Hanya di panggung scroll. Di sana layar pertama berisi judul dan
-          separuh atas panggung, sementara HUD langkahnya masih di bawah lipatan
-          - tanpa petunjuk ini tidak ada yang memberi tahu bahwa isinya maju
-          mengikuti gulir. Di daftar mengalir, menggulir sudah jelas dengan
-          sendirinya. */}
-      <p className="pixel-font stage-text-bright mt-5 hidden animate-blink text-pix-sm uppercase motion-reduce:animate-none scrolly:block">
+      <motion.nav variants={item} aria-label="Isi halaman" className="mt-12 max-w-2xl">
+        <ul className="border-t-2 border-border">
+          {CHAPTERS.map((chapter, i) => (
+            <li key={chapter.id} className="border-b-2 border-border">
+              <a
+                href={`#${chapter.id}`}
+                onClick={(event) => goTo(event, chapter.id)}
+                className="group flex items-center gap-4 py-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+              >
+                <span className="pixel-font border-2 stage-border stage-bg stage-ink px-2 py-1 text-pix-sm tabular-nums">
+                  {pad2(i + 1)}
+                </span>
+                <span className="pixel-font text-pix-md uppercase text-foreground transition-colors duration-100 ease-pix group-hover:stage-text-bright">
+                  {chapter.title}
+                </span>
+                <span className="pixel-font hidden text-pix-sm uppercase text-muted-foreground sm:inline">
+                  · {chapter.kicker}
+                </span>
+
+                <span className="pixel-font ml-auto flex gap-4 text-pix-sm uppercase tabular-nums text-muted-foreground">
+                  {chapter.stats.map((stat) => (
+                    <span key={stat.label}>
+                      <span className="stage-text-bright">
+                        <Counter value={stat.value} />
+                      </span>{" "}
+                      {stat.label}
+                    </span>
+                  ))}
+                </span>
+                <ArrowDown
+                  aria-hidden="true"
+                  size={14}
+                  className="shrink-0 text-muted-foreground transition-transform duration-100 ease-pix group-hover:translate-y-1 group-hover:stage-text"
+                />
+              </a>
+            </li>
+          ))}
+        </ul>
+      </motion.nav>
+
+      {/* Petunjuk gulir di kaki layar judul. Sekarang di SEMUA ukuran layar:
+          layar judul setinggi satu layar penuh, jadi di mana pun tidak ada isi
+          yang mengintip dari bawah lipatan untuk memberi tahu bahwa halaman ini
+          berlanjut. Tanpa variants framer: kedipnya animasi CSS pada opacity,
+          dan opacity inline dari framer ikut jadi nilai dasarnya. */}
+      <p
+        aria-hidden="true"
+        className="pixel-font stage-text-bright absolute inset-x-0 bottom-6 animate-blink text-pix-sm uppercase motion-reduce:animate-none"
+      >
         ▼ Gulir untuk menjelajah
       </p>
-    </div>
-
-    <dl className="grid shrink-0 grid-cols-3 gap-2">
-      {STATS.map((stat) => (
-        <div key={stat.label} className="pix-chip flex flex-col-reverse items-center gap-1 px-4 py-2">
-          <dt className="pixel-font text-pix-sm uppercase text-muted-foreground">{stat.label}</dt>
-          <dd className="pixel-font stage-text-bright text-pix-md tabular-nums">
-            <Counter value={stat.value} />
-          </dd>
-        </div>
-      ))}
-    </dl>
-  </motion.header>
-);
+    </motion.header>
+  );
+};

@@ -5,9 +5,12 @@ import {
   SiFlutter,
   SiJavascript,
   SiMysql,
+  SiNextdotjs,
   SiPhp,
+  SiSymfony,
   SiTailwindcss,
   SiThreedotjs,
+  SiTypescript,
 } from "react-icons/si";
 import { CATEGORIES, PROJECTS, SKILLS, TIER_LABEL } from "@shared/portfolio";
 
@@ -45,6 +48,9 @@ const BRAND = {
   react: { Icon: FaReact, color: "text-brand-react" },
   alpine: { Icon: SiAlpinedotjs, color: "text-brand-alpine" },
   three: { Icon: SiThreedotjs, color: "text-brand-three" },
+  nextjs: { Icon: SiNextdotjs, color: "text-brand-nextjs" },
+  typescript: { Icon: SiTypescript, color: "text-brand-typescript" },
+  symfony: { Icon: SiSymfony, color: "text-brand-symfony" },
   flutter: { Icon: SiFlutter, color: "text-brand-flutter" },
   android: { Icon: SiAndroidstudio, color: "text-brand-android" },
   git: { Icon: FaGitAlt, color: "text-brand-git" },

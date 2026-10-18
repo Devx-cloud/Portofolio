@@ -5,21 +5,22 @@ Portofolio bergaya game pixel: menu utama ala Title Screen, empat stage yang bis
 Chrome-nya dunia game, kontennya dokumen profesional.
 
 **Stack:** React 19 · Vite 7 · Tailwind CSS 4 · Framer Motion · Three.js (lampu 3D di Ask AI) ·
-Gemini (`@google/genai`) lewat fungsi serverless Vercel.
+Gemini lewat gateway Vulpes (project `Gemini-Gateway`, banyak key di balik satu endpoint
+kompatibel OpenAI), dipanggil dari fungsi serverless Vercel.
 
 ## Menjalankan
 
 ```bash
 npm install
-npm run dev        # http://localhost:5173  (front-end saja, tanpa /api)
+npm run dev        # http://localhost:5173  (termasuk /api/chat)
 npm run build      # hasil ke dist/
 npm run preview    # cek hasil build
 npm run lint
 ```
 
-`npm run dev` **tidak** menyajikan `/api/chat`, jadi stage Ask AI menampilkan pesan galat di sana.
-Untuk mencoba asisten secara lokal, jalankan lewat Vercel CLI (`npx vercel dev`) dengan
-`GEMINI_API_KEY` terisi.
+`npm run dev` ikut menyajikan `/api/chat` (plugin `api-dev` di `vite.config.js`), jadi stage
+Ask AI bisa dicoba lokal selama `GATEWAY_TOKEN` terisi di `.env`. `npm run preview` tidak
+menyajikannya.
 
 ## Variabel lingkungan
 
@@ -27,7 +28,8 @@ Salin `.env.example` menjadi `.env` (sudah di-ignore git).
 
 | Variabel | Wajib | Fungsi |
 | --- | --- | --- |
-| `GEMINI_API_KEY` | untuk Ask AI | Kunci Gemini, dibaca hanya oleh `api/chat.js` (tidak pernah sampai ke browser). |
+| `GATEWAY_TOKEN` | untuk Ask AI | Token gateway Vulpes (sama dengan `GATEWAY_TOKEN` di project gateway). Dibaca hanya oleh `api/chat.js`, tidak pernah sampai ke browser. |
+| `GATEWAY_URL` | tidak | Alamat gateway. Kosong = `https://vulpes-core.vercel.app`. |
 | `SITE_URL` | tidak | Alamat produksi tanpa garis miring di ujung, untuk `canonical` dan gambar kartu pratinjau. Di Vercel dilewati: `VERCEL_PROJECT_PRODUCTION_URL` dipakai otomatis. |
 
 ## Struktur
@@ -74,7 +76,7 @@ Sumber asli (PNG) ada di `art/`.
 ## Deploy (Vercel)
 
 `vercel.json` mengatur durasi fungsi (30 detik), cache aset, dan fallback SPA. Isi
-`GEMINI_API_KEY` di pengaturan proyek.
+`GATEWAY_TOKEN` (tandai *Sensitive*) di pengaturan proyek, lalu redeploy.
 
 Pembatas laju di `api/chat.js` bekerja di memori tiap instance serverless — cukup menahan
 pengulangan cepat, **bukan** perisai penuh. Untuk perlindungan sungguhan, tambahkan aturan

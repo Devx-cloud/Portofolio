@@ -11,8 +11,8 @@
  * ditempelkan berdasarkan id di src/sections/experience/data.js.
  *
  * Mengubah isi di sini otomatis mengubah situs DAN jawaban asisten. Yang belum
- * ada (pendidikan, riwayat kerja) sengaja tidak diisi - mengarang data lebih
- * buruk daripada mengaku belum tersedia.
+ * ada (riwayat kerja, tarif) sengaja tidak diisi - mengarang data lebih buruk
+ * daripada mengaku belum tersedia. Daftarnya ada di NOT_LISTED di bawah.
  */
 
 export const PROFILE = {
@@ -32,7 +32,55 @@ export const PROFILE = {
     "Pembuatan Aplikasi Mobile (Android & iOS)",
     "API Development & Integrasi",
   ],
+  /* Field di bawah ini (sampai careerGoals) belum tampil di situs - sejauh ini
+     hanya asisten AI yang membacanya. Ditulis sebagai frasa utuh karena dibaca
+     apa adanya. */
+
+  // Terbaru dulu.
+  education: [
+    {
+      school: "INSTIKI (Institut Bisnis dan Teknologi Indonesia)",
+      major: "Manajemen Data dan Informasi",
+      status: "sedang berkuliah",
+      period: "masuk 2024, target lulus 2028",
+    },
+    {
+      school: "SMK Negeri 2 Tabanan",
+      major: "Rekayasa Perangkat Lunak (RPL)",
+      status: "lulus",
+      period: "2024",
+    },
+  ],
+  experience: [
+    {
+      place: "PT. Dimata Soraya Jayate",
+      role: "Mobile Frontend Developer",
+      type: "praktik kerja lapangan (PKL) saat SMK",
+    },
+  ],
+  activities:
+    "Terlibat dalam penelitian dosen di kampus. Sempat ikut beberapa organisasi kampus, tetapi tidak lama karena fokus ke penelitian tersebut.",
+  devHistory:
+    "Sekitar 2 tahun membangun aplikasi. Framework-nya berganti sesuai kebutuhan proyek: Laravel, Symfony, atau Next.js.",
+  tools: ["Docker", "Postman", "Google Antigravity", "Android Studio"],
+  languages: "Bahasa Indonesia. Bahasa Inggris masih terus dikembangkan.",
+  work: {
+    type: "Freelance",
+    mode: "Remote",
+    schedule: "Cukup padat karena kuliah, tetapi tetap bisa diatur. Hubungi lewat email untuk membicarakannya.",
+    rate: "Dibahas sesuai kebutuhan proyek.",
+    duration: "Tergantung jenis website atau aplikasi yang dikerjakan.",
+  },
+  careerGoals: ["AI Engineer", "peneliti", "profesor"],
 };
+
+/* Yang belum ada. Asisten AI diminta mengakuinya terus terang, bukan menebak -
+   hapus dari sini begitu datanya ditambahkan di atas. */
+export const NOT_LISTED = [
+  "nomor telepon atau WhatsApp (untuk saat ini kontak lewat email)",
+  "demo publik untuk proyek-proyeknya",
+  "proyek mobile Flutter yang dipamerkan (belum ada untuk saat ini)",
+];
 
 export const CATEGORIES = [
   { id: "web", label: "Web" },
@@ -59,8 +107,11 @@ export const SKILLS = [
   { id: "tailwind", name: "Tailwind CSS", category: "web", tier: "core", desc: "Utility-first. Portofolio yang sedang kamu buka memakainya." },
   { id: "mysql", name: "MySQL", category: "web", tier: "support", desc: "Rancang skema dan tulis query untuk aplikasi Laravel." },
   { id: "react", name: "ReactJs", category: "web", tier: "support", desc: "Antarmuka berbasis komponen - termasuk halaman ini." },
+  { id: "nextjs", name: "Next.js", category: "web", tier: "support", desc: "Framework React full-stack - dipakai untuk Vulpes AI." },
   { id: "alpine", name: "Alpine.js", category: "web", tier: "explore", desc: "Interaksi ringan di halaman Laravel tanpa perlu SPA penuh." },
   { id: "three", name: "Three.js", category: "web", tier: "explore", desc: "Menampilkan model 3D langsung di browser." },
+  { id: "typescript", name: "TypeScript", category: "web", tier: "explore", desc: "JavaScript bertipe, supaya kesalahan ketahuan sebelum dijalankan." },
+  { id: "symfony", name: "Symfony", category: "web", tier: "explore", desc: "Framework PHP alternatif saat proyek memintanya." },
 
   // Mobile
   { id: "flutter", name: "Flutter", category: "app", tier: "core", desc: "Aplikasi mobile lintas platform dari satu basis kode." },
@@ -81,7 +132,7 @@ export const PROJECTS = [
     title: "Hand Gesture",
     year: "2025",
     role: "Computer Vision · Browser",
-    desc: "Aplikasi deteksi gestur tangan berbasis computer vision yang mengenali pola tangan secara real-time untuk membuka tautan tertentu tanpa sentuhan. Dibangun dengan HTML, CSS, dan JavaScript murni sebagai eksplorasi interaksi berbasis kamera.",
+    desc: "Aplikasi deteksi gestur tangan berbasis computer vision yang mengenali pola tangan secara real-time untuk membuka tautan tertentu tanpa sentuhan. Dibangun dengan HTML, CSS, dan JavaScript murni sebagai eksplorasi interaksi berbasis kamera. Pernah dipakai untuk membuka lomba di kampus dan sebuah acara di luar kampus.",
     image: "/projects/hand.webp",
     skills: ["html", "css", "js"],
     demoUrl: "#",
@@ -92,10 +143,21 @@ export const PROJECTS = [
     title: "Loka Pura",
     year: "2025",
     role: "Platform AI · Laravel",
-    desc: "Platform AI yang menghidupkan arsitektur pura Bali — mengubah foto menjadi video dinamis dan model 3D, sekaligus merestorasi kenangan lama dengan akurasi tinggi. Dibangun dengan Laravel, Alpine.js, Three.js, dan Tailwind CSS.",
+    desc: "Platform AI yang menghidupkan arsitektur pura Bali — mengubah foto menjadi video dinamis dan model 3D, sekaligus merestorasi kenangan lama dengan akurasi tinggi. Masuk Top 50 nasional di lomba Budaya Go. Dibangun dengan Laravel, Alpine.js, Three.js, dan Tailwind CSS.",
     image: "/projects/lokapura.webp",
     skills: ["laravel", "alpine", "three", "tailwind"],
     demoUrl: "#",
     githubUrl: "https://github.com/Devx-cloud/PuraLoka",
+  },
+  {
+    id: "vulpes-ai",
+    title: "Vulpes AI",
+    year: "2026",
+    role: "AI Gateway · Next.js",
+    desc: "Gateway AI yang menyatukan banyak API key Gemini menjadi satu endpoint kompatibel OpenAI, lengkap dengan UI chat bernama Vulpes. Kalau satu key habis kuota, gateway otomatis pindah ke key berikutnya. Sekarang menjadi mesin di balik asisten AI portofolio ini. Dibangun dengan Next.js, React, dan TypeScript.",
+    image: "/projects/vulpes-ai.webp",
+    skills: ["nextjs", "react", "typescript"],
+    demoUrl: "#",
+    githubUrl: "https://github.com/Devx-cloud/Vulpes-AI",
   },
 ];

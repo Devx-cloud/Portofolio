@@ -8,9 +8,11 @@ import { SkillsStage } from "./SkillsStage";
 import { ExperienceHeader } from "./components/ExperienceHeader";
 
 /*
- * Stage Experience: Skills lalu Projects, dua bab berurutan di satu halaman.
+ * Stage Experience: layar judul, lalu Skills dan Projects, dua bab berurutan di
+ * satu halaman.
  *
- *   Skills   - papan semua kategori yang ikonnya terbuka satu per satu.
+ *   Judul    - ExperienceHeader: judul, pengantar, dan daftar isi kedua bab.
+ *   Skills  - papan semua kategori yang ikonnya terbuka satu per satu.
  *              SkillsStage (panggung scroll) di layar lebar yang cukup tinggi,
  *              SkillsFlow (daftar mengalir) di tempat lain. Keduanya dipasang,
  *              CSS (varian scrolly) yang memilih mana yang terlihat - kalau
@@ -94,19 +96,17 @@ export const ExperienceSection = () => {
        di index.css. */
     <MotionConfig reducedMotion="user">
       <div className="relative">
-        <div className="mx-auto w-full max-w-6xl px-4 pt-6 md:px-8 md:pt-8">
+        {/* Tiga bagian, masing-masing dengan layarnya sendiri: judul, Skills,
+            Projects. Panggung Skills dulu ditarik naik ke ruang di bawah judul
+            supaya lipatan pertama tidak setengah kosong - hasilnya judul,
+            statistik, dan papan skill berdesakan di satu layar. Sekarang layar
+            pertama memang milik judul saja, jadi tidak ada lagi yang perlu
+            ditarik. */}
+        <div className="mx-auto w-full max-w-6xl px-4 md:px-8">
           <ExperienceHeader />
         </div>
 
-        {/* scrolly:-mt-[...] menarik panggung skill ke atas, ke dalam ruang kosong di
-            bawah judul. Isi panggung dipusatkan secara vertikal di layar setinggi
-            (100svh - bar), jadi di lipatan pertama ada celah ±230px di antara judul
-            dan bab Skills - terukur di 1440x900 - yang terbaca sebagai halaman
-            setengah kosong, sementara isi sebenarnya terpotong di bawah lipatan.
-            Menariknya naik tidak mengubah posisi saat panggung menempel (top-20);
-            yang berubah hanya letaknya sebelum menempel. Sebanding tinggi layar,
-            karena celahnya juga tumbuh bersama layar: 12svh = 108px di 900px. */}
-        <div id="skills" className="scroll-mt-20 scrolly:-mt-[clamp(4rem,12svh,9rem)]">
+        <div id="skills" className="scroll-mt-20 pt-4 scrolly:pt-0">
           <div className="mx-auto w-full max-w-6xl px-4 md:px-8 scrolly:hidden">
             <SkillsFlow ref={flowRef} pickedId={pickedId} onPick={hoverPick} onOpenProject={openProject} />
           </div>

@@ -39,6 +39,20 @@ const BAR_GAP = "3.5rem";
    kartu tersembunyi di balik bilah atau ekornya terpotong di bawah layar. */
 const STICK = "calc(5rem + var(--bar-gap) + var(--bar))";
 
+/* Tinggi satu slot kartu di mode tumpukan = jarak gulir sebelum kartu
+   berikutnya naik menutupi yang sekarang. Ditulis di sini, bukan di kartunya,
+   karena kepala bab dan ekor bab juga harus tahu angka ini.
+
+   Dibatasi 32rem, tidak setinggi layar: setinggi layar, yang terlihat selama
+   perjalanan itu satu kartu dengan ratusan piksel kekosongan di bawahnya.
+   32rem juga pas untuk slot TERAKHIR, yang memuat kartu (~350px) + geser
+   tumpukan (2 x 24px) + tautan GitHub di bawahnya.
+
+   Batas atasnya tetap calc(100svh - garis tempel): di layar pendek slot tidak
+   boleh lebih tinggi dari ruang di bawah bilah bab, kalau tidak isi slot
+   terakhir terpotong di bawah layar. */
+const SLOT = "min(32rem, calc(100svh - var(--stick)))";
+
 /* Garis tempel dalam piksel, dibaca dari kepala babnya sendiri: posisi
    menempelnya (`top`, sudah diresolusi jadi px oleh browser) ditambah tingginya.
    Diukur, bukan ditulis tetap - kalau BAR_H atau BAR_GAP berubah, semua yang
@@ -122,11 +136,19 @@ export const ProjectStack = ({ ref, onPickSkill }) => {
        dilewati: diukur terhadap tinggi kontainer, relnya mentok di 56% dan
        "sudah sampai mana" justru jadi pertanyaan baru (terukur).
 
-       offsetTop, bukan getBoundingClientRect: yang pertama memberi posisi ALAMI
-       kartu di dalam kontainer, sementara yang kedua sudah dijepit oleh sticky -
-       semua kartu yang menempel melaporkan tepi atas yang sama persis. */
-    const first = box.top + wraps[0].offsetTop;
-    const last = box.top + wraps[wraps.length - 1].offsetTop;
+       Butuh posisi ALAMI kartu di dalam kontainer, dan di mode tumpukan
+       getBoundingClientRect maupun offsetTop sama-sama tidak memberikannya:
+       keduanya ikut melaporkan posisi menempel. Dengan offsetTop (versi lama),
+       kartu pertama yang menempel melaporkan 72, 172, 272... sejalan dengan
+       gulir, jadi "first" ikut berjalan, relnya diam di 0 sepanjang tumpukan,
+       lalu melompat penuh di ujung (terukur di Chrome). Di mode tumpukan semua
+       slot sama tinggi, jadi posisi alaminya cukup i x tinggi slot - rumus yang
+       sama dengan open(). Di mode daftar tidak ada yang menempel, jadi offsetTop
+       memang posisi alaminya. */
+    const slot = wraps[0].offsetHeight;
+    const naturalTop = (i) => (stacked ? i * slot : wraps[i].offsetTop);
+    const first = box.top + naturalTop(0);
+    const last = box.top + naturalTop(wraps.length - 1);
     const span = last - first;
     railProgress.set(span > 0 ? Math.min(1, Math.max(0, (stick - first) / span)) : 1);
   });
@@ -187,14 +209,18 @@ export const ProjectStack = ({ ref, onPickSkill }) => {
   return (
     <section
       id="projects"
-      style={{ "--bar": BAR_H, "--bar-gap": BAR_GAP, "--stick": STICK }}
-      className="relative scroll-mt-20 pt-12 md:pt-16"
+      style={{ "--bar": BAR_H, "--bar-gap": BAR_GAP, "--stick": STICK, "--slot": SLOT }}
+      className="relative scroll-mt-20 pt-16 md:pt-24"
     >
       {/* Pembungkus ini yang MEMBATASI sejauh mana kepala bab menempel: ia habis
           bersama tumpukan, jadi kepala bab ikut naik pergi bersama kartu terakhir.
           Dibiarkan menempel sampai ujung section, ia masih berdiri di sana saat
-          ekor bab lewat - dan tautan GitHub menembus teksnya. */}
-      <div>
+          ekor bab lewat - dan tautan GitHub menembus teksnya.
+
+          flow-root WAJIB: tanpa padding/border, margin negatif kontainer kartu
+          di bawah runtuh menembus pembungkus ini (margin collapsing) - tingginya
+          tidak berkurang sepiksel pun dan kepala bab tetap tertahan satu slot. */}
+      <div className="flow-root">
         {/* Kepala bab IKUT MENEMPEL sepanjang tumpukan digulir. Kartu menutupi
             kartu sebelumnya, jadi tanpa penanda tetap tidak ada yang memberi tahu
             quest ke berapa yang sedang dibaca dari berapa - pengunjung kehilangan
@@ -206,11 +232,9 @@ export const ProjectStack = ({ ref, onPickSkill }) => {
             langsung di atas latar halaman.
 
             Veil-nya bisa dibuang karena kartu tidak pernah naik melewatinya: tiap
-            kartu berhenti di garis tempel, tepat di bawah kepala bab ini. Yang
-            dulu butuh veil cuma ujung bab, saat tumpukan terlepas dan kartu
-            terakhir naik - dan di situ kartu lewat DI DEPAN kepala bab (tanpa
-            z-index; urutan DOM yang menentukan), jadi ia ditutupi panel pekat,
-            bukan bertabrakan dengan teksnya.
+            kartu berhenti di garis tempel, tepat di bawah kepala bab ini, dan
+            saat tumpukan selesai kepala bab ikut naik BERSAMA kartu (lihat
+            margin negatif kontainer di bawah).
 
             Di mode daftar kartu lewat di tempat yang sama tanpa pernah berhenti,
             jadi di sana kepala bab tidak menempel sama sekali - sama seperti bab
@@ -231,7 +255,14 @@ export const ProjectStack = ({ ref, onPickSkill }) => {
           </div>
         </div>
 
-        <div ref={containerRef} className="relative mt-6">
+        {/* Margin negatif satu slot memendekkan pembungkus di atas. Kartu yang
+            tertimpa terlepas begitu kartu terakhir tiba di garis tempel - saat
+            itu kontainer tinggal satu slot. Tanpa margin ini kepala bab baru
+            terlepas satu slot SESUDAHNYA: tumpukan sudah naik pergi, tapi kepala
+            bab diam di atas layar dan kartu lewat menimpanya. Ruang yang
+            "dipinjam" margin ini dikembalikan pengganjal di bawah, jadi tata
+            letak setelahnya tidak bergeser. */}
+        <div ref={containerRef} className={cn("relative mt-6", stacked && "mb-[calc(-1*var(--slot))]")}>
           {projects.map((project, i) => (
             <ProjectCard
               key={project.id}
@@ -245,36 +276,36 @@ export const ProjectStack = ({ ref, onPickSkill }) => {
               isFlashing={flashingId === project.id}
               onPickSkill={onPickSkill}
               onRef={registerWrapper}
-            />
+            >
+              {stacked && i === projects.length - 1 && <GithubLink />}
+            </ProjectCard>
           ))}
         </div>
       </div>
+      {stacked && <div aria-hidden="true" className="h-[var(--slot)]" />}
 
-      {/* Ekor bab. Di mode tumpukan ia BUKAN sekadar ruang napas: kartu terakhir
-          hanya bisa naik ke puncak tumpukan kalau masih ada yang bisa digulir
-          setelah kontainernya, dan sejak tinggi slot dibatasi 36rem (lihat
-          ProjectCard), sisa halaman tidak lagi cukup - kartu kedua berhenti 22px
-          sebelum garis tempel dan tumpukannya tidak pernah selesai (terukur di
-          1440x900).
+      {/* Ekor bab.
 
-          Tinggi minimumnya diturunkan dari kekurangan itu: layar dikurangi garis
-          tempel dan tinggi slot - persis jarak yang masih harus tersedia. Memakai 32rem, bukan 36rem, jadi ada 4rem lebih supaya kartu
-          terakhir sempat berdiri tenang sejenak, bukan tiba tepat di ujung
-          gulir. max(0px, ...) menjaga angkanya tidak negatif di layar pendek,
-          tempat slot sudah setinggi layar dan ekor tambahan tidak diperlukan.
+          Di mode tumpukan ia KOSONG dan tingginya dihitung persis: sisa layar di
+          bawah slot terakhir. Dengan itu halaman habis tepat saat kartu terakhir
+          tiba di garis tempel - tidak ada gulir sesudahnya, jadi tumpukan dan
+          kepala bab tidak pernah terdorong naik ke balik bar stage dan terpotong
+          di sana. Tautan GitHub-nya ikut menempel di slot terakhir, tepat di
+          bawah kartu (lihat ProjectCard), jadi ia terlihat di posisi akhir itu.
 
-          Jarak atas hanya di mode daftar: di mode tumpukan slot terakhir sudah
-          menyisakan ruang di bawah kartunya. */}
-      <div
-        className={cn(
-          "mx-auto flex w-full max-w-6xl items-center px-4 pb-16 md:px-8 md:pb-24",
-          // Dipusatkan tegak: di layar tinggi ruang ekor ini bisa 300px lebih, dan
-          // tautan yang menempel di atasnya meninggalkan rongga besar di kaki halaman.
-          stacked ? "min-h-[max(0px,calc(100svh-var(--stick)-32rem))]" : "mt-10"
-        )}
-      >
-        <GithubLink />
-      </div>
+          Hitungannya: saat kartu terakhir menempel, ujung kontainer berada di
+          garis tempel + satu slot. Ekor setinggi (layar - garis tempel - slot)
+          membuat ujung halaman jatuh tepat di bawah layar. max(0px, ...) untuk
+          layar pendek, tempat slot sudah setinggi sisa layar.
+
+          Di mode daftar ia ekor biasa berisi tautan GitHub. */}
+      {stacked ? (
+        <div aria-hidden="true" className="h-[max(0px,calc(100svh-var(--stick)-var(--slot)))]" />
+      ) : (
+        <div className="mx-auto mt-10 flex w-full max-w-6xl px-4 pb-16 md:px-8 md:pb-24">
+          <GithubLink />
+        </div>
+      )}
     </section>
   );
 };

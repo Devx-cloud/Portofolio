@@ -45,6 +45,7 @@ export const ProjectCard = ({
   isFlashing,
   onPickSkill,
   onRef,
+  children,
 }) => {
   const wrapRef = useRef(null);
   const reduced = useReducedMotion();
@@ -83,26 +84,20 @@ export const ProjectCard = ({
          ke kepala bab pt-6, irama yang sama dengan mt-6 antara kepala bab Skills
          dan papannya.
 
-         Tinggi slot DIBATASI 36rem, tidak lagi setinggi layar. Tinggi slot itu
-         jarak gulir yang harus ditempuh sebelum kartu berikutnya naik menutupi
-         yang sekarang, sementara kartunya sendiri cuma ~400px - jadi setinggi
-         layar, yang terlihat selama perjalanan itu satu kartu dengan 420px
-         kekosongan di bawahnya (terukur: 51% slot terbuang di 1440x900, 60% di
-         1920x1080). Dibatasi 36rem, sisanya ~120px: cukup untuk kartu berikutnya
-         terbaca "sedang datang", tanpa jeda kosong di antaranya.
+         Tinggi slot = jarak gulir sebelum kartu berikutnya naik menutupi yang
+         sekarang. Rumusnya (dan kenapa dibatasi) di SLOT, ProjectStack.
 
-         Tetap memakai calc(100svh - garis tempel) sebagai batas ATAS supaya di
-         layar pendek slot tidak pernah lebih tinggi dari ruang yang tersisa di
-         bawah bilah bab - kartu yang menempel harus muat utuh, kalau tidak
-         ekornya terpotong.
+         `children` hanya diisi untuk kartu terakhir di mode tumpukan: tautan
+         GitHub, yang ikut menempel tepat di bawah kartu itu. Karena itu slotnya
+         kolom (flex-col), bukan baris.
 
-         --stick diturunkan di ProjectStack: 5rem bar stage + jarak bilah +
-         tinggi bilah. Dipakai di sini lewat custom property, bukan dihitung
-         ulang, supaya kartu dan bilah tidak bisa lepas sinkron. */
+         --stick dan --slot diturunkan di ProjectStack. Dipakai di sini lewat
+         custom property, bukan dihitung ulang, supaya kartu dan bilah tidak bisa
+         lepas sinkron. */
       className={cn(
         "scroll-mt-[calc(1rem+var(--stick))] px-4 md:px-8",
         stacked
-          ? "sticky top-[var(--stick)] flex h-[min(36rem,calc(100svh-var(--stick)))] items-start pt-6"
+          ? "sticky top-[var(--stick)] flex h-[var(--slot)] flex-col pt-6"
           : !isLast && "mb-8"
       )}
     >
@@ -120,7 +115,7 @@ export const ProjectCard = ({
         {/* Baris meta. Ditumpuk di layar sempit: berdampingan, "QUEST 01 / 2025"
             patah jadi dua baris DAN perannya terpotong jadi "COMPUTER VISION ·
             BROW…" - dua kerusakan sekaligus demi menghemat satu baris. */}
-        <div className="flex flex-col items-start gap-1 border-b-2 border-border px-5 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4 md:px-8">
+        <div className="flex flex-col items-start gap-1 border-b-2 border-border px-5 py-2.5 sm:flex-row sm:items-center sm:justify-between sm:gap-4 md:px-8">
           <span className="pixel-font whitespace-nowrap text-pix-sm uppercase tabular-nums stage-text-bright">
             Quest {pad2(index + 1)} / {year}
           </span>
@@ -132,12 +127,14 @@ export const ProjectCard = ({
               Setengah lebar kartu, bukan 5/12 seperti porto_v3. Tangkapan layar
               project di sini lebar (~2,2:1); di kolom 5/12 setinggi 28rem yang
               terlihat cuma ~45% lebarnya, dan judul besar di gambar Loka Pura
-              terpotong di kedua sisi. Kotak 6/12 x 22rem memperlihatkan ~70%.
+              terpotong di kedua sisi. Kotak 6/12 memperlihatkan ~70%. Tinggi
+              minimumnya 16rem (dulu 22rem): kartu yang lebih pendek muat bersama
+              tautan GitHub di slot terakhir, bahkan di layar setinggi 680px.
 
               Gambarnya 120% tinggi kotak dan dimulai -10%, jadi geseran
               parallax +-8% (dari tinggi gambar) tidak pernah memperlihatkan
               tepi kosong di atas maupun di bawah. */}
-          <div className="relative h-56 overflow-hidden border-b-2 border-border sm:h-72 md:col-span-6 md:h-auto md:min-h-[22rem] md:border-b-0 md:border-r-2">
+          <div className="relative h-56 overflow-hidden border-b-2 border-border sm:h-72 md:col-span-6 md:h-auto md:min-h-[16rem] md:border-b-0 md:border-r-2">
             <motion.img
               ref={imgRef}
               onLoad={() => setLoaded(true)}
@@ -163,25 +160,25 @@ export const ProjectCard = ({
             initial="hidden"
             whileInView="show"
             viewport={VIEWPORT}
-            className="flex flex-col justify-between gap-8 p-5 md:col-span-6 md:p-8 lg:p-10"
+            className="flex flex-col justify-between gap-5 p-5 md:col-span-6 md:p-6 lg:px-8 lg:py-7"
           >
             <div>
               <motion.h4
                 id={`project-${project.id}`}
                 variants={textChild}
-                className="pixel-font-null text-2xl uppercase leading-tight tracking-[1px] text-foreground md:text-3xl"
+                className="pixel-font-null text-xl uppercase leading-tight tracking-[1px] text-foreground md:text-2xl"
               >
                 {title}
               </motion.h4>
               <motion.p
                 variants={textChild}
-                className="mt-4 max-w-xl text-sm leading-relaxed text-muted-foreground md:text-base"
+                className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground"
               >
                 {desc}
               </motion.p>
             </div>
 
-            <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-4">
               <motion.ul variants={textChild} className="flex flex-wrap gap-x-5 gap-y-3">
                 {project.skills.map((id) => {
                   const skill = skillById[id];
@@ -243,6 +240,14 @@ export const ProjectCard = ({
           />
         )}
       </motion.article>
+
+      {/* Bergeser sejauh kartunya (top), kalau tidak ia tertimpa kartu yang
+          digeser turun 24px per indeks itu. */}
+      {children && (
+        <div className="relative mx-auto mt-4 w-full max-w-6xl" style={{ top: `${index * 24}px` }}>
+          {children}
+        </div>
+      )}
     </div>
   );
 };

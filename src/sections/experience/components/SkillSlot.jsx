@@ -4,7 +4,7 @@ import { TIER_LABEL } from "../data";
 /*
  * Satu petak inventory: ikon saja, tanpa nama.
  *
- * Namanya dilepas karena di papan lima kolom slotnya cuma ~60-70px - "Android
+ * Namanya dilepas karena di papan tujuh kolom slotnya cuma ~52px - "Android
  * Studio" tidak muat di sana tanpa jadi 8px yang tidak terbaca. Game memecahkan
  * hal yang sama dengan cara yang sama: petak berisi ikon, nama dan keterangan di
  * panel detail. aria-label dan title tetap membawa namanya.
@@ -55,7 +55,7 @@ export const SkillSlot = ({ skill, revealed = true, isActive = false, onSelect }
         <span className="slot-pop block">
           <skill.Icon
             className={cn(
-              "h-6 w-6 transition-[filter] duration-200 ease-pix sm:h-7 sm:w-7",
+              "h-6 w-6 transition-[filter] duration-200 ease-pix",
               skill.color,
               isActive ? "grayscale-0 animate-bob motion-reduce:animate-none" : "grayscale group-hover:grayscale-0"
             )}

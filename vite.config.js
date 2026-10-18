@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import path from "path";
@@ -56,9 +56,52 @@ const siteMeta = () => ({
   },
 });
 
+/* `npm run dev` menyajikan api/chat.js sendiri. Tanpa ini POST /api/chat dibalas
+   404 tanpa JSON oleh Vite, dan stage Ask AI hanya bisa bilang "Gagal menghubungi
+   server" - asisten cuma bisa dicoba lewat `vercel dev`.
+
+   Handler-nya ditulis untuk runtime Node milik Vercel (req.body sudah terbaca,
+   res.status().json()), jadi dua hal itu ditambal di sini. Dimuat lewat
+   ssrLoadModule: perubahan di api/ ikut terpakai tanpa restart. Hanya dev -
+   di produksi Vercel yang menjalankan berkas yang sama. */
+const apiDev = () => ({
+  name: "api-dev",
+  apply: "serve",
+  configureServer(server) {
+    // GATEWAY_TOKEN dkk. dari .env. Env shell yang sudah ada tetap menang.
+    const fileEnv = loadEnv(server.config.mode, process.cwd(), "");
+    for (const [key, value] of Object.entries(fileEnv)) process.env[key] ??= value;
+
+    server.middlewares.use("/api/chat", async (req, res) => {
+      const chunks = [];
+      for await (const chunk of req) chunks.push(chunk);
+      req.body = Buffer.concat(chunks).toString("utf8");
+
+      res.status = (code) => {
+        res.statusCode = code;
+        return res;
+      };
+      res.json = (data) => {
+        res.setHeader("Content-Type", "application/json; charset=utf-8");
+        res.end(JSON.stringify(data));
+        return res;
+      };
+
+      try {
+        const { default: handler } = await server.ssrLoadModule("/api/chat.js");
+        await handler(req, res);
+      } catch (error) {
+        server.ssrFixStacktrace(error);
+        console.error(error);
+        if (!res.headersSent) res.status(500).json({ message: "api/chat.js gagal dimuat (lihat terminal)." });
+      }
+    });
+  },
+});
+
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(), tailwindcss(), siteMeta()],
+  plugins: [react(), tailwindcss(), siteMeta(), apiDev()],
   base: "/",
   build: {
     // Satu-satunya chunk di atas 500 KB adalah scene lampu 3D (three.js): ia dimuat
