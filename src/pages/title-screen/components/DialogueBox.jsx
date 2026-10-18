@@ -1,17 +1,17 @@
-/* Karakter + kotak dialog yang ikut stage terpilih.
+import { Portrait } from "./Portrait";
 
-   Karakter disembunyikan di HP: dialogue box-nya sendiri sudah cukup tinggi, dan
-   di layar sempit menu+dialog+karakter yang ditumpuk satu kolom gampang lebih
-   tinggi dari layar. */
+/* Potret + kotak dialog yang ikut stage terpilih.
+
+   z-10 di panel itu wajib, bukan rapi-rapi: potretnya cutout sebatas dada, dan
+   garis potong datarnya disembunyikan dengan cara berakhir DI BALIK panel ini.
+   Tanpa z-10 panel kalah tumpuk dari potret dan garis potongnya terlihat.
+   Chip "DEV_X" dan penghitung ikut naik bersama panel, jadi keduanya tetap
+   terbaca di atas bahu. Sisa alasannya ada di Portrait.jsx. */
 export const DialogueBox = ({ text, index, total }) => (
   <div className="flex w-full max-w-sm shrink-0 flex-col items-center md:w-96">
-    <img
-      src="/dev_left.webp"
-      alt="Deva Surya"
-      className="sprite z-10 -mb-4 hidden h-44 w-44 object-cover drop-shadow-[4px_4px_0_hsl(var(--pit))] md:block md:h-64 md:w-64"
-    />
+    <Portrait />
 
-    <div className="pix-dialog crt pix-corners stage-border relative w-full px-5 pt-7 pb-6">
+    <div className="pix-dialog crt pix-corners stage-border relative z-10 w-full px-5 pt-7 pb-6">
       <span className="pix-chip stage-border stage-bg-soft stage-text-bright pixel-font absolute -top-4 left-3 px-3 py-1 text-pix-xs md:text-xs">
         DEV_X
       </span>

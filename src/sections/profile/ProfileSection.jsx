@@ -1,10 +1,12 @@
 import { useRef } from "react";
 import { motion, useTransform } from "framer-motion";
 import { StarBackground } from "@/components/backgrounds/StarBackground";
+import { StageLoading } from "@/components/StageLoading";
+import { useImagesReady } from "@/hooks/useImagesReady";
 import { useMediaQuery, useReducedMotion } from "@/hooks/useMediaQuery";
 import { cn } from "@/lib/utils";
 import { ACTS } from "./acts";
-import { SCROLL_SPAN, STAGE_VARS, WALKERS, panelWrap } from "./constants";
+import { HERO_SPRITE, LAYERS, SCROLL_SPAN, STAGE_VARS, WALKERS, panelWrap } from "./constants";
 import { useStageProgress } from "./hooks/useStageProgress";
 import { useStageCamera } from "./hooks/useStageCamera";
 import { ActHud } from "./components/ActHud";
@@ -13,9 +15,14 @@ import { HeroSprite } from "./components/HeroSprite";
 import { WanderingSprite } from "./components/WanderingSprite";
 import { ACT_PANELS } from "./components/acts";
 
+/* Aset yang harus ada sebelum panggung ditampilkan: tiga plat kota dan sprite
+   hero. Empat NPC sengaja tidak ikut - mereka hiasan latar berprioritas rendah
+   (~1,3 MB) dan boleh muncul menyusul tanpa ada yang merasa kehilangan. */
+const CORE_IMAGES = [...LAYERS.map((layer) => layer.src), HERO_SPRITE.walk, HERO_SPRITE.idle];
+
 /*
  * Panggung side-scroller: satu kolom scroll menggerakkan kamera, kota, dan
- * karakter sekaligus, dengan lima panel babak yang saling silih berganti.
+ * karakter sekaligus, dengan empat panel babak yang saling silih berganti.
  *
  * Pembagian tugas:
  *   useStageProgress - waktu: scroll -> progres terbatas & halus, babak aktif
@@ -27,6 +34,7 @@ export const ProfileSection = () => {
   const refs = { stage: useRef(null), city: useRef(null), hero: useRef(null) };
 
   const reducedMotion = useReducedMotion();
+  const { ready, showLoader } = useImagesReady(CORE_IMAGES);
   /* 40rem = breakpoint sm, ambang yang sama dengan panelWrap memindahkan panel
      ke kanan. Keduanya WAJIB satu angka: kalau berbeda, akan ada rentang lebar
      di mana panel sudah pindah ke kanan tapi hero masih berjalan ke sana. */
@@ -47,7 +55,6 @@ export const ProfileSection = () => {
     useTransform(scrollYProgress, ACTS[1].range, ACTS[1].fade),
     useTransform(scrollYProgress, ACTS[2].range, ACTS[2].fade),
     useTransform(scrollYProgress, ACTS[3].range, ACTS[3].fade),
-    useTransform(scrollYProgress, ACTS[4].range, ACTS[4].fade),
   ];
 
   // Panel non-aktif dibuat inert: tidak bisa di-tab, tidak dibaca screen reader.
@@ -65,13 +72,21 @@ export const ProfileSection = () => {
       transition={{ duration: 0.5 }}
       className={cn("relative", SCROLL_SPAN)}
     >
+      {/* fixed, jadi tidak ikut tergulung bersama kolom scroll setinggi 500-750vh. */}
+      {showLoader && <StageLoading label="Memuat kota" className="fixed inset-x-0 top-20 z-20" />}
+
       {/* --city-drop menurunkan pelat kota dari dasar panggung; --ground ikut
           menguranginya, jadi kota dan sprite tetap teregistrasi. 90px itu ukuran
           desktop (panggung ~820px); di HP panggungnya cuma ~593px, dan 90px di
           situ mendorong garis trotoar keluar layar. */}
       <div
         ref={refs.stage}
-        className="sticky top-20 h-[calc(100vh-5rem)] overflow-hidden bg-background [--city-drop:28px] md:[--city-drop:90px]"
+        className={cn(
+          "sticky top-20 h-[calc(100svh-5rem)] overflow-hidden bg-background transition-opacity duration-500",
+          "[--city-drop:28px] md:[--city-drop:90px]",
+          // Panggung tetap dirender dan bekerja, hanya disembunyikan sampai aset intinya siap.
+          !ready && "opacity-0"
+        )}
         style={STAGE_VARS}
       >
         <StarBackground />

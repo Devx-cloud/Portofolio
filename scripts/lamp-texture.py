@@ -48,11 +48,15 @@ for x in range(4, W, 8):
 im.save("public/lamp-shade.png")
 print(f"public/lamp-shade.png  {W}x{H}, {len(im.getcolors())} warna")
 
-# pratinjau diperbesar
-im.resize((W * 12, H * 12), Image.NEAREST).save(
-    "C:/Users/WINDOW~1/AppData/Local/Temp/claude/c--Project-React-Portofolio/"
-    "942242c6-447c-4d35-a378-e0f2ff65668d/scratchpad/lamp-tex.png"
-)
+# pratinjau diperbesar - ke folder sementara sistem, bukan ke path tetap milik satu mesin
+# (versi lama menulis ke folder sesi lain yang tidak ada di mesin mana pun, dan skrip
+# mati di baris ini sebelum sempat membuat tekstur cahaya di bawah).
+import os
+import tempfile
+
+preview = os.path.join(tempfile.gettempdir(), "lamp-tex.png")
+im.resize((W * 12, H * 12), Image.NEAREST).save(preview)
+print(f"pratinjau: {preview}")
 
 
 # =========================================================

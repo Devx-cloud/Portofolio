@@ -1,8 +1,36 @@
-import { ProfileSection } from "@/sections/profile/ProfileSection";
-import { SkillSection } from "@/sections/skills/SkillSection";
-import { ProjectSection } from "@/sections/projects/ProjectSection";
-import { AssistantSection } from "@/sections/assistant/AssistantSection";
-import { ContactSection } from "@/sections/contact/ContactSection";
+import { lazy } from "react";
+
+/*
+ * Setiap stage dimuat saat dibutuhkan, bukan ikut bundel awal.
+ *
+ * Dulu keempat Section diimpor statis di sini, jadi Title Screen - yang cuma
+ * menampilkan menu - mengunduh seluruh Profile, Experience, Assistant, dan
+ * Contact sekaligus. Terukur: ~455 KB JS diunduh di setiap rute dan Title
+ * Screen hanya menjalankan 30% darinya.
+ *
+ * Section diekspor sebagai named export, sedangkan lazy() menuntut default -
+ * makanya dipetakan ulang di lazySection.
+ */
+const loaders = {
+  profile: () => import("@/sections/profile/ProfileSection"),
+  experience: () => import("@/sections/experience/ExperienceSection"),
+  assistant: () => import("@/sections/assistant/AssistantSection"),
+  contact: () => import("@/sections/contact/ContactSection"),
+};
+
+const lazySection = (id, exportName) =>
+  lazy(() => loaders[id]().then((module) => ({ default: module[exportName] })));
+
+/* Mulai mengunduh chunk sebuah stage tanpa menampilkannya. Dipanggil saat
+   pengunjung menyorot menu (hover, fokus, sentuh) - waktu antara menyorot dan
+   mengklik cukup untuk chunk kecil ini tiba, jadi stage terbuka tanpa jeda.
+   Aman dipanggil berulang: modul yang sudah dimuat langsung dikembalikan. */
+export const preloadStage = (id) => {
+  loaders[id]?.().catch(() => {
+    /* Gagal di sini tidak fatal: klik sebenarnya akan mencoba lagi dan
+       menampilkan kegagalannya di tempat yang semestinya. */
+  });
+};
 
 /*
  * Daftar stage - satu-satunya sumber untuk route, menu Title Screen, dan
@@ -21,25 +49,16 @@ export const stages = [
     label: "Profile",
     desc: "Data diri, fokus teknologi, dan cerita singkat di balik layar.",
     accent: "var(--primary)",
-    Section: ProfileSection,
+    Section: lazySection("profile", "ProfileSection"),
   },
   {
-    id: "skills",
-    path: "/skills",
-    badge: "Status · Kemampuan",
-    label: "Skills",
-    desc: "Peta kemampuan: Laravel, Flutter, React, sampai tools harian.",
+    id: "experience",
+    path: "/experience",
+    badge: "Loadout · Quest Log",
+    label: "Experience",
+    desc: "Skill yang saya bawa dan proyek nyata tempat semuanya dipakai.",
     accent: "var(--primary)",
-    Section: SkillSection,
-  },
-  {
-    id: "projects",
-    path: "/projects",
-    badge: "Showcase · Karya",
-    label: "Projects",
-    desc: "Proyek pilihan, dari computer vision di browser sampai pipeline AI.",
-    accent: "var(--primary)",
-    Section: ProjectSection,
+    Section: lazySection("experience", "ExperienceSection"),
   },
   {
     id: "assistant",
@@ -48,7 +67,7 @@ export const stages = [
     label: "Ask AI",
     desc: "Tanya apa saja soal profil ini. Dijawab asisten bertenaga Gemini.",
     accent: "var(--primary)",
-    Section: AssistantSection,
+    Section: lazySection("assistant", "AssistantSection"),
   },
   {
     id: "contact",
@@ -57,6 +76,6 @@ export const stages = [
     label: "Contact",
     desc: "Jalur langsung untuk kolaborasi, tawaran kerja, atau diskusi santai.",
     accent: "var(--primary)",
-    Section: ContactSection,
+    Section: lazySection("contact", "ContactSection"),
   },
 ];

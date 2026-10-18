@@ -36,7 +36,7 @@ const WRAP_PAD = 32;
  *   parallaxX - geseran layer-3, dikirim pemanggil
  *
  * Hasilnya lalu DIPUTAR di titik yang berada di luar layar: layer-3 bergeser
- * ratusan piksel sepanjang lima babak, dan tanpa pemutaran keduanya hanyut
+ * ratusan piksel sepanjang seluruh babak, dan tanpa pemutaran keduanya hanyut
  * keluar layar di babak kedua lalu tidak pernah kembali.
  *
  * Perjalanannya dirantai lewat animate() imperatif, bukan prop animate: nilai
