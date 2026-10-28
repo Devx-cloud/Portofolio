@@ -6,7 +6,7 @@ import {
   useScroll,
   useSpring,
 } from "framer-motion";
-import { ACT_THRESHOLDS, SNAP_POINTS } from "../acts";
+import { ACT_THRESHOLDS } from "../acts";
 import { IDLE_DELAY, MAX_FRAME_MS, MAX_SCROLL_RATE } from "../constants";
 
 /*
@@ -16,7 +16,7 @@ import { IDLE_DELAY, MAX_FRAME_MS, MAX_SCROLL_RATE } from "../constants";
  *
  * Sisi RUANG - jarak, parallax, posisi hero - ada di useStageCamera.
  */
-export const useStageProgress = (containerRef, reducedMotion) => {
+export const useStageProgress = (containerRef, reducedMotion, snapPoints) => {
   const [isMoving, setIsMoving] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const [facingRight, setFacingRight] = useState(true);
@@ -28,6 +28,20 @@ export const useStageProgress = (containerRef, reducedMotion) => {
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end end"],
+  });
+
+  /* Panel babak punya pegasnya sendiri, jauh lebih kaku daripada parallax.
+     Sejak panelnya bergulir (lihat REEL di acts.js), scroll mentah tidak lagi
+     cukup: satu ketukan roda (~100px) memindahkan panel ~120px dalam satu frame,
+     padahal opacity yang melompat dulu nyaris tidak terasa. Teredam kritis dan
+     selesai dalam ~200ms - cukup untuk meratakan ketukan roda, terlalu singkat
+     untuk membuat panel tertinggal dari babak aktifnya, yang tetap dibaca dari
+     scroll mentah. restDelta bawaan (0,001) berarti lompatan ~7px di ujung
+     peralihan; 0,0001 menyisakan kurang dari satu piksel. */
+  const panelProgress = useSpring(scrollYProgress, {
+    stiffness: 400,
+    damping: 40,
+    restDelta: 0.0001,
   });
 
   const markMoving = useCallback(() => {
@@ -48,6 +62,8 @@ export const useStageProgress = (containerRef, reducedMotion) => {
     // Frame pertama disamakan begitu saja: halaman bisa dimuat ulang di tengah
     // babak, dan tanpa ini panggung merangkak dari nol menuju posisi itu.
     if (!syncedRef.current || reducedMotion) {
+      // Panel juga: tanpa ini keempatnya bergulir lewat satu per satu saat dimuat.
+      if (!syncedRef.current) panelProgress.jump(target);
       syncedRef.current = true;
       cappedProgress.set(target);
       return;
@@ -67,8 +83,9 @@ export const useStageProgress = (containerRef, reducedMotion) => {
 
   /* Parallax dilewatkan spring supaya kota MELUNCUR, bukan tersentak tiap
      ketukan roda mouse. Sengaja overdamped - parallax yang memantul terasa
-     salah. Hanya parallax yang dihaluskan; opacity panel dan pergantian babak
-     tetap terikat scroll mentah supaya babaknya berganti tepat di posisinya. */
+     salah. Panel babak TIDAK memakai ini: pembatas kecepatan di depannya bisa
+     menahan panel sampai ~3 detik di belakang babak aktif, dan selama
+     itu tombol yang terlihat adalah tombol panel yang sudah di-inert. */
   const smoothProgress = useSpring(cappedProgress, {
     stiffness: 70,
     damping: 20,
@@ -114,9 +131,9 @@ export const useStageProgress = (containerRef, reducedMotion) => {
   const goToAct = useCallback(
     (index) => {
       setFacingRight(index >= activeIndex);
-      scrollToProgress(SNAP_POINTS[index]);
+      scrollToProgress(snapPoints[index]);
     },
-    [activeIndex, scrollToProgress]
+    [activeIndex, scrollToProgress, snapPoints]
   );
 
   useEffect(() => {
@@ -144,15 +161,24 @@ export const useStageProgress = (containerRef, reducedMotion) => {
 
       const current = scrollYProgress.get();
       const target = forward
-        ? SNAP_POINTS.find((p) => p > current + 0.01) ?? 1
-        : [...SNAP_POINTS].reverse().find((p) => p < current - 0.01) ?? 0;
+        ? snapPoints.find((p) => p > current + 0.01) ?? 1
+        : [...snapPoints].reverse().find((p) => p < current - 0.01) ?? 0;
 
       scrollToProgress(target);
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [scrollYProgress, scrollToProgress]);
+  }, [scrollYProgress, scrollToProgress, snapPoints]);
 
-  return { scrollYProgress, smoothProgress, isMoving, activeIndex, facingRight, goToAct };
+  return {
+    scrollYProgress,
+    smoothProgress,
+    // Gerak dikurangi: panel tidak bergeser, jadi tidak ada yang perlu dihaluskan.
+    panelProgress: reducedMotion ? scrollYProgress : panelProgress,
+    isMoving,
+    activeIndex,
+    facingRight,
+    goToAct,
+  };
 };

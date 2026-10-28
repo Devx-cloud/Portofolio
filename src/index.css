@@ -624,6 +624,40 @@
   }
 }
 
+/* ---------- Jendela gulungan panel babak ---------- */
+
+/* Panel babak bergulir saat berganti (lihat REEL di acts.js): yang baru naik
+   dari bawah jendelanya. Di layar sempit, tepat di bawah jendela itu berdiri
+   karakternya - panel penuh lebar duduk DI ATAS hero (lihat HUD_OFFSET di
+   constants.js), dan tanpa masker ini panel setengah pudar melintas di depan
+   kepalanya setiap kali babak berganti.
+
+   Pudarnya mulai PERSIS di dasar jendela (150px = HUD_OFFSET di HP), bukan di
+   persentase tetap seperti act-scrim. Di HP terpendek panel babak 1 hampir
+   memenuhi jendelanya, dan masker yang mulai lebih tinggi ikut memudarkan kaki
+   panel yang sedang diam. Panel yang diam selalu di tengah jendela, jadi batas
+   ini tidak pernah menyentuhnya.
+
+   Dari sm ke atas panel berdiri di samping hero, bukan di atasnya - tidak ada
+   yang perlu dilindungi. */
+@utility act-reel {
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    rgb(0 0 0) calc(100% - 150px),
+    transparent calc(100% - 118px)
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    rgb(0 0 0) calc(100% - 150px),
+    transparent calc(100% - 118px)
+  );
+
+  @media (width >= 40rem) {
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+}
+
 /* ---------- Peneduh sisi kanan Title Screen ---------- */
 
 /* Masalahnya sama dengan act-scrim - kolom kanan berisi potret dan kotak dialog
