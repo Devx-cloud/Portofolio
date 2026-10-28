@@ -5,8 +5,16 @@ import { StageLoading } from "@/components/StageLoading";
 import { useImagesReady } from "@/hooks/useImagesReady";
 import { useMediaQuery, useReducedMotion } from "@/hooks/useMediaQuery";
 import { cn } from "@/lib/utils";
-import { ACTS } from "./acts";
-import { HERO_SPRITE, LAYERS, SCROLL_SPAN, STAGE_VARS, WALKERS, panelWrap } from "./constants";
+import { ACTS, TIMELINES } from "./acts";
+import {
+  HERO_SPRITE,
+  LAYERS,
+  SCROLL_SPAN,
+  STAGE_VARS,
+  WALKERS,
+  panelSlot,
+  panelWrap,
+} from "./constants";
 import { useStageProgress } from "./hooks/useStageProgress";
 import { useStageCamera } from "./hooks/useStageCamera";
 import { ActHud } from "./components/ActHud";
@@ -39,8 +47,21 @@ export const ProfileSection = () => {
      ke kanan. Keduanya WAJIB satu angka: kalau berbeda, akan ada rentang lebar
      di mana panel sudah pindah ke kanan tapi hero masih berjalan ke sana. */
   const isWide = useMediaQuery("(min-width: 40rem)");
-  const { scrollYProgress, smoothProgress, isMoving, activeIndex, facingRight, goToAct } =
-    useStageProgress(containerRef, reducedMotion);
+  /* 48rem = md, ambang tempat SCROLL_SPAN memanjang dari 500vh ke 750vh. Lebar
+     peralihan babak diturunkan dari panjang kolom itu (lihat TIMELINES), jadi
+     keduanya juga WAJIB satu angka. */
+  const { snaps, frames } = useMediaQuery("(min-width: 48rem)")
+    ? TIMELINES.long
+    : TIMELINES.short;
+  const {
+    scrollYProgress,
+    smoothProgress,
+    panelProgress,
+    isMoving,
+    activeIndex,
+    facingRight,
+    goToAct,
+  } = useStageProgress(containerRef, reducedMotion, snaps);
   const { stageWidth, heroX, heroCycle, layerX, dustX, walkerX, progressWidth } = useStageCamera({
     refs,
     smoothProgress,
@@ -49,12 +70,21 @@ export const ProfileSection = () => {
     isWide,
   });
 
-  // Satu useTransform per babak - hook tidak boleh dipanggil di dalam loop.
+  /* Satu useTransform per babak - hook tidak boleh dipanggil di dalam loop.
+     Gerak dikurangi memakai opacity `still`: panelnya tidak bergeser, jadi
+     keduanya tidak boleh terlihat bersamaan (lihat keyframes di acts.js). */
+  const fade = (act) => (reducedMotion ? act.still : act.opacity);
   const actOpacity = [
-    useTransform(scrollYProgress, ACTS[0].range, ACTS[0].fade),
-    useTransform(scrollYProgress, ACTS[1].range, ACTS[1].fade),
-    useTransform(scrollYProgress, ACTS[2].range, ACTS[2].fade),
-    useTransform(scrollYProgress, ACTS[3].range, ACTS[3].fade),
+    useTransform(panelProgress, frames[0].range, fade(frames[0])),
+    useTransform(panelProgress, frames[1].range, fade(frames[1])),
+    useTransform(panelProgress, frames[2].range, fade(frames[2])),
+    useTransform(panelProgress, frames[3].range, fade(frames[3])),
+  ];
+  const actY = [
+    useTransform(panelProgress, frames[0].range, frames[0].y),
+    useTransform(panelProgress, frames[1].range, frames[1].y),
+    useTransform(panelProgress, frames[2].range, frames[2].y),
+    useTransform(panelProgress, frames[3].range, frames[3].y),
   ];
 
   // Panel non-aktif dibuat inert: tidak bisa di-tab, tidak dibaca screen reader.
@@ -125,11 +155,20 @@ export const ProfileSection = () => {
           reducedMotion={reducedMotion}
         />
 
-        {ACT_PANELS.map((Act, i) => (
-          <motion.div key={ACTS[i].id} style={{ opacity: actOpacity[i] }} {...actProps(i)}>
-            <Act index={i} />
-          </motion.div>
-        ))}
+        {/* Satu jendela untuk keempat panel - maskernya cukup dipasang sekali,
+            bukan di empat lapisan setinggi panggung yang tiga di antaranya kosong. */}
+        <div className="act-reel absolute inset-0 z-20">
+          {ACT_PANELS.map((Act, i) => (
+            <div key={ACTS[i].id} {...actProps(i)}>
+              <motion.div
+                style={{ opacity: actOpacity[i], y: reducedMotion ? 0 : actY[i] }}
+                className={panelSlot}
+              >
+                <Act index={i} />
+              </motion.div>
+            </div>
+          ))}
+        </div>
 
         <ActHud activeIndex={activeIndex} onSelect={goToAct} progressWidth={progressWidth} />
       </div>

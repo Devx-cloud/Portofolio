@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
  * Chrome panel babak: mengikuti bahasa visual dialogue-box di Title Screen.
  *
  * Anatominya sama untuk keempat babak, dan itu yang membuat pergantian babak
- * terbaca sebagai satu kotak yang isinya berganti, bukan empat kartu berbeda:
+ * terbaca sebagai satu gulungan halaman sejenis, bukan empat kartu berbeda:
  *
  *   [BABAK NN · NAMA]        <- papan nama, menumpang di tepi atas
  *   judul + isi              <- tumpukan bebas dari pemanggil
@@ -20,12 +20,12 @@ import { cn } from "@/lib/utils";
  */
 export const ActPanel = ({ index, label, hint, action, children }) => (
   /* Tinggi minimum + kaki yang didorong ke dasar (mt-auto). Keempat babak
-     berganti lewat silang-redam di titik yang sama, dan tanpa lantai ini
-     kotaknya berbeda tinggi 104px antar babak (terukur: 356/291/252/268) -
-     selama peralihan, dua kotak berbeda ukuran terlihat sekaligus dan papan
-     namanya berdiri di dua ketinggian. Angkanya sengaja di bawah babak
-     tertinggi, bukan menyamai: menyamakannya akan menaruh rongga 100px di
-     babak terpendek. Setengahnya cukup - lompatannya tinggal ~36px.
+     berhenti di titik tengah yang sama, dan tanpa lantai ini kotaknya berbeda
+     tinggi 104px antar babak (terukur: 356/291/252/268) - papan namanya, hal
+     pertama yang dicari mata, mendarat di ketinggian berbeda tiap babak, dan
+     gulungannya terbaca sebagai kotak yang memuai-menyusut. Angkanya sengaja
+     di bawah babak tertinggi, bukan menyamai: menyamakannya akan menaruh rongga
+     100px di babak terpendek. Setengahnya cukup - lompatannya tinggal ~36px.
      Pola yang sama dipakai kotak dialog Title Screen (min-h pada teksnya). */
   /* Bingkainya NETRAL, bukan aksen - sama dengan kartu project, panel detail
      skill, dan panel Contact. Merah 4px mengelilingi kotak sebesar ini adalah
@@ -41,7 +41,7 @@ export const ActPanel = ({ index, label, hint, action, children }) => (
      Kotak dialog Title Screen dan halaman 404 SENGAJA tetap merah: yang pertama
      satu-satunya kartu di layarnya dan memang wajah pertama situs ini, yang
      kedua memang peringatan. */
-  <div className="pix-dialog crt pix-corners [--pix-edge:hsl(var(--border))] relative flex w-full max-w-lg md:max-w-xl flex-col min-h-[19rem] md:min-h-[20rem] px-4 pt-8 pb-5 sm:px-5 md:px-7">
+  <div className="pix-dialog crt pix-corners [--pix-edge:hsl(var(--border))] relative flex w-full flex-col min-h-[19rem] md:min-h-[20rem] px-4 pt-8 pb-5 sm:px-5 md:px-7">
     {/* left-6, bukan left-4: siku hiasan panel duduk di -4..4px dari pojok, dan
         papan nama yang mulai di 16px hanya menyisakan celah 12px - sikunya
         terbaca sebagai potongan yang tertabrak papan nama, bukan sebagai hiasan

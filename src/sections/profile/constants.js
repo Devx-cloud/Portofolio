@@ -187,10 +187,18 @@ const HUD_OFFSET = "pb-[150px] md:pb-[76px]";
    menyempit. Di HP panel dibiarkan penuh dan center; sprite-nya duduk jauh di
    bawah panel, jadi tidak ada yang perlu dihindari secara horizontal. */
 export const panelWrap = cn(
-  "absolute inset-0 z-20 flex items-center justify-center sm:justify-end",
+  "absolute inset-0 flex items-center justify-center sm:justify-end",
   "px-4 sm:pl-28 md:pl-44 lg:pl-56 md:pr-8 lg:pr-12",
   HUD_OFFSET
 );
+
+/* Pembungkus yang DIGESER saat panel bergulir, dan lebar panelnya dipasang di
+   sini, bukan di ActPanel. Geseran gulungan ditulis dalam persen (lihat REEL di
+   acts.js), dan persen translate mengacu ke tinggi kotak yang ditransformasi -
+   jadi kotak itu harus pas membungkus panelnya, bukan setinggi panggung seperti
+   panelWrap. Sebagai anak flex tanpa lebar, ia menyusut ke isinya dan w-full di
+   ActPanel jadi tidak punya acuan. */
+export const panelSlot = "w-full max-w-lg md:max-w-xl";
 
 export const actionClass =
   "group inline-flex w-fit items-center gap-2 pix-chip stage-border-soft px-4 py-2 pixel-font text-pix-xs md:text-pix-sm text-foreground transition-all duration-100 ease-pix hover:stage-border hover:stage-bg-soft hover:translate-x-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[hsl(var(--stage-accent))]";
