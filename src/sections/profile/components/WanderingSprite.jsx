@@ -127,7 +127,7 @@ export const WanderingSprite = ({
     <motion.div
       ref={boxRef}
       aria-hidden="true"
-      className="absolute bottom-[var(--ground)] left-0"
+      className="absolute bottom-[var(--ground)] left-0 will-change-transform"
       /* zIndex lewat style: ia harus duduk di PEMBUNGKUS yang diposisikan,
          sementara className milik pemanggil menempel di sprite-nya. Sebelum
          terukur, sprite disembunyikan supaya tidak terlihat berdiri di x=0. */

@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { ACTS } from "../acts";
+import { useMotionState } from "../hooks/useMotionState";
 
 const stepClass = (isActive, isPast) =>
   cn(
@@ -16,46 +17,54 @@ const stepClass = (isActive, isPast) =>
 /* HUD babak: stepper + bilah progres + petunjuk kontrol.
    Tinggi 68/76px dipesan lewat HUD_OFFSET di panelWrap - kalau salah satu
    berubah, panel babak akan tertimbun HUD. */
-export const ActHud = ({ activeIndex, onSelect, progressWidth }) => (
-  <div className="absolute inset-x-0 bottom-0 z-30 h-[68px] md:h-[76px] overflow-hidden pix-veil border-t-4 stage-border">
-    <div className="mx-auto flex h-full max-w-3xl flex-col justify-center gap-2 px-3 md:px-6">
-      <div className="flex items-stretch gap-1">
-        {ACTS.map((act, i) => {
-          const isActive = activeIndex === i;
-          const ink = isActive ? "stage-ink" : "text-foreground/70";
-          return (
-            <button
-              key={act.id}
-              type="button"
-              onClick={() => onSelect(i)}
-              aria-current={isActive ? "step" : undefined}
-              aria-label={`Ke babak ${i + 1}: ${act.label}`}
-              className={stepClass(isActive, activeIndex > i)}
-            >
-              <span className={cn("pixel-font text-pix-sm leading-tight", ink)}>
-                {String(i + 1).padStart(2, "0")}
-              </span>
-              <span
-                className={cn("hidden truncate pixel-font text-pix-sm leading-tight sm:block", ink)}
-              >
-                {act.label.toUpperCase()}
-              </span>
-            </button>
-          );
-        })}
-      </div>
+export const ActHud = ({ activeIndex, onSelect, progress }) => {
+  const currentIndex = useMotionState(activeIndex);
 
-      <div className="flex items-center gap-3">
-        <div className="h-3 flex-1 pix-inset">
-          <motion.div style={{ width: progressWidth }} className="h-full stage-bg" />
+  return (
+    <div className="absolute inset-x-0 bottom-0 z-30 h-[68px] md:h-[76px] overflow-hidden pix-veil border-t-4 stage-border">
+      <div className="mx-auto flex h-full max-w-3xl flex-col justify-center gap-2 px-3 md:px-6">
+        <div className="flex items-stretch gap-1">
+          {ACTS.map((act, i) => {
+            const isActive = currentIndex === i;
+            const ink = isActive ? "stage-ink" : "text-foreground/70";
+            return (
+              <button
+                key={act.id}
+                type="button"
+                onClick={() => onSelect(i)}
+                aria-current={isActive ? "step" : undefined}
+                aria-label={`Ke babak ${i + 1}: ${act.label}`}
+                className={stepClass(isActive, currentIndex > i)}
+              >
+                <span className={cn("pixel-font text-pix-sm leading-tight", ink)}>
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <span
+                  className={cn(
+                    "hidden truncate pixel-font text-pix-sm leading-tight sm:block",
+                    ink
+                  )}
+                >
+                  {act.label.toUpperCase()}
+                </span>
+              </button>
+            );
+          })}
         </div>
-        {/* Panah keyboard tidak ada di layar sentuh - di sana yang berlaku adalah
-            menggulir, dan teksnya pun lebih pendek sehingga bilah progres lebih lega. */}
-        <p className="pixel-font shrink-0 text-pix-sm text-foreground/70">
-          <span className="pointer-coarse:hidden">← → PINDAH BABAK</span>
-          <span className="hidden pointer-coarse:inline">GULIR ▼</span>
-        </p>
+
+        <div className="flex items-center gap-3">
+          <div className="h-3 flex-1 pix-inset">
+            {/* scaleX, bukan width: width memicu layout ulang di setiap frame scroll. */}
+            <motion.div style={{ scaleX: progress }} className="h-full origin-left stage-bg" />
+          </div>
+          {/* Panah keyboard tidak ada di layar sentuh - di sana yang berlaku adalah
+              menggulir, dan teksnya pun lebih pendek sehingga bilah progres lebih lega. */}
+          <p className="pixel-font shrink-0 text-pix-sm text-foreground/70">
+            <span className="pointer-coarse:hidden">← → PINDAH BABAK</span>
+            <span className="hidden pointer-coarse:inline">GULIR ▼</span>
+          </p>
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
+};

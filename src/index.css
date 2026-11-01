@@ -626,36 +626,48 @@
 
 /* ---------- Jendela gulungan panel babak ---------- */
 
-/* Panel babak bergulir saat berganti (lihat REEL di acts.js): yang baru naik
-   dari bawah jendelanya. Di layar sempit, tepat di bawah jendela itu berdiri
-   karakternya - panel penuh lebar duduk DI ATAS hero (lihat HUD_OFFSET di
-   constants.js), dan tanpa masker ini panel setengah pudar melintas di depan
-   kepalanya setiap kali babak berganti.
+/* Panel babak bergulir pelan mengikuti scroll, jadi yang baru naik lama dari bawah
+   jendelanya. Di layar sempit, tepat di bawah jendela itu berdiri karakternya -
+   panel penuh lebar duduk DI ATAS hero (lihat HUD_OFFSET di constants.js), dan
+   tanpa masker ini panel berlama-lama menutupi karakternya.
 
-   Pudarnya mulai PERSIS di dasar jendela (150px = HUD_OFFSET di HP), bukan di
-   persentase tetap seperti act-scrim. Di HP terpendek panel babak 1 hampir
-   memenuhi jendelanya, dan masker yang mulai lebih tinggi ikut memudarkan kaki
-   panel yang sedang diam. Panel yang diam selalu di tengah jendela, jadi batas
-   ini tidak pernah menyentuhnya.
+   Batasnya diturunkan dari tinggi karakter, bukan angka tetap: --ground ikut tinggi
+   panggung, dan di HP jangkung kepala karakter berada jauh lebih tinggi daripada
+   di HP pendek. --hero-top = garis tanah + sprite w-14 (5,25rem) + penanda (1rem).
+   Panel sudah habis tepat di atas penanda, jadi karakternya tidak pernah terpotong.
+
+   Pudarnya cuma 16px: di HP terpendek panel babak 1 hampir menyentuh batas ini,
+   dan pudar yang lebih panjang ikut memudarkan kaki panel di posisi bacanya.
 
    Dari sm ke atas panel berdiri di samping hero, bukan di atasnya - tidak ada
    yang perlu dilindungi. */
 @utility act-reel {
+  --hero-top: calc(var(--ground) + 6.25rem);
   -webkit-mask-image: linear-gradient(
     to bottom,
-    rgb(0 0 0) calc(100% - 150px),
-    transparent calc(100% - 118px)
+    rgb(0 0 0) calc(100% - var(--hero-top) - 16px),
+    transparent calc(100% - var(--hero-top))
   );
   mask-image: linear-gradient(
     to bottom,
-    rgb(0 0 0) calc(100% - 150px),
-    transparent calc(100% - 118px)
+    rgb(0 0 0) calc(100% - var(--hero-top) - 16px),
+    transparent calc(100% - var(--hero-top))
   );
 
   @media (width >= 40rem) {
     -webkit-mask-image: none;
     mask-image: none;
   }
+}
+
+/* Jalur putus-putus yang menyambung dua panel babak (lihat ActInterludes). Kelipatan
+   grid 4px dan tanpa pudar, senada dengan tepi keras seluruh panggung. */
+@utility act-rail {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    hsl(var(--stage-accent) / 0.5) 0 8px,
+    transparent 8px 16px
+  );
 }
 
 /* ---------- Peneduh sisi kanan Title Screen ---------- */

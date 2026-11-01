@@ -18,6 +18,17 @@ export const SCROLLY_QUERY = "(min-width: 1024px) and (min-height: 680px)";
    kartu sticky yang lebih tinggi dari layar terpotong tanpa bisa dibaca. */
 export const STACK_QUERY = "(min-width: 768px) and (min-height: 680px)";
 
+/* SATU-SATUNYA tuas kecepatan bab yang digerakkan scroll (panggung Skills dan
+   tumpukan Projects): berapa kali lebih jauh harus digulir untuk gerak yang sama.
+   Lebih besar = lebih lambat, dan batang scrollbar lebih kecil. */
+export const SCROLL_SLOWDOWN = 3;
+
+/* Tinggi bar stage dalam px - titik panggung sticky mulai menempel. Dipakai sebagai
+   awal progres: mengukur dari puncak layar membuat 80px pertama sesudah panggung
+   menempel tidak menggerakkan apa pun. */
+export const STAGE_TOP = 80;
+export const STAGE_OFFSET = [`start ${STAGE_TOP}px`, "end end"];
+
 /* Gerak patah-patah untuk framer, padanan steps(4, end) di CSS - untuk chrome
    pixel: panel yang berganti isi, ikon, label. */
 export const pixEase = (t) => Math.floor(t * 4) / 4;

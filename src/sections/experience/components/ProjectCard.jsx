@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowUpRight, Github } from "lucide-react";
+import { useElementHeight } from "@/hooks/useElementHeight";
 import { useReducedMotion } from "@/hooks/useMediaQuery";
 import { cn } from "@/lib/utils";
 import { easeOutExpo } from "../constants";
@@ -37,6 +38,7 @@ const VIEWPORT = { once: true, margin: "0px 0px -10% 0px" };
 export const ProjectCard = ({
   project,
   index,
+  count,
   isLast,
   stacked,
   progress,
@@ -44,12 +46,21 @@ export const ProjectCard = ({
   targetScale,
   isFlashing,
   onPickSkill,
+  onKeyboardFocus,
   onRef,
   children,
 }) => {
   const wrapRef = useRef(null);
   const reduced = useReducedMotion();
+  const slot = useElementHeight(wrapRef);
   const { title, year, role, desc, image, githubUrl, demoUrl } = project;
+
+  /* Posisi kartu di panggung: tiap kartu menunggu satu slot di bawah kartu
+     sebelumnya, naik linear mengikuti scroll, lalu berhenti di garis tempel. Piksel
+     bulat: lapisan yang berhenti di posisi pecahan membuat teks kartu kabur. */
+  const y = useTransform(progress, (p) =>
+    Math.round(Math.max(0, index - p * (count - 1)) * slot)
+  );
 
   /* Gambar memudar masuk setelah benar-benar tergambar. `complete` diperiksa
      saat elemen menempel karena gambar dari cache bisa selesai dimuat SEBELUM
@@ -68,36 +79,46 @@ export const ProjectCard = ({
   const shade = useTransform(progress, range, [0, (1 - targetScale) * 8]);
 
   /* Parallax dari gulungan kartu itu SENDIRI, bukan tumpukannya - kalau tidak,
-     semua gambar bergerak serempak dan kedalamannya hilang. */
+     semua gambar bergerak serempak dan kedalamannya hilang. Di panggung kartunya
+     tidak ikut tergulir, jadi "gulungannya" dihitung dari porsi progres saat kartu
+     ini sedang tiba dan sedang tertimpa. */
   const { scrollYProgress: own } = useScroll({ target: wrapRef, offset: ["start end", "end start"] });
-  const imageY = useTransform(own, [0, 1], ["-8%", "8%"]);
+  const imageY = useTransform(
+    stacked ? progress : own,
+    stacked ? [Math.max(0, (index - 1) / (count - 1)), Math.min(1, (index + 1) / (count - 1))] : [0, 1],
+    ["-8%", "8%"]
+  );
 
   return (
-    <div
+    <motion.div
       ref={(el) => {
         wrapRef.current = el;
         onRef(index, el);
       }}
+      style={stacked ? { y } : undefined}
+      /* Hanya fokus keyboard: kartu di luar panggung tetap bisa dicapai dengan Tab,
+         dan halaman digulir ke kartu itu. Klik mouse juga memberi fokus - tanpa
+         :focus-visible halaman bergeser persis saat tombolnya ditekan. */
+      onFocus={
+        stacked
+          ? (event) => event.target.matches(":focus-visible") && onKeyboardFocus(index)
+          : undefined
+      }
       /* Di mode tumpukan kartu diletakkan dekat atas slot, bukan di tengahnya.
          Di tengah, kartu pertama berdiri ~150px di bawah judul bab sebelum
          menempel - celah kosong tepat di tempat mata mencari isi bab. Jaraknya
          ke kepala bab pt-6, irama yang sama dengan mt-6 antara kepala bab Skills
          dan papannya.
 
-         Tinggi slot = jarak gulir sebelum kartu berikutnya naik menutupi yang
-         sekarang. Rumusnya (dan kenapa dibatasi) di SLOT, ProjectStack.
+         Rumus tinggi slot (dan kenapa dibatasi) di SLOT, ProjectStack.
 
          `children` hanya diisi untuk kartu terakhir di mode tumpukan: tautan
-         GitHub, yang ikut menempel tepat di bawah kartu itu. Karena itu slotnya
-         kolom (flex-col), bukan baris.
-
-         --stick dan --slot diturunkan di ProjectStack. Dipakai di sini lewat
-         custom property, bukan dihitung ulang, supaya kartu dan bilah tidak bisa
-         lepas sinkron. */
+         GitHub, yang ikut berhenti tepat di bawah kartu itu. Karena itu slotnya
+         kolom (flex-col), bukan baris. */
       className={cn(
-        "scroll-mt-[calc(1rem+var(--stick))] px-4 md:px-8",
+        "px-4 md:px-8",
         stacked
-          ? "sticky top-[var(--stick)] flex h-[var(--slot)] flex-col pt-6"
+          ? "absolute inset-x-0 top-0 flex h-[var(--slot)] flex-col pt-6 will-change-transform"
           : !isLast && "mb-8"
       )}
     >
@@ -248,6 +269,6 @@ export const ProjectCard = ({
           {children}
         </div>
       )}
-    </div>
+    </motion.div>
   );
 };

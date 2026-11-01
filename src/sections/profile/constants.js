@@ -147,23 +147,13 @@ export const HERO_REACH_WIDE = 0.42;
    yang nyaris diam saat digulir pelan. Angkanya sama dengan STRIDE_RATE. */
 export const CYCLE_DISTANCE = 1.4;
 
-/* Batas kecepatan panggung, fraksi halaman per detik. scrollYProgress mengikuti
-   roda TANPA batas - satu lemparan trackpad bisa memindahkan seluruh halaman
-   dalam sepersekian detik, dan pada tempo itu kaki hero menyapu ratusan frame.
-   0.35 = seluruh panggung tidak pernah lebih cepat dari ~2.9 detik; guliran roda
-   biasa (~0.09/detik) tidak tersentuh sama sekali. */
-export const MAX_SCROLL_RATE = 0.35;
+/* Tinggi kolom scroll = SATU-SATUNYA tuas kecepatan: banyak digulir, sedikit
+   bergerak. Pengalinya dalam tinggi panggung, jadi rasa lambatnya sama di semua
+   layar. Di 16x, panel bergerak 1/5 kecepatan scroll dan hero ~1/10.
 
-/* Tab yang baru aktif lagi mengirim delta raksasa dalam satu frame; tanpa
-   penjaga ini pembatas kecepatan justru melompat sejauh yang ia cegah. */
-export const MAX_FRAME_MS = 64;
-
-/* Tinggi kolom scroll = SATU-SATUNYA tuas kecepatan global; semua jarak dibagi
-   rata ke dalamnya. Desktop 750vh (dari 500vh) supaya telapak hero tidak
-   menyeret. HP sengaja tidak ikut: jaraknya diukur dalam lebar layar sementara
-   kolomnya dalam tinggi, jadi di layar sempit-jangkung sudah jauh lebih lambat
-   sejak awal. */
-export const SCROLL_SPAN = "h-[500vh] md:h-[750vh]";
+   Scroll cepat tidak membuat hero terlihat berlari: langkahnya terikat ke jarak
+   dan dibatasi WALK_FPS, jadi pada tempo itu ia berjalan dengan irama wajar. */
+export const SCROLL_SPAN = "h-[calc((100svh-5rem)*16)]";
 
 /* Berapa lama tanpa event scroll sebelum karakter dianggap berhenti. Scroll
    tidak punya sinyal akhir sendiri, jadi tiap event menyetel ulang hitungan ini.
@@ -187,17 +177,13 @@ const HUD_OFFSET = "pb-[150px] md:pb-[76px]";
    menyempit. Di HP panel dibiarkan penuh dan center; sprite-nya duduk jauh di
    bawah panel, jadi tidak ada yang perlu dihindari secara horizontal. */
 export const panelWrap = cn(
-  "absolute inset-0 flex items-center justify-center sm:justify-end",
+  "flex min-h-0 items-center justify-center sm:justify-end",
   "px-4 sm:pl-28 md:pl-44 lg:pl-56 md:pr-8 lg:pr-12",
   HUD_OFFSET
 );
 
-/* Pembungkus yang DIGESER saat panel bergulir, dan lebar panelnya dipasang di
-   sini, bukan di ActPanel. Geseran gulungan ditulis dalam persen (lihat REEL di
-   acts.js), dan persen translate mengacu ke tinggi kotak yang ditransformasi -
-   jadi kotak itu harus pas membungkus panelnya, bukan setinggi panggung seperti
-   panelWrap. Sebagai anak flex tanpa lebar, ia menyusut ke isinya dan w-full di
-   ActPanel jadi tidak punya acuan. */
+/* Lebar panel dipasang di sini, bukan di ActPanel: sebagai anak flex tanpa lebar,
+   ia menyusut ke isinya dan w-full di ActPanel jadi tidak punya acuan. */
 export const panelSlot = "w-full max-w-lg md:max-w-xl";
 
 export const actionClass =

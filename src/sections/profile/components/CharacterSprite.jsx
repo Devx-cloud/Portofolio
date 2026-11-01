@@ -13,11 +13,9 @@ import { GroundShadow } from "./GroundShadow";
  * latar digeser terus-menerus, jadi pemanggilnya yang menempatkan.
  */
 
-/* Silang-redam idle <-> jalan, sengaja tidak simetris. Memulai langkah boleh
-   lembut; berhenti harus terasa seketika - 60ms cuma menghindari potongan
-   keras, di bawah ambang "sempat melangkah lagi sebentar". */
-const FADE_START = { duration: 0.16, ease: "easeOut" };
-const FADE_STOP = { duration: 0.06, ease: "easeOut" };
+/* Silang-redam idle <-> jalan. Mulai dan berhenti harus sama-sama terasa seketika
+   mengikuti scroll - 60ms cuma menghindari potongan keras. */
+const FADE = { duration: 0.06, ease: "easeOut" };
 const INSTANT = { duration: 0 };
 
 const WALK_FRAMES = 8;
@@ -64,7 +62,7 @@ export const CharacterSprite = ({
   fetchPriority,
 }) => {
   const hasIdleSheet = Boolean(sprite.idle);
-  const fade = reducedMotion ? INSTANT : walking ? FADE_START : FADE_STOP;
+  const fade = reducedMotion ? INSTANT : FADE;
   // Negatif: siklusnya dimajukan, bukan ditunda.
   const offset = phase ? { animationDelay: `-${phase}s` } : undefined;
 
@@ -74,7 +72,7 @@ export const CharacterSprite = ({
      Nilai cadangan `still` menjaga jumlah hook tetap sama saat cycle kosong. */
   const still = useMotionValue(0);
   const frame = useMotionValue(0);
-  const frameRef = useRef(0);
+  const lastTargetRef = useRef(null);
   const waitRef = useRef(0);
 
   useAnimationFrame((_, delta) => {
@@ -87,20 +85,15 @@ export const CharacterSprite = ({
     }
 
     const target = Math.floor(cycle.get() * WALK_FRAMES);
-    let current = frameRef.current;
-    const lag = target - current;
+    if (lastTargetRef.current === null) lastTargetRef.current = target;
+    const lag = target - lastTargetRef.current;
     if (!lag) return;
 
-    /* Utang lebih dari satu siklus dibuang: satu guliran kencang menyisakan
-       ratusan frame tertunggak dan hero akan terus melangkah belasan detik
-       setelah halaman berhenti. Yang dibuang selalu kelipatan WALK_FRAMES, jadi
-       frame yang tampil tidak pernah terlihat melompat. */
-    if (Math.abs(lag) > WALK_FRAMES) {
-      current = target - Math.sign(lag) * (Math.abs(lag) % WALK_FRAMES);
-    }
-
-    frameRef.current = current + Math.sign(target - current);
-    frame.set(frameRef.current);
+    /* Maju satu pose ke arah gerak, lalu seluruh sisa jarak dianggap lunas. Kaki
+       yang mengejar utang frame tetap melangkah sesudah scroll melambat, dan itu
+       terbaca sebagai karakter yang tertinggal dari tanahnya. */
+    lastTargetRef.current = target;
+    frame.set(frame.get() + Math.sign(lag));
     waitRef.current = FRAME_MS;
   });
 

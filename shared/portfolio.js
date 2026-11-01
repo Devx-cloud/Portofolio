@@ -33,8 +33,9 @@ export const PROFILE = {
     "API Development & Integrasi",
   ],
   /* Field di bawah ini (sampai careerGoals) belum tampil di situs - sejauh ini
-     hanya asisten AI yang membacanya. Ditulis sebagai frasa utuh karena dibaca
-     apa adanya. */
+     hanya asisten AI yang membacanya, kecuali work.type dan work.mode yang tampil
+     di titik singgah Profile (ActInterludes). Ditulis sebagai frasa utuh karena
+     dibaca apa adanya. */
 
   // Terbaru dulu.
   education: [

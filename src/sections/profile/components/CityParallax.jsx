@@ -3,7 +3,10 @@ import { Fireflies } from "@/components/backgrounds/Fireflies";
 import { cn } from "@/lib/utils";
 import { LAYERS, PARTICLES } from "../constants";
 
-const bandClass = "absolute bottom-[calc(-1*var(--city-drop))] left-0 pointer-events-none";
+/* will-change: lapisannya digambar sekali lalu tinggal digeser GPU. Tanpanya, plat
+   selebar ~3000px dicat ulang di setiap frame scroll. */
+const bandClass =
+  "absolute bottom-[calc(-1*var(--city-drop))] left-0 pointer-events-none will-change-transform";
 
 /*
  * Kota: tiga plat bertumpuk, masing-masing bergeser dengan kecepatan sendiri.

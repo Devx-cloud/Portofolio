@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { HERO_SPRITE, SPRITE_SIZE } from "../constants";
+import { useMotionState } from "../hooks/useMotionState";
 import { CharacterSprite } from "./CharacterSprite";
 
 /* Penanda "ini kamu". Wajib ada begitu pejalan latar dibuat seukuran hero:
@@ -34,17 +35,30 @@ const Marker = ({ reducedMotion }) => (
  * left-0, bukan left-3/6/12: jarak dari tepi sekarang bagian dari heroX, dan
  * menumpuk keduanya akan menggeser seluruh rentangnya ke kanan. Sel strip-nya
  * menempatkan telapak di baris paling bawah, jadi cukup bottom-[var(--ground)].
+ *
+ * isMoving & facingRight berupa MotionValue dan dibaca di sini saja, supaya
+ * pergantian strip cuma merender ulang sprite ini (lihat useMotionState).
  */
-export const HeroSprite = ({ heroRef, x, cycle, walking, facingRight, reducedMotion }) => (
-  <motion.div ref={heroRef} style={{ x }} className="absolute bottom-[var(--ground)] left-0 z-10">
-    <Marker reducedMotion={reducedMotion} />
-    <CharacterSprite
-      walking={walking}
-      facingRight={facingRight}
-      cycle={cycle}
-      reducedMotion={reducedMotion}
-      sprite={HERO_SPRITE}
-      className={SPRITE_SIZE}
-    />
-  </motion.div>
-);
+export const HeroSprite = ({ heroRef, x, cycle, isMoving, facingRight, reducedMotion }) => {
+  const moving = useMotionState(isMoving);
+  const facing = useMotionState(facingRight);
+
+  return (
+    <motion.div
+      ref={heroRef}
+      style={{ x }}
+      className="absolute bottom-[var(--ground)] left-0 z-10 will-change-transform"
+    >
+      <Marker reducedMotion={reducedMotion} />
+      <CharacterSprite
+        // Ada input -> strip jalan. Input berhenti -> strip idle (lihat IDLE_DELAY).
+        walking={!reducedMotion && moving}
+        facingRight={facing}
+        cycle={cycle}
+        reducedMotion={reducedMotion}
+        sprite={HERO_SPRITE}
+        className={SPRITE_SIZE}
+      />
+    </motion.div>
+  );
+};

@@ -1,5 +1,7 @@
 import { useTransform } from "framer-motion";
+import { useElementHeight } from "@/hooks/useElementHeight";
 import { useElementWidth } from "@/hooks/useElementWidth";
+import { ACTS } from "../acts";
 import {
   CYCLE_DISTANCE,
   HERO_ANCHOR,
@@ -11,15 +13,16 @@ import {
 } from "../constants";
 
 /*
- * Sisi RUANG panggung: mengubah progres yang sudah dihaluskan jadi posisi -
- * geseran tiga plat kota, tiga pita kunang-kunang, pejalan latar, dan hero.
+ * Sisi RUANG panggung: mengubah progres scroll jadi posisi - geseran tiga plat
+ * kota, tiga pita kunang-kunang, pejalan latar, dan hero.
  *
  * Lebar diukur dari elemennya, bukan dihitung: --city-w itu max() dari tiga
  * suku yang salah satunya bergantung tinggi viewport. Piksel, bukan persen -
  * translateX berpersen mengacu ke lebar elemen itu sendiri.
  */
-export const useStageCamera = ({ refs, smoothProgress, scrollYProgress, reducedMotion, isWide }) => {
+export const useStageCamera = ({ refs, scrollYProgress, reducedMotion, isWide }) => {
   const stageWidth = useElementWidth(refs.stage);
+  const stageHeight = useElementHeight(refs.stage);
   const cityWidth = useElementWidth(refs.city);
   const heroWidth = useElementWidth(refs.hero);
 
@@ -49,13 +52,13 @@ export const useStageCamera = ({ refs, smoothProgress, scrollYProgress, reducedM
 
   /* Posisi KAMERA 0..1 - bukan posisi scroll. Menempel di 0 selama fase LEAD
      dan di 1 selama fase TAIL. Semua yang membentuk dunia diturunkan dari sini;
-     yang TIDAK cuma hero, opacity panel, dan bilah progres. */
-  const cameraProgress = useTransform(smoothProgress, cameraKeys, [0, 0, 1, 1]);
+     yang TIDAK cuma hero dan bilah progres. */
+  const cameraProgress = useTransform(scrollYProgress, cameraKeys, [0, 0, 1, 1]);
 
   /* Hero punya rentangnya sendiri: berjalan masuk di fase LEAD, diam di jangkar
      selama kamera bekerja, lalu melanjutkan ke tepi kanan setelah kota mentok. */
   const heroX = useTransform(
-    smoothProgress,
+    scrollYProgress,
     cameraKeys,
     reducedMotion
       ? [anchorX, anchorX, anchorX, anchorX]
@@ -96,7 +99,12 @@ export const useStageCamera = ({ refs, smoothProgress, scrollYProgress, reducedM
     [0, reducedMotion ? 0 : cityWidth * nearTravel]
   );
 
-  const progressWidth = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
+  /* Gulungan panel: linear terhadap scroll, tanpa spring dan tanpa plateau, jadi
+     panel selalu bergerak pelan dan tidak pernah tertinggal. Piksel bulat: lapisan
+     yang berhenti di posisi pecahan membuat teks panel kabur. */
+  const panelY = useTransform(scrollYProgress, (p) =>
+    Math.round(-p * (ACTS.length - 1) * stageHeight)
+  );
 
-  return { stageWidth, heroX, heroCycle, layerX, dustX, walkerX, progressWidth };
+  return { stageWidth, heroX, heroCycle, layerX, dustX, walkerX, panelY };
 };

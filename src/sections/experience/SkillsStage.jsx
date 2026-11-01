@@ -1,27 +1,24 @@
 import { useImperativeHandle, useRef, useState } from "react";
 import { motion, useMotionValueEvent, useScroll, useTransform } from "framer-motion";
 import { useReducedMotion } from "@/hooks/useMediaQuery";
+import { SCROLL_SLOWDOWN, STAGE_OFFSET, STAGE_TOP } from "./constants";
 import { pad2, skillById, skills } from "./data";
 import { ChapterLabel } from "./components/ChapterLabel";
 import { SkillBoard } from "./components/SkillBoard";
 import { SkillsText } from "./components/SkillsText";
 
-/* vh gulir untuk seluruh bab Skills. 78% di antaranya (lihat REVEAL_END)
-   dipakai membuka 15 ikon - ~8vh per ikon, kira-kira satu ketukan roda mouse.
-   Pas untuk terasa "setiap gulir membuka satu", tanpa membuat pengunjung
-   menggulir lama sebelum sampai ke project. */
-const TRACK_VH = 160;
+/* vh gulir untuk seluruh bab Skills, ~24vh per ikon (lihat REVEAL_END) - kira-kira
+   dua ketukan roda mouse. Kecepatannya disetel lewat SCROLL_SLOWDOWN. */
+const TRACK_VH = 160 * SCROLL_SLOWDOWN;
 
 /* Bagian trek tempat ikon dibuka. Sisanya jeda: semua ikon sudah terbuka dan
    layar diam, supaya ada waktu menyorot slot dan membaca panel detail sebelum
    halaman berlanjut ke Projects.
 
-   Dinaikkan dari 0,7: pada angka itu jedanya 54vh - hampir setengah layar penuh
-   digulir tanpa satu pun yang berubah, dan itu yang membuat peralihan ke
-   Projects terasa kosong, bukan tenang. 0,78 x 160vh menyisakan ~35vh, cukup
-   untuk berhenti sejenak tanpa terasa macet. Kecepatan buka per ikon praktis
-   tidak berubah (8,3vh, dari 8,4vh). */
-const REVEAL_END = 0.78;
+   Yang dijaga adalah panjang jedanya, bukan persennya: jeda ~35-40vh cukup untuk
+   berhenti sejenak, sementara 54vh sudah terasa kosong. Karena itu angka ini ikut
+   naik saat trek dipanjangkan - 0,92 x 480vh menyisakan ~38vh. */
+const REVEAL_END = 0.92;
 
 /* Titik mendarat untuk lompatan dari kartu project: di tengah jeda, tempat
    semua ikon sudah terbuka - skill yang dituju pasti terlihat. */
@@ -56,7 +53,7 @@ export const SkillsStage = ({ ref, pickedId, onPick, onOpenProject }) => {
   const reducedMotion = useReducedMotion();
   const [revealed, setRevealed] = useState(1);
 
-  const { scrollYProgress } = useScroll({ target: trackRef, offset: ["start start", "end end"] });
+  const { scrollYProgress } = useScroll({ target: trackRef, offset: STAGE_OFFSET });
 
   /* Rel kepala bab penuh tepat saat ikon terakhir terbuka - sisa trek sesudahnya
      jeda, tidak ada lagi yang dibuka. */
@@ -80,9 +77,9 @@ export const SkillsStage = ({ ref, pickedId, onPick, onOpenProject }) => {
       showSkill() {
         const track = trackRef.current;
         if (!track) return;
-        const top = window.scrollY + track.getBoundingClientRect().top;
-        const range = track.offsetHeight - window.innerHeight;
-        window.scrollTo({ top: top + REST_AT * range, behavior: reducedMotion ? "auto" : "smooth" });
+        const start = window.scrollY + track.getBoundingClientRect().top - STAGE_TOP;
+        const range = track.offsetHeight - window.innerHeight + STAGE_TOP;
+        window.scrollTo({ top: start + REST_AT * range, behavior: reducedMotion ? "auto" : "smooth" });
       },
     }),
     [reducedMotion]

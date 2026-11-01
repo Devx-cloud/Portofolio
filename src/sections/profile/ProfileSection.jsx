@@ -1,11 +1,11 @@
 import { useRef } from "react";
-import { motion, useTransform } from "framer-motion";
+import { motion } from "framer-motion";
 import { StarBackground } from "@/components/backgrounds/StarBackground";
 import { StageLoading } from "@/components/StageLoading";
 import { useImagesReady } from "@/hooks/useImagesReady";
 import { useMediaQuery, useReducedMotion } from "@/hooks/useMediaQuery";
 import { cn } from "@/lib/utils";
-import { ACTS, TIMELINES } from "./acts";
+import { ACTS } from "./acts";
 import {
   HERO_SPRITE,
   LAYERS,
@@ -18,6 +18,7 @@ import {
 import { useStageProgress } from "./hooks/useStageProgress";
 import { useStageCamera } from "./hooks/useStageCamera";
 import { ActHud } from "./components/ActHud";
+import { ActInterludes } from "./components/ActInterludes";
 import { CityParallax } from "./components/CityParallax";
 import { HeroSprite } from "./components/HeroSprite";
 import { WanderingSprite } from "./components/WanderingSprite";
@@ -29,16 +30,19 @@ import { ACT_PANELS } from "./components/acts";
 const CORE_IMAGES = [...LAYERS.map((layer) => layer.src), HERO_SPRITE.walk, HERO_SPRITE.idle];
 
 /*
- * Panggung side-scroller: satu kolom scroll menggerakkan kamera, kota, dan
- * karakter sekaligus, dengan empat panel babak yang saling silih berganti.
+ * Panggung side-scroller: satu kolom scroll yang panjang menggerakkan kamera,
+ * kota, karakter, dan gulungan panel babak sekaligus, semuanya langsung dari
+ * posisi scroll pada frame yang sama.
  *
  * Pembagian tugas:
- *   useStageProgress - waktu: scroll -> progres terbatas & halus, babak aktif
- *   useStageCamera   - ruang: progres -> geseran plat kota dan posisi hero
+ *   useStageProgress - waktu: scroll -> progres, sinyal gerak, babak aktif
+ *   useStageCamera   - ruang: progres -> geseran kota, hero, dan panel
  *   constants.js     - semua angka yang bisa disetel, beserta alasannya
+ *
+ * Komponen ini sengaja tidak punya state yang berubah saat menggulir (lihat
+ * useMotionState): merendernya ulang berarti merender ulang seluruh panggung.
  */
 export const ProfileSection = () => {
-  const containerRef = useRef(null);
   const refs = { stage: useRef(null), city: useRef(null), hero: useRef(null) };
 
   const reducedMotion = useReducedMotion();
@@ -47,72 +51,37 @@ export const ProfileSection = () => {
      ke kanan. Keduanya WAJIB satu angka: kalau berbeda, akan ada rentang lebar
      di mana panel sudah pindah ke kanan tapi hero masih berjalan ke sana. */
   const isWide = useMediaQuery("(min-width: 40rem)");
-  /* 48rem = md, ambang tempat SCROLL_SPAN memanjang dari 500vh ke 750vh. Lebar
-     peralihan babak diturunkan dari panjang kolom itu (lihat TIMELINES), jadi
-     keduanya juga WAJIB satu angka. */
-  const { snaps, frames } = useMediaQuery("(min-width: 48rem)")
-    ? TIMELINES.long
-    : TIMELINES.short;
-  const {
-    scrollYProgress,
-    smoothProgress,
-    panelProgress,
-    isMoving,
-    activeIndex,
-    facingRight,
-    goToAct,
-  } = useStageProgress(containerRef, reducedMotion, snaps);
-  const { stageWidth, heroX, heroCycle, layerX, dustX, walkerX, progressWidth } = useStageCamera({
+  const { scrollYProgress, isMoving, activeIndex, facingRight, goToAct } =
+    useStageProgress(reducedMotion);
+  const { stageWidth, heroX, heroCycle, layerX, dustX, walkerX, panelY } = useStageCamera({
     refs,
-    smoothProgress,
     scrollYProgress,
     reducedMotion,
     isWide,
   });
 
-  /* Satu useTransform per babak - hook tidak boleh dipanggil di dalam loop.
-     Gerak dikurangi memakai opacity `still`: panelnya tidak bergeser, jadi
-     keduanya tidak boleh terlihat bersamaan (lihat keyframes di acts.js). */
-  const fade = (act) => (reducedMotion ? act.still : act.opacity);
-  const actOpacity = [
-    useTransform(panelProgress, frames[0].range, fade(frames[0])),
-    useTransform(panelProgress, frames[1].range, fade(frames[1])),
-    useTransform(panelProgress, frames[2].range, fade(frames[2])),
-    useTransform(panelProgress, frames[3].range, fade(frames[3])),
-  ];
-  const actY = [
-    useTransform(panelProgress, frames[0].range, frames[0].y),
-    useTransform(panelProgress, frames[1].range, frames[1].y),
-    useTransform(panelProgress, frames[2].range, frames[2].y),
-    useTransform(panelProgress, frames[3].range, frames[3].y),
-  ];
-
-  // Panel non-aktif dibuat inert: tidak bisa di-tab, tidak dibaca screen reader.
-  const actProps = (index) => ({
-    inert: activeIndex !== index ? true : undefined,
-    "aria-hidden": activeIndex !== index || undefined,
-    className: cn(panelWrap, activeIndex !== index && "pointer-events-none"),
-  });
-
   return (
     <motion.section
-      ref={containerRef}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
       className={cn("relative", SCROLL_SPAN)}
     >
-      {/* fixed, jadi tidak ikut tergulung bersama kolom scroll setinggi 500-750vh. */}
+      {/* fixed, jadi tidak ikut tergulung bersama kolom scroll. */}
       {showLoader && <StageLoading label="Memuat kota" className="fixed inset-x-0 top-20 z-20" />}
 
       {/* --city-drop menurunkan pelat kota dari dasar panggung; --ground ikut
           menguranginya, jadi kota dan sprite tetap teregistrasi. 90px itu ukuran
           desktop (panggung ~820px); di HP panggungnya cuma ~593px, dan 90px di
-          situ mendorong garis trotoar keluar layar. */}
+          situ mendorong garis trotoar keluar layar.
+
+          overflow-clip, bukan overflow-hidden: yang kedua masih bisa digulir oleh
+          fokus keyboard, dan panggung yang tergulir sendiri merusak semua posisi
+          di dalamnya. */}
       <div
         ref={refs.stage}
         className={cn(
-          "sticky top-20 h-[calc(100svh-5rem)] overflow-hidden bg-background transition-opacity duration-500",
+          "sticky top-20 h-[calc(100svh-5rem)] overflow-clip bg-background transition-opacity duration-500",
           "[--city-drop:28px] md:[--city-drop:90px]",
           // Panggung tetap dirender dan bekerja, hanya disembunyikan sampai aset intinya siap.
           !ready && "opacity-0"
@@ -149,28 +118,39 @@ export const ProfileSection = () => {
           heroRef={refs.hero}
           x={heroX}
           cycle={heroCycle}
-          // Ada input -> strip jalan. Input berhenti -> strip idle (lihat IDLE_DELAY).
-          walking={!reducedMotion && isMoving}
+          isMoving={isMoving}
           facingRight={facingRight}
           reducedMotion={reducedMotion}
         />
 
-        {/* Satu jendela untuk keempat panel - maskernya cukup dipasang sekali,
-            bukan di empat lapisan setinggi panggung yang tiga di antaranya kosong. */}
+        {/* Masker dipasang di jendela yang diam, gulungannya bergerak di dalamnya.
+            onFocus: panel di luar jendela tetap bisa dicapai dengan Tab, dan
+            halamannya digulir ke babak itu supaya tombol yang fokus terlihat. Hanya
+            fokus keyboard - klik mouse juga memberi fokus, dan tanpa :focus-visible
+            halaman bergeser persis saat tombolnya ditekan. */}
         <div className="act-reel absolute inset-0 z-20">
-          {ACT_PANELS.map((Act, i) => (
-            <div key={ACTS[i].id} {...actProps(i)}>
-              <motion.div
-                style={{ opacity: actOpacity[i], y: reducedMotion ? 0 : actY[i] }}
-                className={panelSlot}
+          <motion.div
+            style={{ y: panelY }}
+            className="relative grid h-[400%] grid-rows-4 will-change-transform"
+          >
+            {/* Lebih dulu di DOM, dan baris panel dibuat relative: panel selalu
+                menutupi ujung jalur titik singgah. */}
+            <ActInterludes />
+            {ACT_PANELS.map((Act, i) => (
+              <div
+                key={ACTS[i].id}
+                className={cn(panelWrap, "relative")}
+                onFocus={(event) => event.target.matches(":focus-visible") && goToAct(i)}
               >
-                <Act index={i} />
-              </motion.div>
-            </div>
-          ))}
+                <div className={panelSlot}>
+                  <Act index={i} />
+                </div>
+              </div>
+            ))}
+          </motion.div>
         </div>
 
-        <ActHud activeIndex={activeIndex} onSelect={goToAct} progressWidth={progressWidth} />
+        <ActHud activeIndex={activeIndex} onSelect={goToAct} progress={scrollYProgress} />
       </div>
     </motion.section>
   );
